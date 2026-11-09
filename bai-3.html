@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài 3 · Định nghĩa xác suất — XSTK YHCT</title>
+<meta name="description" content="Bài 3 Xác suất thống kê: định nghĩa cổ điển, thống kê, hình học của xác suất; thống kê là gì; tần số, tần suất và bảng tần suất tích lũy — giải thích dễ hiểu, có mô phỏng và trò chơi.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+<script defer src="assets/js/bai-3.js"></script>
+<style>
+  /* --- riêng cho Bài 3 (chỉ dùng token màu/bo góc của style.css) --- */
+  .obj-note { margin: .5em 0 0; }
+  .grid-2.v-center { align-items: center; }
+  .grid-2 > .fig { margin: 0; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 680px) { .split { grid-template-columns: minmax(0, 1fr); } }
+  .fig-host svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .only-narrow { display: none !important; }
+  @media (max-width: 560px) { .fig svg.only-wide { display: none !important; } .fig svg.only-narrow { display: block !important; } }
+
+  /* hình động: vòng đánh dấu trượt trên thang xác suất, viền tách các đoạn tích lũy */
+  .pmark { transition: transform .8s cubic-bezier(.45, .05, .25, 1); }
+  .stroke-surface { stroke: var(--surface); }
+  .svg-halo { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+
+  /* hình thả hạt (định nghĩa hình học) */
+  .geo-wrap { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 22px; align-items: center; text-align: left; }
+  .geo-wrap > svg { display: block; width: 100%; max-width: 260px; height: auto; margin: 0 auto; }
+  .geo-panel { padding: 14px 16px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line); font-size: .95rem; }
+  .geo-panel > p { margin: 0 0 .35em; }
+  .geo-count { display: flex; gap: 8px; margin: 10px 0 4px; }
+  .geo-count .stat { flex: 1 1 0; padding: 8px 10px; background: var(--surface); box-shadow: var(--shadow-sm); }
+  @media (max-width: 600px) { .geo-wrap { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+
+  /* bảng Hb bấm được */
+  .tbl.clickable tbody tr[data-i] { cursor: pointer; }
+  .tbl.clickable tbody tr[data-i]:hover td { background: var(--surface-2); }
+  .tbl tbody tr.sel td { background: var(--primary-soft); }
+  .tbl tbody tr.sel-last td { background: var(--primary-soft); font-weight: 700; box-shadow: inset 0 -2px 0 var(--primary); }
+  .read-out { margin: .6em 0 1em; padding: 10px 16px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line); font-size: .95rem; }
+
+  /* mô phỏng & trò chơi */
+  #lln .field { display: flex; flex-wrap: wrap; max-width: 100%; margin-right: 0; }
+  #lln .field select { flex: 1 1 220px; min-width: 0; max-width: 100%; }
+  .lln-hint { margin: 4px 0 2px; }
+  .lln-note { margin: 10px 0 0; padding: 10px 16px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line); font-size: .93rem; }
+  .stat .stat-value.small-v { font-size: 1.05rem; }
+  .chip.hit { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-strong); font-weight: 700; }
+  .slider-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) 30px; gap: 10px; align-items: center; margin: 6px 0; font-weight: 600; font-size: .95rem; }
+  .slider-row b { text-align: right; font-variant-numeric: tabular-nums; }
+  .cmp { margin: 10px 0; }
+  .cmp-row { display: grid; grid-template-columns: 118px minmax(0, 1fr) 62px; gap: 8px; align-items: center; font-size: .88rem; margin: 6px 0; }
+  .cmp-bar { height: 12px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+  .cmp-bar > span { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--set-a); transition: width .35s var(--ease); }
+  .cmp-bar.theory > span { background: var(--danger); }
+  .cmp-val { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
+  .pill-box svg, .dart-board svg { display: block; width: 100%; height: auto; max-width: 400px; margin: 0 auto; }
+  .dart-board { cursor: crosshair; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .pill-shape { transition: stroke-width .15s; }
+  .pill.picked .pill-shape { stroke: var(--text); stroke-width: 3; }
+  .locked { opacity: .45; pointer-events: none; }
+  .step-label { font-weight: 700; margin: 4px 0 8px; }
+  .step-label.gap { margin-top: 14px; }
+  .board-name { margin: 6px 0 0; }
+</style>
+</head>
+<body data-page="bai-3">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <!-- ===== PHẦN ĐẦU BÀI ===== -->
+    <section class="lesson-hero">
+      <span class="badge">Bài 3</span>
+      <h1>Định nghĩa xác suất</h1>
+      <p class="lead">Xác suất là <b>con số đo “cơ may”</b> một chuyện sẽ xảy ra. Bài này chỉ bạn 3 cách tính con số đó, cho bạn biết thống kê dùng để làm gì, và cách đọc tần số, tần suất trong một bảng số liệu y khoa.</p>
+      <div class="objectives">
+        <p class="objectives-title">🎯 Học xong bài này, bạn sẽ:</p>
+        <ol>
+          <li>Hiểu và dùng được <b>định nghĩa cổ điển</b> (đồng khả năng), <b>định nghĩa thống kê</b> (bằng tần suất) và <b>định nghĩa hình học</b> của xác suất.</li>
+          <li>Biết <b>thống kê</b> là gì và dùng vào việc gì trong y học.</li>
+          <li>Tính và đọc được <b>tần số, tần suất, tần suất tích lũy</b> trong bảng số liệu.</li>
+        </ol>
+        <p class="small muted obj-note">Mục tiêu trong slide còn nhắc tới <i>công thức cộng, công thức nhân, xác suất toàn phần, công thức Bayes</i>. Phần này sẽ học ở <a href="bai-4.html">Bài 4</a>, <a href="bai-5.html">Bài 5</a> khi có tài liệu.</p>
+      </div>
+    </section>
+
+    <div class="box core-big">
+      <p class="box-title">⚡ Tóm tắt 30 giây</p>
+      <ul>
+        <li>Xác suất $P(A)$ luôn là một số <b>từ 0 đến 1</b>: 0 là <i>không thể</i> xảy ra, 1 là <i>chắc chắn</i> xảy ra.</li>
+        <li><b>Cổ điển:</b> $P(A)=\dfrac{k}{n}$, tức số kết quả thuận lợi chia cho tổng số kết quả. Chỉ dùng được khi số kết quả <b>hữu hạn</b> và các kết quả <b>đồng khả năng</b>.</li>
+        <li><b>Thống kê:</b> làm phép thử $n$ lần (với $n$ lớn), thấy A xảy ra $k$ lần, thì $P(A)\approx\dfrac{k}{n}$.</li>
+        <li><b>Hình học:</b> $P=\dfrac{S_A}{S}$, tức tỉ lệ độ dài, diện tích hoặc thể tích.</li>
+        <li><b>Tần số</b> $m$ là <i>số lần</i> xuất hiện. <b>Tần suất</b> $f=\dfrac{m}{n}$ là <i>tỉ lệ</i> xuất hiện, thường đổi ra %.</li>
+      </ul>
+    </div>
+
+    <!-- ===== 1. XÁC SUẤT LÀ GÌ ===== -->
+    <h2>1. Xác suất là gì?</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Dự báo thời tiết nói <i>“khả năng mưa 80%”</i> thì bạn mang ô. Bác sĩ nói <i>“tỉ lệ khỏi bệnh khoảng 95%”</i> thì bạn yên tâm. Những con số đó chính là <b>xác suất</b>: chưa biết chắc chuyện gì sẽ xảy ra, nhưng <b>đo được cơ may</b> nó xảy ra là nhiều hay ít.</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa</p>
+      <p><b>Xác suất của biến cố A</b>, ký hiệu $P(A)$, là con số đặc trưng cho <b>khả năng xảy ra khách quan</b> của biến cố A.</p>
+      <p>Luôn có: $\;0 \le P(A) \le 1,\quad P(\varnothing)=0,\quad P(\Omega)=1.$</p>
+      <p class="small muted">Nhớ lại Bài 2: $\varnothing$ là biến cố <i>không thể</i>, $\Omega$ là biến cố <i>chắc chắn</i>.</p>
+    </div>
+
+    <!-- Thang xác suất: trình chiếu từng bước, vòng tròn tím trượt tới từng biến cố (bai-3.js: initScale) -->
+    <figure class="fig framed" id="fig-scale" data-anim="steps" data-step-ms="2800">
+      <svg class="only-wide" viewBox="0 0 520 168" width="520" height="168" role="img" aria-label="Thang xác suất từ 0 (không thể) đến 1 (chắc chắn), ví dụ gieo một con xúc xắc">
+        <defs>
+          <linearGradient id="pscale-grad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" style="stop-color:var(--danger)"/>
+            <stop offset="50%" style="stop-color:var(--set-b)"/>
+            <stop offset="100%" style="stop-color:var(--success)"/>
+          </linearGradient>
+        </defs>
+        <!-- ví dụ phía trên -->
+        <g data-step="2"><text x="106.7" y="20" text-anchor="middle" class="svg-text" font-size="13">ra mặt 6</text><line x1="106.7" y1="28" x2="106.7" y2="56" class="svg-line-muted svg-dash"/></g>
+        <g data-step="3"><text x="260" y="20" text-anchor="middle" class="svg-text" font-size="13">ra mặt chẵn</text><line x1="260" y1="28" x2="260" y2="56" class="svg-line-muted svg-dash"/></g>
+        <g data-step="4"><text x="413.3" y="20" text-anchor="middle" class="svg-text" font-size="13">ra ≤ 5 chấm</text><line x1="413.3" y1="28" x2="413.3" y2="56" class="svg-line-muted svg-dash"/></g>
+        <!-- thanh -->
+        <rect x="30" y="60" width="460" height="16" rx="8" fill="url(#pscale-grad)"/>
+        <g class="fill-surface stroke-text" stroke-width="2">
+          <circle cx="30" cy="68" r="7"/><circle data-step="2" cx="106.7" cy="68" r="7"/><circle data-step="3" cx="260" cy="68" r="7"/><circle data-step="4" cx="413.3" cy="68" r="7"/><circle cx="490" cy="68" r="7"/>
+        </g>
+        <!-- vòng đánh dấu: bai-3.js cho trượt tới đúng vị trí ở mỗi bước -->
+        <g data-step="1"><g class="pmark" data-axis="x" data-len="460"><circle cx="30" cy="68" r="13" class="fill-primary op-25 stroke-primary" stroke-width="3"/></g></g>
+        <!-- giá trị -->
+        <g class="svg-text svg-bold" font-size="15" text-anchor="middle">
+          <text x="30" y="98">0</text><text data-step="2" x="106.7" y="98">1/6</text><text data-step="3" x="260" y="98">1/2</text><text data-step="4" x="413.3" y="98">5/6</text><text x="490" y="98">1</text>
+        </g>
+        <g data-step="1"><text x="30" y="126" class="fill-danger svg-bold" font-size="14">KHÔNG THỂ</text><text x="30" y="146" class="svg-muted" font-size="12.5">xúc xắc ra 7 chấm</text></g>
+        <g data-step="3"><text x="260" y="126" text-anchor="middle" class="fill-accent svg-bold" font-size="14">50 – 50</text><text x="260" y="146" text-anchor="middle" class="svg-muted" font-size="12.5">chẵn, lẻ ngang nhau</text></g>
+        <g data-step="5"><text x="490" y="126" text-anchor="end" class="fill-success svg-bold" font-size="14">CHẮC CHẮN</text><text x="490" y="146" text-anchor="end" class="svg-muted" font-size="12.5">xúc xắc ra ≤ 6 chấm</text></g>
+      </svg>
+      <svg class="only-narrow" viewBox="0 0 320 340" width="320" height="340" role="img" aria-label="Thang xác suất dọc từ 0 (không thể) đến 1 (chắc chắn), ví dụ gieo một con xúc xắc">
+        <defs>
+          <linearGradient id="pscale-grad-v" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0%" style="stop-color:var(--danger)"/>
+            <stop offset="50%" style="stop-color:var(--set-b)"/>
+            <stop offset="100%" style="stop-color:var(--success)"/>
+          </linearGradient>
+        </defs>
+        <rect x="24" y="16" width="16" height="300" rx="8" fill="url(#pscale-grad-v)"/>
+        <g class="fill-surface stroke-text" stroke-width="2">
+          <circle cx="32" cy="16" r="7"/><circle data-step="4" cx="32" cy="66" r="7"/><circle data-step="3" cx="32" cy="166" r="7"/><circle data-step="2" cx="32" cy="266" r="7"/><circle cx="32" cy="316" r="7"/>
+        </g>
+        <g data-step="1"><g class="pmark" data-axis="y" data-len="300"><circle cx="32" cy="316" r="13" class="fill-primary op-25 stroke-primary" stroke-width="3"/></g></g>
+        <g class="svg-text svg-bold" font-size="16">
+          <text x="54" y="22">1</text><text data-step="4" x="54" y="72">5/6</text><text data-step="3" x="54" y="172">1/2</text><text data-step="2" x="54" y="272">1/6</text><text x="54" y="322">0</text>
+        </g>
+        <g data-step="5"><text x="96" y="16" class="fill-success svg-bold" font-size="15">CHẮC CHẮN</text><text x="96" y="35" class="svg-muted" font-size="13.5">xúc xắc ra ≤ 6 chấm</text></g>
+        <g data-step="4"><text x="96" y="72" class="svg-text" font-size="14.5">ra ≤ 5 chấm</text></g>
+        <g data-step="3"><text x="96" y="164" class="fill-accent svg-bold" font-size="15">50 – 50</text><text x="96" y="183" class="svg-muted" font-size="13.5">ra mặt chẵn (hay lẻ)</text></g>
+        <g data-step="2"><text x="96" y="272" class="svg-text" font-size="14.5">ra mặt 6</text></g>
+        <g data-step="1"><text x="96" y="312" class="fill-danger svg-bold" font-size="15">KHÔNG THỂ</text><text x="96" y="331" class="svg-muted" font-size="13.5">xúc xắc ra 7 chấm</text></g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Mọi xác suất đều nằm trên thang <b>từ 0 đến 1</b>. Bấm <b>Bước tiếp</b> để đặt lần lượt từng biến cố khi gieo một con xúc xắc cân đối lên thang.</p>
+        <p data-caption="1"><b>Ra 7 chấm:</b> không mặt nào có 7 chấm, nên $P=\tfrac{0}{6}=0$. Biến cố <b>không thể</b> nằm ở mốc 0.</p>
+        <p data-caption="2"><b>Ra mặt 6:</b> chỉ 1 trong 6 mặt, nên $P=\tfrac16\approx 0{,}17$. Khá hiếm, nên nằm gần 0.</p>
+        <p data-caption="3"><b>Ra mặt chẵn</b> $\{2,4,6\}$: 3 trong 6 mặt, nên $P=\tfrac36=\tfrac12$, đúng giữa thang. Mặt lẻ $\{1,3,5\}$ cũng vậy, và tung đồng xu ra sấp cũng là $\tfrac12$.</p>
+        <p data-caption="4"><b>Ra ≤ 5 chấm:</b> 5 trong 6 mặt, nên $P=\tfrac56\approx 0{,}83$. Rất dễ xảy ra, nên nằm gần 1.</p>
+        <p data-caption="5"><b>Ra ≤ 6 chấm:</b> mặt nào cũng thoả, nên $P=\tfrac66=1$, biến cố <b>chắc chắn</b>. Điểm càng gần 1 thì biến cố càng dễ xảy ra.</p>
+      </div>
+    </figure>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide viết: <i>“biến cố ‘nhận được mặt lẻ’ ít xảy ra hơn biến cố ‘nhận được mặt chẵn’”</i>. Câu này <b>chưa đúng</b>. Với xúc xắc cân đối, mặt lẻ $\{1,3,5\}$ và mặt chẵn $\{2,4,6\}$ đều có 3 mặt, nên khả năng <b>bằng nhau</b> (cùng bằng $\tfrac12$).<br>
+      Ví dụ đúng tinh thần slide: biến cố <i>“ra mặt 6”</i> ($\tfrac16$) ít xảy ra hơn biến cố <i>“ra mặt chẵn”</i> ($\tfrac12$).</p>
+    </div>
+
+    <p>Có nhiều cách để <b>tính</b> ra con số $P(A)$. Bài này học 3 cách: <span class="c-primary">cổ điển</span>, <span class="c-primary">thống kê</span> và <span class="c-primary">hình học</span>.</p>
+
+    <!-- ===== 2. ĐỊNH NGHĨA CỔ ĐIỂN ===== -->
+    <h2>2. Định nghĩa cổ điển: đếm rồi chia</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Hộp có <b>10 lá thăm</b>, trong đó <b>3 lá trúng thưởng</b>. Bạn bốc 1 lá. Lá nào cũng có cơ hội bị bốc <b>như nhau</b>, nên khả năng trúng là <b>3 trên 10</b>, tức $\tfrac{3}{10}=0{,}3$. Định nghĩa cổ điển chỉ đơn giản vậy: <b>đếm số trường hợp mình muốn, chia cho tổng số trường hợp.</b></p>
+    </div>
+
+    <div class="formula">
+      <span class="formula-name">Định nghĩa cổ điển</span>
+      $$P(A)=\frac{k}{n}$$
+      <span class="formula-note">k: số kết quả <b>thuận lợi</b> cho A (làm A xảy ra) · n: <b>tổng số</b> kết quả có thể xảy ra của phép thử</span>
+    </div>
+
+    <p>Nói theo ngôn ngữ Bài 2: phép thử $\mu$ có không gian mẫu $\Omega$ gồm $n$ biến cố sơ cấp, biến cố $A\subset\Omega$ có $k$ phần tử. Nếu các biến cố sơ cấp <b>có cùng khả năng xảy ra</b> thì $P(A)=\dfrac{k}{n}$.</p>
+
+    <div class="box tip">
+      <p class="box-title">💡 3 bước giải mọi bài cổ điển</p>
+      <ol class="steps">
+        <li><b>Đếm n:</b> phép thử có bao nhiêu kết quả đồng khả năng? (Nếu cần thì dùng công thức đếm ở <a href="bai-1.html">Bài 1</a>.)</li>
+        <li><b>Đếm k:</b> có bao nhiêu kết quả làm A xảy ra?</li>
+        <li><b>Chia:</b> $P(A)=k/n$, rút gọn rồi kiểm tra kết quả có nằm trong $[0;1]$ không.</li>
+      </ol>
+    </div>
+
+    <h3>Ví dụ 1 (slide): tung một con xúc xắc</h3>
+    <figure class="fig framed" data-anim="steps" data-step-ms="3000">
+      <div class="fig-host" id="fig-dice" aria-label="Hình 6 mặt xúc xắc, tô sáng các mặt thuận lợi"></div>
+      <div class="step-captions">
+        <p data-caption="0">Gieo một con xúc xắc cân đối: có 6 mặt, mặt nào cũng có cơ hội ra <b>như nhau</b>.</p>
+        <p data-caption="1"><b>Đếm n:</b> đánh số từng kết quả, có $n=6$ mặt đồng khả năng.</p>
+        <p data-caption="2"><b>Đếm k</b> cho A = “ra mặt 6”: chỉ 1 mặt thuận lợi (khung cam), $k=1$. <b>Chia:</b> $P(A)=\dfrac{1}{6}\approx 0{,}17$.</p>
+        <p data-caption="3">Với B = “ra mặt chẵn”: 3 mặt thuận lợi $\{2,4,6\}$ (tô tím), $k=3$. Vậy $P(B)=\dfrac{3}{6}=\dfrac12$.</p>
+      </div>
+    </figure>
+    <ul>
+      <li>A = “nhận được mặt 6”: chỉ có 1 mặt thuận lợi, nên $P(A)=\dfrac{1}{6}\approx 0{,}17$.</li>
+      <li>B = “nhận được mặt chẵn”: có 3 mặt $\{2,4,6\}$, nên $P(B)=\dfrac{3}{6}=\dfrac12=0{,}5$.</li>
+    </ul>
+
+    <h3>Ví dụ 2 (slide): giỏ hàng 4 sản phẩm loại 1 và 6 sản phẩm loại 2</h3>
+    <figure class="fig framed" data-anim="steps" data-step-ms="3000">
+      <div class="fig-host" id="fig-basket" aria-label="Giỏ có 4 sản phẩm loại 1 và 6 sản phẩm loại 2"></div>
+      <div class="step-captions">
+        <p data-caption="0">Giỏ có 10 sản phẩm. Lấy ngẫu nhiên 1 sản phẩm: sản phẩm nào cũng có cơ hội được lấy <b>như nhau</b>.</p>
+        <p data-caption="1"><b>Đếm n:</b> đánh số từ 1 đến 10, có $n=10$ kết quả đồng khả năng.</p>
+        <p data-caption="2"><b>Đếm k</b> cho C = “loại 1”: có 4 sản phẩm, $k=4$. Vậy $P(C)=\dfrac{4}{10}=0{,}4$, tức 4 phần trên thanh 10 phần.</p>
+        <p data-caption="3">Với D = “loại 2”: có 6 sản phẩm, nên $P(D)=\dfrac{6}{10}=0{,}6$.</p>
+        <p data-caption="4">Hai phần ghép lại vừa khít cả thanh: $P(C)+P(D)=0{,}4+0{,}6=1$, vì D là <b>biến cố đối</b> của C (xem ô bên dưới).</p>
+      </div>
+    </figure>
+    <ul>
+      <li>C = “nhận được sản phẩm loại 1”: $P(C)=\dfrac{4}{10}=0{,}4$.</li>
+      <li>D = “nhận được sản phẩm loại 2”: $P(D)=\dfrac{6}{10}=0{,}6$.</li>
+    </ul>
+
+    <div class="box extra">
+      <p class="box-title">➕ Bổ sung nhỏ: biến cố đối</p>
+      <p>Ở ví dụ 2, $P(C)+P(D)=0{,}4+0{,}6=1$. Lý do là D chính là <b>biến cố đối</b> của C ($D=\overline{C}$): không lấy được loại 1 thì chắc chắn lấy được loại 2. Tổng quát: $\;P(\overline{A}) = 1 - P(A)$.</p>
+      <p class="small muted">Mẹo: khi đếm “không xảy ra” dễ hơn đếm “xảy ra”, hãy tính $1 - P(\overline{A})$.</p>
+    </div>
+
+    <h3>Ví dụ 3 và 4: luyện thêm</h3>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🩺</div>
+        <h4>Ví dụ 3 (gần gũi YHCT): khay thuốc thang</h4>
+        <p>Một khay có 12 gói thuốc giống hệt nhau về hình thức: <b>5 gói Bát trân</b> và <b>7 gói Lục vị</b>. Lấy ngẫu nhiên 1 gói.</p>
+        <p>$P(\text{Bát trân}) = \dfrac{5}{12}\approx 0{,}42$<br>$P(\text{Lục vị}) = \dfrac{7}{12}\approx 0{,}58$</p>
+        <p class="small muted">Kiểm tra: $\tfrac{5}{12}+\tfrac{7}{12}=1$ ✓</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧮</div>
+        <h4>Ví dụ 4 (kết hợp Bài 1): lấy 2 sản phẩm cùng lúc</h4>
+        <p>Vẫn giỏ 10 sản phẩm (4 loại 1, 6 loại 2), lấy ngẫu nhiên <b>2</b> sản phẩm. Tính xác suất <b>cả 2 đều loại 1</b>.</p>
+        <ul>
+          <li>Số cách lấy 2 trong 10 (không thứ tự): $n=C_{10}^2=45$.</li>
+          <li>Số cách lấy 2 trong 4 sản phẩm loại 1: $k=C_4^2=6$.</li>
+          <li>$P=\dfrac{6}{45}=\dfrac{2}{15}\approx 0{,}13$.</li>
+        </ul>
+        <p class="small muted">Bạn sẽ gặp lại đúng con số $\tfrac{2}{15}$ này ở <a href="bai-6-7.html">Bài 6-7</a> (bảng phân phối xác suất).</p>
+      </div>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Hai điều kiện bắt buộc của định nghĩa cổ điển</p>
+      <ol>
+        <li>Số kết quả của phép thử là <b>hữu hạn</b>.</li>
+        <li>Các kết quả <b>đồng khả năng</b> xảy ra (cơ hội như nhau).</li>
+      </ol>
+      <p>Thiếu một trong hai điều kiện thì <b>không được</b> dùng $P(A)=k/n$.</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm: “có 2 khả năng thì mỗi khả năng là 1/2”</p>
+      <ul>
+        <li><i>“Đi thi chỉ có đỗ hoặc trượt, vậy xác suất đỗ là 1/2.”</i> <b>Sai</b>, vì đỗ và trượt <b>không đồng khả năng</b>: còn tuỳ bạn học thế nào!</li>
+        <li><i>Gieo 2 đồng xu, số mặt sấp có thể là 0, 1 hoặc 2, vậy P(2 sấp) = 1/3.</i> <b>Sai.</b> Phải liệt kê các kết quả đồng khả năng: $\Omega=\{SS, SN, NS, NN\}$, nên $P(\text{2 sấp})=\tfrac14$ còn $P(\text{đúng 1 sấp})=\tfrac{2}{4}=\tfrac12$.</li>
+        <li>Xúc xắc bị <b>đổ chì</b> (không cân đối) thì 6 mặt không đồng khả năng, nên không dùng được $k/n$. Muốn biết xác suất thì phải <b>tung thử thật nhiều lần</b>, tức là dùng định nghĩa thống kê ở mục 3.</li>
+      </ul>
+    </div>
+
+    <p>👉 Muốn luyện tay? Chơi <a href="#choi-ma-hoc">🎮 Hộp bốc viên thuốc</a> ở mục “Chơi mà học”.</p>
+
+    <!-- ===== 3. ĐỊNH NGHĨA THỐNG KÊ ===== -->
+    <h2>3. Định nghĩa thống kê: thử nhiều lần rồi đếm</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Có một đồng xu <b>bị méo</b>. Hỏi khả năng ra mặt sấp là bao nhiêu? Lúc này không thể nói “2 mặt nên mỗi mặt 1/2” được nữa. Cách duy nhất là <b>tung thật nhiều lần rồi đếm</b>: tung 1000 lần thấy 620 lần sấp thì ta nói xác suất ra sấp <b>khoảng</b> 0,62.</p>
+    </div>
+
+    <div class="formula">
+      <span class="formula-name">Định nghĩa thống kê (bằng tần suất)</span>
+      $$P(A)\approx\frac{k}{n}\qquad(n\ \text{đủ lớn})$$
+      <span class="formula-note">Lặp lại phép thử $n$ lần trong cùng điều kiện, A xảy ra $k$ lần. Tỉ số $k/n$ gọi là <b>tần suất</b> của A.</span>
+    </div>
+
+    <p>Trong thực tế, khi $n$ đủ lớn, người ta lấy tần suất của A làm <b>giá trị gần đúng</b> cho xác suất của A. Y học dùng cách này rất nhiều, vì bệnh tật hiếm khi “đồng khả năng” như xúc xắc.</p>
+
+    <!-- Tần suất k/n tiến về P khi n tăng: 10 → 100 → 1000 (bai-3.js: figFreq) -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3000">
+      <div class="fig-host" id="fig-freq" aria-label="Đồ thị tần suất ra mặt 6 khi gieo xúc xắc 10, 100 rồi 1000 lần, so với xác suất 1/6"></div>
+      <div class="step-captions">
+        <p data-caption="0">Gieo xúc xắc thật nhiều lần và đếm số lần ra mặt 6. Đường đỏ đứt nét là xác suất thật $P=\tfrac16\approx 0{,}167$. Bấm <b>Bước tiếp</b> để gieo.</p>
+        <p data-caption="1">Gieo <b>10 lần</b>: ra mặt 6 được 4 lần, $\tfrac{k}{n}=\tfrac{4}{10}=0{,}4$. Đường xanh nhảy lên xuống thất thường, còn <b>lệch xa</b> đường đỏ.</p>
+        <p data-caption="2">Gieo tiếp tới <b>100 lần</b>: 19 lần ra mặt 6, $\tfrac{19}{100}=0{,}19$. Đã gần đường đỏ hơn nhiều.</p>
+        <p data-caption="3">Gieo tới <b>1000 lần</b>: 170 lần ra mặt 6, $\tfrac{170}{1000}=0{,}17$, gần như trùng với $\tfrac16\approx 0{,}167$.</p>
+        <p data-caption="4">Độ lệch so với $P$ (các vạch đỏ): $0{,}23 \to 0{,}02 \to 0{,}003$. <b>n càng lớn, tần suất càng sát xác suất</b>, nên ta lấy $P(A)\approx\tfrac{k}{n}$ khi $n$ đủ lớn.</p>
+      </div>
+      <figcaption>Số liệu mô phỏng 1000 lần gieo. Trục ngang chia theo bậc 1 → 10 → 100 → 1000 lần.</figcaption>
+    </figure>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 1 (slide): cao huyết áp</p>
+      <p>Thống kê trên <b>10 000</b> người dân thành phố, có <b>51</b> người bị cao huyết áp. Vậy</p>
+      <p class="center">$P(\text{cao huyết áp}) \approx \dfrac{51}{10\,000} = 0{,}0051 \;(\approx 0{,}51\%)$</p>
+      <p class="small muted">Nghĩa là: cứ khoảng 200 người thì có chừng 1 người bị cao huyết áp (theo số liệu của ví dụ).</p>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide ghi $51/10\,000 = 0{,}005$. Thật ra $51/10\,000 = 0{,}0051$; viết $0{,}005$ là đã <b>làm tròn</b> (mất bớt chữ số). Khi làm bài, nên ghi $0{,}0051$.</p>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🏭 Ví dụ 2 (slide): ba phân xưởng</p>
+      <p>Kiểm tra lô <b>1000</b> sản phẩm của nhà máy: 252 sản phẩm của phân xưởng A, 349 của B, 399 của C.</p>
+      <div class="table-wrap"><table class="tbl">
+        <thead><tr><th>Phân xưởng</th><th>Số sản phẩm $k$</th><th>Tần suất $k/n$</th><th>Làm tròn</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>252</td><td>0,252</td><td>≈ 0,25 (25%)</td></tr>
+          <tr><td>B</td><td>349</td><td>0,349</td><td>≈ 0,35 (35%)</td></tr>
+          <tr><td>C</td><td>399</td><td>0,399</td><td>≈ 0,40 (40%)</td></tr>
+          <tr class="total"><td>Tổng</td><td>1000</td><td>1</td><td>100%</td></tr>
+        </tbody>
+      </table></div>
+      <p>Kết luận: các phân xưởng A, B, C làm ra khoảng <b>25%, 35% và 40%</b> tổng sản lượng của nhà máy.</p>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🌿 Ví dụ 3 (giả định, gần gũi YHCT)</p>
+      <p>Theo dõi <b>200</b> bệnh nhân đau lưng được điều trị bằng châm cứu, có <b>168</b> người đỡ đau. Ước lượng: $P(\text{đỡ đau}) \approx \dfrac{168}{200} = 0{,}84$, tức khoảng 84%.</p>
+    </div>
+
+    <div class="widget" id="lln">
+      <p class="widget-title">Mô phỏng: tần suất tiến dần về xác suất</p>
+      <p class="widget-desc">Chọn phép thử, rồi bấm cho máy tung thật nhiều lần. Quan sát đường màu xanh (tần suất $k/n$) và đường đỏ đứt nét (xác suất lý thuyết).</p>
+      <label class="field">Phép thử:
+        <select id="lln-exp">
+          <option value="die6">Gieo xúc xắc. A = “ra mặt 6”</option>
+          <option value="coin">Tung đồng xu. A = “ra mặt sấp”</option>
+          <option value="even">Gieo xúc xắc. A = “ra mặt chẵn”</option>
+          <option value="ge5">Gieo xúc xắc. A = “ra ≥ 5 chấm”</option>
+        </select>
+      </label>
+      <div class="btn-row">
+        <button class="btn" type="button" data-add="1">+1 lần</button>
+        <button class="btn" type="button" data-add="10">+10 lần</button>
+        <button class="btn primary" type="button" data-add="100">+100 lần</button>
+        <button class="btn primary" type="button" data-add="1000">+1000 lần</button>
+        <button class="btn" type="button" id="lln-reset">↺ Làm lại</button>
+      </div>
+      <div class="stat-row" id="lln-stats"></div>
+      <p class="small muted lln-hint">Kết quả 24 lần gần nhất (ô tô màu là lần A xảy ra):</p>
+      <div class="chip-list" id="lln-last"></div>
+      <div class="widget-out fig-host" id="lln-chart"></div>
+      <p class="lln-note" id="lln-note"></p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li><b>n nhỏ thì đừng vội tin.</b> Tung xúc xắc 10 lần ra 4 lần mặt 6 không có nghĩa $P(\text{mặt 6})=0{,}4$. Phải thử <b>thật nhiều lần</b> thì tần suất mới ổn định.</li>
+        <li>Định nghĩa thống kê cho kết quả <b>gần đúng</b> (dấu $\approx$), còn định nghĩa cổ điển cho kết quả <b>chính xác</b> (dấu $=$).</li>
+      </ul>
+    </div>
+
+    <!-- ===== 4. ĐỊNH NGHĨA HÌNH HỌC ===== -->
+    <h2>4. Định nghĩa hình học: so sánh diện tích</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Mưa rơi <b>ngẫu nhiên, đều khắp</b> trên một cái sân rộng 100 m². Trên sân có trải tấm bạt 20 m². Một hạt mưa bất kỳ rơi trúng tấm bạt với xác suất $\tfrac{20}{100}=0{,}2$. Phần chiếm <b>diện tích càng lớn</b> thì càng <b>dễ bị “trúng”</b>.</p>
+    </div>
+
+    <div class="formula">
+      <span class="formula-name">Định nghĩa hình học</span>
+      $$P=\frac{S_A}{S}\qquad (0 \lt S_A,\ S \lt +\infty)$$
+      <span class="formula-note">S: độ đo của <b>cả miền</b> · $S_A$: độ đo của <b>phần A</b>. Độ đo có thể là độ dài, diện tích hoặc thể tích.</span>
+    </div>
+
+    <p>Dùng khi một <b>điểm ngẫu nhiên</b> rơi vào một miền cho trước, và xác suất rơi vào một phần nào đó <b>tỉ lệ với độ đo</b> của phần đó, <b>không phụ thuộc hình dạng</b> của phần đó.</p>
+
+    <!-- Thả hạt ngẫu nhiên vào hình vuông: tỉ lệ trúng tiến về S_A/S (bai-3.js: initGeo) -->
+    <figure class="fig framed" id="fig-geo" data-anim="steps" data-step-ms="3600">
+      <div class="geo-wrap">
+        <svg viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Hình vuông cạnh 2 chứa hình tròn bán kính 1, các hạt rơi ngẫu nhiên vào hình vuông">
+          <rect x="20" y="20" width="200" height="200" class="fill-soft stroke-text" stroke-width="2"/>
+          <circle data-step="1" cx="120" cy="120" r="100" class="fill-primary op-25 stroke-primary" stroke-width="2"/>
+          <g id="geo-dots" data-anim-skip></g>
+          <g data-step="1">
+            <line x1="120" y1="120" x2="220" y2="120" class="stroke-text svg-dash" stroke-width="1.5"/>
+            <text x="170" y="113" text-anchor="middle" class="svg-text svg-bold svg-halo" font-size="13">r = 1</text>
+          </g>
+          <text x="120" y="236" text-anchor="middle" class="svg-muted" font-size="12">cạnh hình vuông = 2</text>
+        </svg>
+        <div class="geo-panel">
+          <p>Hình vuông: $S=2\times 2=4$</p>
+          <p data-step="1">Hình tròn: $S_A=\pi\cdot 1^2\approx 3{,}14$</p>
+          <div class="geo-count">
+            <div class="stat"><span class="stat-label">Số hạt đã thả</span><span class="stat-value" id="geo-n">0</span></div>
+            <div class="stat"><span class="stat-label">Số hạt trúng</span><span class="stat-value" id="geo-k">0</span></div>
+          </div>
+          <div class="cmp" id="geo-cmp"></div>
+        </div>
+      </div>
+      <div class="step-captions">
+        <p data-caption="0">Miền lớn là <b>hình vuông</b> cạnh 2, diện tích $S=2\times 2=4$.</p>
+        <p data-caption="1">Phần A là <b>hình tròn</b> bán kính 1 nằm bên trong: $S_A=\pi\cdot 1^2=\pi\approx 3{,}14$. Tỉ lệ diện tích $\dfrac{S_A}{S}=\dfrac{\pi}{4}\approx 0{,}785$.</p>
+        <p data-caption="2">Thả ngẫu nhiên <b>40 hạt</b> rơi đều khắp hình vuông. Hạt rơi trong hình tròn là “trúng” (chấm đỏ): 29 hạt, $\tfrac{29}{40}=0{,}725$, còn lệch.</p>
+        <p data-caption="3">Thả tới <b>400 hạt</b>: 314 hạt trúng, $\tfrac{314}{400}=0{,}785$, khớp với $\tfrac{\pi}{4}$. Vậy xác suất rơi vào A chính là <b>tỉ lệ diện tích</b> $\dfrac{S_A}{S}$.</p>
+      </div>
+      <figcaption>Đo bằng <b>diện tích</b>: $P=\dfrac{S_A}{S}=\dfrac{\pi\cdot 1^2}{2\cdot 2}=\dfrac{\pi}{4}\approx 0{,}785$</figcaption>
+    </figure>
+
+    <figure class="fig framed">
+      <svg viewBox="0 0 300 150" width="390" height="195" role="img" aria-label="Trục thời gian 15 phút chờ xe buýt, đoạn 10 đến 15 phút được tô màu">
+        <text x="150" y="22" text-anchor="middle" class="svg-text svg-bold" font-size="14">Chu kỳ xe buýt: 15 phút</text>
+        <line x1="20" y1="80" x2="280" y2="80" class="svg-line" stroke-width="3"/>
+        <line x1="193.3" y1="80" x2="280" y2="80" class="stroke-primary" stroke-width="10" stroke-linecap="round"/>
+        <g class="stroke-text" stroke-width="2">
+          <line x1="20" y1="72" x2="20" y2="88"/><line x1="106.7" y1="72" x2="106.7" y2="88"/><line x1="193.3" y1="72" x2="193.3" y2="88"/><line x1="280" y1="72" x2="280" y2="88"/>
+        </g>
+        <g class="svg-muted" font-size="12" text-anchor="middle">
+          <text x="20" y="106">0</text><text x="106.7" y="106">5</text><text x="193.3" y="106">10</text><text x="280" y="106">15 phút</text>
+        </g>
+        <text x="292" y="58" text-anchor="end" class="fill-primary svg-bold" font-size="12.5">bạn đến trong đoạn này</text>
+        <text x="20" y="60" class="svg-muted" font-size="12">xe vừa đi</text>
+        <text x="292" y="128" text-anchor="end" class="fill-primary svg-bold" font-size="13">→ chỉ phải đợi ≤ 5 phút</text>
+        <text x="292" y="146" text-anchor="end" class="svg-muted" font-size="12">(xe sau đến ở mốc 15 phút)</text>
+      </svg>
+      <figcaption>Đo bằng <b>độ dài</b>: $P(\text{đợi} \le 5\text{ phút})=\dfrac{5}{15}=\dfrac13$</figcaption>
+    </figure>
+
+    <div class="box example">
+      <p class="box-title">🎯 Ví dụ: bia bắn</p>
+      <p>Bia tròn bán kính 10 cm, hồng tâm bán kính 2 cm. Một mũi tên chắc chắn trúng bia, rơi ngẫu nhiên đều trên mặt bia. Khi đó
+      $P(\text{trúng hồng tâm})=\dfrac{\pi\cdot 2^2}{\pi\cdot 10^2}=\dfrac{4}{100}=0{,}04.$</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>Điểm phải rơi <b>ngẫu nhiên đều</b> khắp miền. Nếu người ném là cao thủ, luôn <b>nhắm vào tâm</b>, thì các vùng không còn đồng khả năng và không dùng được $S_A/S$. Ngoài ra, nhớ <b>lấy cùng loại độ đo</b> cho cả tử và mẫu: độ dài chia độ dài, diện tích chia diện tích.</p>
+    </div>
+
+    <p>👉 Thử ngay <a href="#choi-ma-hoc">🎮 Ném phi tiêu</a> để thấy $\dfrac{\text{số phi tiêu trúng}}{\text{tổng số phi tiêu}}$ tiến về $\dfrac{S_A}{S}$.</p>
+
+    <!-- ===== 5. THỐNG KÊ LÀ GÌ ===== -->
+    <h2>5. Thống kê là gì?</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Bác sĩ không kết luận <i>“thuốc này tốt”</i> chỉ vì <b>một</b> bệnh nhân khỏi bệnh. Phải theo dõi <b>hàng trăm</b> người, so sánh nhóm dùng thuốc với nhóm không dùng, rồi mới kết luận. Công việc thu thập và “đọc” các con số đó gọi là <b>thống kê</b>.</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa</p>
+      <p><b>Thống kê</b> là khoa học về <b>thu thập, phân tích và lí giải số liệu</b>. Phương pháp thống kê dùng để <b>so sánh một nhóm đối tượng</b>, chứ không nhằm nghiên cứu từng cá nhân riêng lẻ.</p>
+    </div>
+
+    <figure class="fig framed">
+      <svg class="only-wide" viewBox="0 0 520 176" width="520" height="176" role="img" aria-label="Xác suất đi từ tổng thể đến mẫu, thống kê đi ngược từ mẫu về tổng thể">
+        <rect x="10" y="26" width="180" height="124" rx="12" class="fill-soft stroke-border" stroke-width="2"/>
+        <text x="100" y="18" text-anchor="middle" class="svg-text svg-bold" font-size="13">TỔNG THỂ (cả “hộp”)</text>
+        <rect x="340" y="50" width="170" height="76" rx="12" class="fill-soft stroke-border" stroke-width="2"/>
+        <text x="425" y="42" text-anchor="middle" class="svg-text svg-bold" font-size="13">MẪU (số liệu thu được)</text>
+        <!-- mũi tên xác suất -->
+        <line x1="200" y1="68" x2="326" y2="68" class="stroke-primary" stroke-width="3"/>
+        <polygon points="330,68 318,61 318,75" class="fill-primary"/>
+        <text x="265" y="58" text-anchor="middle" class="fill-primary svg-bold" font-size="14">XÁC SUẤT</text>
+        <text x="265" y="88" text-anchor="middle" class="svg-muted" font-size="11.5">biết hộp → đoán mẫu</text>
+        <!-- mũi tên thống kê -->
+        <line x1="214" y1="126" x2="336" y2="126" class="stroke-accent" stroke-width="3"/>
+        <polygon points="204,126 216,119 216,133" class="fill-accent"/>
+        <text x="270" y="116" text-anchor="middle" class="fill-accent svg-bold" font-size="14">THỐNG KÊ</text>
+        <text x="270" y="146" text-anchor="middle" class="svg-muted" font-size="11.5">nhìn mẫu → suy ra hộp</text>
+        <!-- chấm tổng thể -->
+        <g class="fill-info">
+          <circle cx="34" cy="48" r="6"/><circle cx="58" cy="48" r="6"/><circle cx="82" cy="48" r="6"/><circle cx="130" cy="48" r="6"/><circle cx="154" cy="48" r="6"/><circle cx="178" cy="48" r="6"/>
+          <circle cx="34" cy="72" r="6"/><circle cx="82" cy="72" r="6"/><circle cx="106" cy="72" r="6"/><circle cx="130" cy="72" r="6"/><circle cx="178" cy="72" r="6"/>
+          <circle cx="58" cy="96" r="6"/><circle cx="82" cy="96" r="6"/><circle cx="106" cy="96" r="6"/><circle cx="154" cy="96" r="6"/><circle cx="178" cy="96" r="6"/>
+          <circle cx="34" cy="120" r="6"/><circle cx="58" cy="120" r="6"/><circle cx="106" cy="120" r="6"/><circle cx="130" cy="120" r="6"/><circle cx="154" cy="120" r="6"/>
+        </g>
+        <g class="fill-danger">
+          <circle cx="106" cy="48" r="6"/><circle cx="58" cy="72" r="6"/><circle cx="154" cy="72" r="6"/><circle cx="34" cy="96" r="6"/><circle cx="130" cy="96" r="6"/><circle cx="82" cy="120" r="6"/><circle cx="178" cy="120" r="6"/>
+        </g>
+        <!-- chấm mẫu -->
+        <g class="fill-info"><circle cx="362" cy="88" r="6"/><circle cx="386" cy="88" r="6"/><circle cx="434" cy="88" r="6"/><circle cx="458" cy="88" r="6"/><circle cx="482" cy="88" r="6"/></g>
+        <g class="fill-danger"><circle cx="410" cy="88" r="6"/></g>
+        <text x="425" y="116" text-anchor="middle" class="svg-muted" font-size="11.5">1/6 ≈ 17% có bệnh</text>
+        <text x="100" y="168" text-anchor="middle" class="svg-muted" font-size="11.5">7/28 = 25% có bệnh</text>
+        <text x="425" y="150" text-anchor="middle" font-size="12"><tspan class="fill-danger">●</tspan><tspan class="svg-muted"> có bệnh   </tspan><tspan class="fill-info">●</tspan><tspan class="svg-muted"> không bệnh</tspan></text>
+      </svg>
+      <svg class="only-narrow" viewBox="0 0 320 366" width="320" height="366" role="img" aria-label="Xác suất đi từ tổng thể xuống mẫu, thống kê đi ngược từ mẫu lên tổng thể">
+        <text x="160" y="18" text-anchor="middle" class="svg-text svg-bold" font-size="15">TỔNG THỂ (cả “hộp”)</text>
+        <rect x="40" y="28" width="240" height="104" rx="12" class="fill-soft stroke-border" stroke-width="2"/>
+        <g class="fill-info"><circle cx="70" cy="48" r="7"/><circle cx="100" cy="48" r="7"/><circle cx="130" cy="48" r="7"/><circle cx="190" cy="48" r="7"/><circle cx="220" cy="48" r="7"/><circle cx="250" cy="48" r="7"/><circle cx="70" cy="70" r="7"/><circle cx="130" cy="70" r="7"/><circle cx="160" cy="70" r="7"/><circle cx="190" cy="70" r="7"/><circle cx="250" cy="70" r="7"/><circle cx="100" cy="92" r="7"/><circle cx="130" cy="92" r="7"/><circle cx="160" cy="92" r="7"/><circle cx="220" cy="92" r="7"/><circle cx="250" cy="92" r="7"/><circle cx="70" cy="114" r="7"/><circle cx="100" cy="114" r="7"/><circle cx="160" cy="114" r="7"/><circle cx="190" cy="114" r="7"/><circle cx="220" cy="114" r="7"/></g>
+        <g class="fill-danger"><circle cx="160" cy="48" r="7"/><circle cx="100" cy="70" r="7"/><circle cx="220" cy="70" r="7"/><circle cx="70" cy="92" r="7"/><circle cx="190" cy="92" r="7"/><circle cx="130" cy="114" r="7"/><circle cx="250" cy="114" r="7"/></g>
+        <text x="160" y="150" text-anchor="middle" class="svg-muted" font-size="13">7/28 = 25% có bệnh</text>
+        <line x1="96" y1="162" x2="96" y2="236" class="stroke-primary" stroke-width="3"/>
+        <polygon points="96,246 89,234 103,234" class="fill-primary"/>
+        <text x="86" y="192" text-anchor="end" class="fill-primary svg-bold" font-size="14">XÁC SUẤT</text>
+        <text x="86" y="210" text-anchor="end" class="svg-muted" font-size="12">biết hộp</text>
+        <text x="86" y="226" text-anchor="end" class="svg-muted" font-size="12">→ đoán mẫu</text>
+        <line x1="224" y1="170" x2="224" y2="246" class="stroke-accent" stroke-width="3"/>
+        <polygon points="224,160 217,172 231,172" class="fill-accent"/>
+        <text x="234" y="192" class="fill-accent svg-bold" font-size="14">THỐNG KÊ</text>
+        <text x="234" y="210" class="svg-muted" font-size="12">nhìn mẫu</text>
+        <text x="234" y="226" class="svg-muted" font-size="12">→ suy ra hộp</text>
+        <rect x="80" y="256" width="160" height="58" rx="12" class="fill-soft stroke-border" stroke-width="2"/>
+        <g class="fill-info"><circle cx="100" cy="278" r="7"/><circle cx="124" cy="278" r="7"/><circle cx="172" cy="278" r="7"/><circle cx="196" cy="278" r="7"/><circle cx="220" cy="278" r="7"/></g>
+        <g class="fill-danger"><circle cx="148" cy="278" r="7"/></g>
+        <text x="160" y="304" text-anchor="middle" class="svg-muted" font-size="12">1/6 ≈ 17% có bệnh</text>
+        <text x="160" y="334" text-anchor="middle" class="svg-text svg-bold" font-size="15">MẪU (số liệu thu được)</text>
+        <text x="160" y="358" text-anchor="middle" font-size="13"><tspan class="fill-danger">●</tspan><tspan class="svg-muted"> có bệnh   </tspan><tspan class="fill-info">●</tspan><tspan class="svg-muted"> không bệnh</tspan></text>
+      </svg>
+      <figcaption>Xác suất và thống kê là “hai chiều” của cùng một con đường. Xác suất: biết tổng thể, đoán xem mẫu sẽ ra sao. Thống kê: có số liệu của mẫu, suy ngược ra tổng thể. Con số từ mẫu (17%) chỉ <b>gần đúng</b> con số thật của tổng thể (25%).</figcaption>
+    </figure>
+
+    <h3>Thống kê có thể làm gì?</h3>
+    <div class="grid-2">
+      <div class="card"><div class="card-icon">📋</div><h4>Tóm tắt thông tin bằng số</h4><p>Trình bày gọn, dễ hiểu. Ví dụ: “huyết áp trung bình của 200 bệnh nhân là 132 mmHg”.</p></div>
+      <div class="card"><div class="card-icon">⚖️</div><h4>Kiểm định giả thuyết</h4><p>Ví dụ: liệu pháp <b>hormon thay thế</b> có làm giảm nguy cơ nhồi máu cơ tim ở phụ nữ mãn kinh không? Thống kê còn cho biết kết luận <b>chắc chắn đến mức nào</b>.</p></div>
+      <div class="card"><div class="card-icon">👥</div><h4>So sánh các nhóm</h4><p>Ví dụ: so sánh kết cục của nhóm dùng <b>thuốc có hoạt tính</b> với nhóm dùng <b>thuốc đối chứng</b> (giả dược).</p></div>
+      <div class="card"><div class="card-icon">🔮</div><h4>Tiên đoán</h4><p>Ước lượng khả năng một biến cố xảy ra với một bệnh nhân cụ thể, ví dụ nguy cơ tử vong trong vòng 5 năm, kèm độ chính xác của dự đoán.</p></div>
+    </div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Các nội dung thống kê bạn sẽ gặp sau này (giờ chỉ cần biết tên)</p>
+      <p>Tham số mẫu · Kiểm định giả thiết thống kê · So sánh phương sai, so sánh trung bình của hai biến chuẩn · Kiểm định giá trị trung bình lý thuyết · So sánh các tỷ lệ và kiểm định tính độc lập · Kiểm định quy luật xác suất của đại lượng ngẫu nhiên · Kiểm định giá trị của xác suất · Hệ số tương quan tuyến tính.</p>
+    </div>
+
+    <!-- ===== 6. TẦN SỐ & TẦN SUẤT ===== -->
+    <h2>6. Tần số và tần suất</h2>
+
+    <h3>6.1. Các khái niệm cần biết</h3>
+    <div class="grid-2">
+      <div class="card"><div class="card-icon">🧪</div><h4>Phép thử</h4><p>Một nhóm điều kiện có thể <b>lặp lại nhiều lần</b> trong cùng điều kiện. Ký hiệu $\varepsilon, \beta, \alpha\ldots$<br><span class="muted small">Ví dụ: đo chiều cao, làm xét nghiệm, chẩn đoán bệnh, điều trị bệnh.</span></p></div>
+      <div class="card"><div class="card-icon">📍</div><h4>Hiện tượng (biến cố)</h4><p>Là <b>kết quả</b> của một phép thử. Ký hiệu $A, B, C\ldots$<br><span class="muted small">Ví dụ: xét nghiệm dương tính (A), chẩn đoán có bệnh (B), điều trị khỏi (K).</span></p></div>
+      <div class="card"><div class="card-icon">🔢</div><h4>Tần số $m$</h4><p>Làm phép thử nhiều lần, <b>số lần</b> hiện tượng xuất hiện gọi là tần số.<br><span class="muted small">Ví dụ: khám 70 người, có 19 người Hb từ 11 đến 11,9, nên tần số là $m=19$.</span></p></div>
+      <div class="card"><div class="card-icon">📊</div><h4>Tần suất $f$</h4><p>Là <b>tỉ lệ</b> xuất hiện: $f(A)=\dfrac{m}{n}$, thường nhân 100 để ra %.<br><span class="muted small">Ví dụ: $f=\tfrac{19}{70}\approx 0{,}2714 = 27{,}14\%$.</span></p></div>
+    </div>
+
+    <div class="formula">
+      <span class="formula-name">Tần suất</span>
+      $$f(A)=\frac{m}{n}\qquad 0\le f(A)\le 1$$
+      <span class="formula-note">Thực hiện phép thử $\varepsilon$ <b>n lần độc lập</b>, hiện tượng A xuất hiện <b>m lần</b>. $n$ thường chính là số đối tượng quan sát trong nghiên cứu.</span>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide mục 3.2 viết “Ký hiệu (A) là tần suất xuất hiện A” nhưng <b>thiếu công thức</b>. Công thức đầy đủ là $f(A)=\dfrac{m}{n}$.</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Đừng nhầm tần số với tần suất</p>
+      <ul>
+        <li><b>Tần số</b> = đếm (bao nhiêu <i>người</i>, bao nhiêu <i>lần</i>), là một số nguyên như 19.</li>
+        <li><b>Tần suất</b> = tỉ lệ, là số từ 0 đến 1 hoặc %, như 0,2714 hay 27,14%.</li>
+        <li>Tần suất chính là con số $k/n$ trong <b>định nghĩa thống kê</b> của xác suất ở mục 3.</li>
+      </ul>
+    </div>
+
+    <h3>6.2. Dấu hiệu nghiên cứu và các loại hiện tượng</h3>
+    <p>Khi nghiên cứu một đối tượng, ta không nghiên cứu mọi mặt mà chỉ chọn <b>một số đặc tính</b>. Đặc tính đó gọi là <b>dấu hiệu nghiên cứu</b>, chia làm 2 loại:</p>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th>Loại dấu hiệu</th><th class="left">Ví dụ</th><th class="left">Ta tính gì?</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">Về <b>chất</b></td><td class="left">có bệnh / không bệnh, nhóm máu, giới tính</td><td class="left">Khả năng xuất hiện, tức tần suất, tỉ lệ %</td></tr>
+        <tr><td class="row-head">Về <b>lượng</b></td><td class="left">chiều cao, cân nặng, nồng độ Hb</td><td class="left">Các <b>tham số mẫu</b> như trung bình, độ lệch chuẩn… (<a href="bai-6-7.html">Bài 6-7</a>)</td></tr>
+      </tbody>
+    </table></div>
+
+    <p>Dựa vào khả năng xuất hiện, hiện tượng được chia làm <b>3 loại</b>:</p>
+    <div class="grid-3">
+      <div class="card"><div class="card-icon">🎲</div><h4>Ngẫu nhiên</h4><p>Không biết trước có xảy ra hay không. Ký hiệu $A, B, C\ldots$<br><span class="small muted">Khám bệnh cho 1 người: có khi người đó bị bệnh, có khi không.</span></p></div>
+      <div class="card"><div class="card-icon">✅</div><h4>Chắc chắn</h4><p>Luôn luôn xảy ra khi làm phép thử. Ký hiệu $\Omega$.<br><span class="small muted">Xét nghiệm nhóm máu ABO thì chắc chắn ra một trong A, B, AB, O.</span></p></div>
+      <div class="card"><div class="card-icon">🚫</div><h4>Trống</h4><p>Nhất định không xảy ra. Ký hiệu $\Phi$ (hay $\varnothing$).<br><span class="small muted">Gieo xúc xắc ra 7 chấm.</span></p></div>
+    </div>
+
+    <div class="grid-2 v-center">
+      <div>
+        <p><b>Hiện tượng xung khắc:</b> A xung khắc với B nếu A và B <b>không đồng thời</b> xuất hiện, tức là</p>
+        <p class="center">$A\cap B=\Phi$</p>
+        <p class="small muted">Ví dụ: ở cùng một người, “nhóm máu A” và “nhóm máu O” là hai hiện tượng xung khắc.</p>
+      </div>
+      <figure class="fig framed">
+        <svg viewBox="0 0 260 130" width="260" height="130" role="img" aria-label="Hai hình tròn A và B tách rời nhau trong khung Omega">
+          <rect x="6" y="6" width="248" height="118" rx="10" class="fill-none stroke-text" stroke-width="1.5"/>
+          <text x="18" y="26" class="svg-text svg-bold" font-size="14">Ω</text>
+          <circle cx="82" cy="70" r="38" class="fill-a op-35 stroke-a" stroke-width="2"/>
+          <circle cx="182" cy="70" r="38" class="fill-b op-35 stroke-b" stroke-width="2"/>
+          <text x="82" y="75" text-anchor="middle" class="svg-text svg-bold">A</text>
+          <text x="182" y="75" text-anchor="middle" class="svg-text svg-bold">B</text>
+        </svg>
+        <figcaption>A và B không có phần chung</figcaption>
+      </figure>
+    </div>
+
+    <h3>6.3. Đọc bảng tần suất: Hemoglobin của 70 phụ nữ</h3>
+    <p>Đây là bảng trong slide (đơn vị g/dl), <b>đã bổ sung dòng bị thiếu</b>. <b>Bấm vào một dòng</b> để xem cột tích lũy có ý nghĩa gì.</p>
+    <div class="table-wrap"><table class="tbl clickable" id="hb-table">
+      <thead><tr><th>Hemoglobin (g/dl)</th><th>Tần số (số người)</th><th>Tần suất (%)</th><th>Tần suất tích lũy (%)</th></tr></thead>
+      <tbody>
+        <tr data-i="0" tabindex="0"><td>8 – 8,9</td><td>1</td><td>1,43</td><td>1,43</td></tr>
+        <tr data-i="1" tabindex="0"><td>9 – 9,9</td><td>3</td><td>4,29</td><td>5,71</td></tr>
+        <tr data-i="2" tabindex="0"><td>10 – 10,9</td><td>14</td><td>20,00</td><td>25,71</td></tr>
+        <tr data-i="3" tabindex="0"><td>11 – 11,9</td><td>19</td><td>27,14</td><td>52,86</td></tr>
+        <tr data-i="4" tabindex="0"><td>12 – 12,9</td><td>14</td><td>20,00</td><td>72,86</td></tr>
+        <tr data-i="5" tabindex="0"><td>13 – 13,9</td><td>13</td><td>18,57</td><td>91,43</td></tr>
+        <tr data-i="6" tabindex="0"><td>14 – 14,9</td><td>5</td><td>7,14</td><td>98,57</td></tr>
+        <tr data-i="7" tabindex="0" class="fixed"><td>15 – 15,9 (*)</td><td>1</td><td>1,43</td><td>100,00</td></tr>
+        <tr class="total"><td>Tổng</td><td>70</td><td>100</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="read-out" id="hb-read">👆 Bấm vào một dòng trong bảng…</p>
+
+    <!-- Bảng Hb "xây" từng dòng: cột tần suất mọc lên, thanh tích lũy cộng dồn tới 100% (bai-3.js: figHb) -->
+    <figure class="fig framed" id="fig-hb-steps" data-anim="steps" data-step-ms="2600">
+      <div class="fig-host" id="fig-hb" aria-label="Biểu đồ cột tần suất hemoglobin và thanh tần suất tích lũy"></div>
+      <div class="step-captions">
+        <p data-caption="0">Mỗi bước thêm <b>1 dòng</b> của bảng: cột phía trên là <b>tần suất</b> của dòng đó, thanh phía dưới là <b>tần suất tích lũy</b> (cộng dồn từ dòng đầu). Dòng đang xét trong bảng cũng được tô theo.</p>
+        <p data-caption="1">Dòng <b>8 – 8,9</b>: 1 người, tần suất $\tfrac{1}{70}\approx 1{,}43\%$. Thanh tích lũy bắt đầu với 1,43%.</p>
+        <p data-caption="2">Dòng <b>9 – 9,9</b>: 3 người, $\tfrac{3}{70}\approx 4{,}29\%$. Cộng dồn số người: $1+3=4$, nên tích lũy là $\tfrac{4}{70}\approx 5{,}71\%$.</p>
+        <p data-caption="3">Dòng <b>10 – 10,9</b>: 14 người, 20,00%. Cộng dồn: $4+14=18$ người, tích lũy $\tfrac{18}{70}\approx 25{,}71\%$.</p>
+        <p data-caption="4">Dòng <b>11 – 11,9</b>: 19 người, 27,14%, là cột <b>cao nhất</b>. Cộng dồn: 37 người, tích lũy 52,86%, vượt vạch 50%: hơn một nửa số phụ nữ có Hb <b>dưới 12 g/dl</b> (ngưỡng thiếu máu theo WHO).</p>
+        <p data-caption="5">Dòng <b>12 – 12,9</b>: 14 người, 20,00%. Cộng dồn: 51 người, tích lũy 72,86%.</p>
+        <p data-caption="6">Dòng <b>13 – 13,9</b>: 13 người, 18,57%. Cộng dồn: 64 người, tích lũy 91,43%.</p>
+        <p data-caption="7">Dòng <b>14 – 14,9</b>: 5 người, 7,14%. Cộng dồn: 69 người, tích lũy 98,57%. Bảng trong slide dừng ở đây nên <b>thiếu 1 người</b>, chưa tới 100%.</p>
+        <p data-caption="8">Dòng bổ sung <b>15 – 15,9 (*)</b>: 1 người, 1,43%. Cộng dồn đủ 70 người, tích lũy đúng <b>100%</b>. Dòng cuối của cột tích lũy luôn là 100%.</p>
+      </div>
+      <figcaption>Cột: tần suất (%) theo từng khoảng Hb. Nhóm đông nhất là 11 – 11,9 g/dl (27,14%).</figcaption>
+    </figure>
+
+    <div class="box tip">
+      <p class="box-title">💡 Cách tính từng cột</p>
+      <ol class="steps">
+        <li><b>Tần số:</b> đếm số người rơi vào từng khoảng (ở <a href="bai-8.html">Bài 8</a> sẽ thấy bảng gạch đếm).</li>
+        <li><b>Tần suất (%)</b> = tần số chia cho $n$, rồi nhân 100.<br>Ví dụ dòng 11 – 11,9: $\dfrac{19}{70}\times100 = 27{,}14\%$.</li>
+        <li><b>Tần suất tích lũy</b> = <b>cộng dồn</b> tần suất từ dòng đầu tới dòng đang xét.<br>Ví dụ đến dòng 11 – 11,9: $1{,}43+4{,}29+20{,}00+27{,}14=52{,}86\%$<br>(hoặc đếm người: $\dfrac{1+3+14+19}{70}=\dfrac{37}{70}\approx 52{,}86\%$).</li>
+        <li><b>Kiểm tra:</b> tổng tần số $= n$; tổng tần suất $=100\%$; dòng cuối của cột tích lũy luôn $=100\%$.</li>
+      </ol>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Đọc kết quả như bác sĩ</p>
+      <p>Theo WHO, phụ nữ (không mang thai) có Hb <b>dưới 12 g/dl</b> được xem là thiếu máu. Nhìn cột tích lũy đến dòng 11 – 11,9 thấy <b>52,86%</b>, nghĩa là khoảng <b>một nửa</b> số phụ nữ trong mẫu này bị thiếu máu. Đây là ý nghĩa thực tế của cột “tích lũy”.</p>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide (bảng Hemoglobin)</p>
+      <ul>
+        <li>Bảng trong slide ghi “70 phụ nữ” nhưng chỉ có 7 dòng, cộng lại được 69 người, và dòng cuối của cột tích lũy là 98,57% chứ không phải 100%. Lý do là bảng <b>bị thiếu dòng 15 – 15,9</b> (1 người, 1,43%, tích lũy 100%). Bảng gạch đếm ở Bài 8 cũng có đúng dòng này. Dòng đã thêm được đánh dấu (*).</li>
+        <li>Cột slide đặt tên “Tần suất” thật ra là <b>tần số</b> (số người). Cột “Phần trăm” mới là <b>tần suất (%)</b>.</li>
+      </ul>
+    </div>
+
+    <h3>6.4. Ví dụ thứ hai: vòng cánh tay</h3>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th>Vòng cánh tay (cm)</th><th>Tần số</th><th>Tần suất (%)</th><th>Tần suất tích lũy (%)</th></tr></thead>
+      <tbody>
+        <tr><td>13 – &lt;14</td><td>2</td><td>2,78</td><td>2,78</td></tr>
+        <tr><td>14 – &lt;15</td><td>31</td><td>43,06</td><td>45,83</td></tr>
+        <tr><td>15 – &lt;16</td><td>27</td><td>37,50</td><td>83,33</td></tr>
+        <tr><td>16 – &lt;17</td><td>9</td><td>12,50</td><td>95,83</td></tr>
+        <tr class="fixed"><td>17 – &lt;18</td><td>0</td><td><b>0,00</b> (*)</td><td>95,83</td></tr>
+        <tr><td>18 – &lt;19</td><td>2</td><td>2,78</td><td>98,61</td></tr>
+        <tr><td>19 – &lt;20</td><td>1</td><td>1,39</td><td>100,00</td></tr>
+        <tr class="total"><td>Tổng</td><td>72</td><td>≈ 100</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>Cộng cột tần số được $n = 2+31+27+9+0+2+1 = 72$. Ví dụ dòng 14 – &lt;15: $\dfrac{31}{72}\times 100\approx 43{,}06\%$.</li>
+      <li>Cách viết <b>“14 – &lt;15”</b> nghĩa là từ 14 <b>đến dưới</b> 15. Cách này rõ ràng hơn “14 – 14,9” khi số liệu là số thập phân: giá trị 14,95 vẫn thuộc khoảng này.</li>
+      <li>Tổng cột tần suất là 100,01 chứ không đúng 100, do <b>làm tròn</b>. Điều này bình thường.</li>
+    </ul>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide (bảng vòng cánh tay)</p>
+      <p>Dòng 17 – &lt;18 có tần số <b>0</b> nên tần suất phải là <b>0,00%</b>. Slide ghi 12,50% là chép nhầm từ dòng trên. Cột tích lũy của dòng này giữ nguyên 95,83%, vì cộng thêm 0 thì không đổi.</p>
+    </div>
+
+    <!-- ===== 7. CHƠI MÀ HỌC ===== -->
+    <h2 id="choi-ma-hoc">🎮 Chơi mà học</h2>
+    <p>Hai trò chơi dưới đây có tính điểm. Đúng liên tiếp thì được thưởng thêm điểm chuỗi 🔥, và kỷ lục ⭐ được lưu lại trên máy của bạn.</p>
+    <div id="game-pills"></div>
+    <div id="game-darts"></div>
+
+    <!-- ===== 8. BÀI TẬP ===== -->
+    <h2>Bài tập tự luyện</h2>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 1 (cổ điển).</p>
+      <p>Một khay có 15 ống thuốc tiêm, trong đó có 3 ống bị hỏng. Lấy ngẫu nhiên 1 ống. Tính xác suất lấy được ống <b>tốt</b>.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Mỗi ống có cơ hội như nhau, nên $n = 15$.</li>
+          <li>Số ống tốt là $k = 15 - 3 = 12$.</li>
+          <li>$P(\text{tốt}) = \dfrac{12}{15} = \dfrac{4}{5} = 0{,}8$.</li>
+        </ol>
+        <p class="small muted">Cách khác: $P(\text{hỏng}) = \tfrac{3}{15} = 0{,}2$, suy ra $P(\text{tốt}) = 1 - 0{,}2 = 0{,}8$.</p>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 2 (cổ điển: xúc xắc).</p>
+      <p>Gieo một con xúc xắc cân đối. Tính xác suất: a) A = “ra số chấm ≥ 5”; b) B = “ra số chấm là số nguyên tố”.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <p>$n = 6$ (6 mặt đồng khả năng).</p>
+        <ol class="steps">
+          <li>a) $A = \{5, 6\}$, nên $k = 2$ và $P(A) = \dfrac{2}{6} = \dfrac13$.</li>
+          <li>b) Các số nguyên tố từ 1 đến 6 là $\{2, 3, 5\}$ (số 1 <b>không</b> phải số nguyên tố), nên $k = 3$ và $P(B) = \dfrac{3}{6} = \dfrac12$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 3 (bẫy đồng khả năng).</p>
+      <p>Gieo đồng thời 2 đồng xu cân đối. Tính xác suất được <b>đúng 1 mặt sấp</b>.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Liệt kê các kết quả <b>đồng khả năng</b>: $\Omega = \{SS, SN, NS, NN\}$, nên $n = 4$.</li>
+          <li>Đúng 1 mặt sấp gồm $\{SN, NS\}$, nên $k = 2$.</li>
+          <li>$P = \dfrac{2}{4} = \dfrac12$.</li>
+        </ol>
+        <p class="small muted">❌ Sai lầm hay gặp: cho rằng chỉ có 3 kết quả (0, 1, 2 mặt sấp) rồi kết luận $P=\tfrac13$. Ba kết quả này <b>không</b> đồng khả năng.</p>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 4 (cổ điển + tổ hợp).</p>
+      <p>Một tổ có 10 sinh viên (4 nam, 6 nữ). Chọn ngẫu nhiên 3 bạn đi trực phòng khám. Tính xác suất cả 3 bạn đều là <b>nữ</b>.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Chọn 3 trong 10 người, không thứ tự: $n = C_{10}^3 = \dfrac{10\cdot 9\cdot 8}{3!} = 120$.</li>
+          <li>Chọn 3 trong 6 bạn nữ: $k = C_6^3 = \dfrac{6\cdot5\cdot4}{3!} = 20$.</li>
+          <li>$P = \dfrac{20}{120} = \dfrac16 \approx 0{,}17$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 5 (thống kê).</p>
+      <p>Khám sàng lọc 500 trẻ em ở một xã, phát hiện 35 trẻ suy dinh dưỡng. Hãy ước lượng xác suất một trẻ ở xã này bị suy dinh dưỡng.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <p>Dùng định nghĩa thống kê với $n = 500$, $k = 35$: $\;P \approx \dfrac{35}{500} = 0{,}07 = 7\%$.</p>
+        <p class="small muted">Đây là giá trị <b>gần đúng</b>. Khám càng nhiều trẻ thì ước lượng càng đáng tin.</p>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 6 (hình học: độ dài).</p>
+      <p>Xe buýt cứ 15 phút có một chuyến. Bạn ra bến vào một thời điểm ngẫu nhiên. Tính xác suất bạn phải đợi <b>hơn 12 phút</b>.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Thời điểm đến rơi ngẫu nhiên đều trong một chu kỳ dài $S = 15$ phút.</li>
+          <li>Phải đợi hơn 12 phút khi bạn đến trong vòng 3 phút ngay sau khi xe vừa chạy, nên $S_A = 3$.</li>
+          <li>$P = \dfrac{3}{15} = \dfrac15 = 0{,}2$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 7 (hình học: diện tích).</p>
+      <p>Một hạt đậu rơi ngẫu nhiên lên mặt bàn hình vuông cạnh 1 m. Trên bàn đặt một chiếc đĩa tròn bán kính 0,2 m. Tính xác suất hạt đậu rơi vào đĩa.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>$S = 1\times1 = 1\ \text{m}^2$.</li>
+          <li>$S_A = \pi\cdot 0{,}2^2 = 0{,}04\pi \approx 0{,}126\ \text{m}^2$.</li>
+          <li>$P = \dfrac{0{,}04\pi}{1}\approx 0{,}126$, tức khoảng 12,6%.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 8 (tần suất).</p>
+      <p>Dựa vào bảng Hemoglobin của 70 phụ nữ ở mục 6.3: a) Tần suất phụ nữ có Hb từ 12 đến 12,9 g/dl là bao nhiêu? b) Bao nhiêu phần trăm phụ nữ có Hb <b>từ 12 g/dl trở lên</b>?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>a) Tần số là 14, nên $f = \dfrac{14}{70} = 0{,}2 = 20\%$.</li>
+          <li>b) Tích lũy đến dòng 11 – 11,9 là 52,86% (dưới 12 g/dl). Vậy từ 12 trở lên chiếm $100\% - 52{,}86\% = 47{,}14\%$.</li>
+          <li>Kiểm tra bằng tần số: $\dfrac{14+13+5+1}{70} = \dfrac{33}{70}\approx 47{,}14\%$ ✓</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="quiz" data-title="Kiểm tra nhanh Bài 3">
+      <div class="q" data-answer="3">
+        <p class="q-text">Số nào dưới đây <b>không thể</b> là xác suất của một biến cố?</p>
+        <div class="q-options"><button>0</button><button>0,25</button><button>1</button><button>1,2</button></div>
+        <div class="q-explain">Xác suất luôn nằm trong đoạn $[0;1]$. Số 1,2 lớn hơn 1 nên không thể là xác suất.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Định nghĩa cổ điển $P(A)=k/n$ chỉ được dùng khi nào?</p>
+        <div class="q-options"><button>Số kết quả hữu hạn và các kết quả đồng khả năng</button><button>Khi đã làm thí nghiệm rất nhiều lần</button><button>Khi kết quả của phép thử là các con số</button><button>Bất cứ lúc nào cũng dùng được</button></div>
+        <div class="q-explain">Hai điều kiện bắt buộc: <b>hữu hạn</b> và <b>đồng khả năng</b>. “Làm thí nghiệm nhiều lần” là ý của định nghĩa thống kê.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Gieo một con xúc xắc cân đối. Xác suất ra mặt có số chấm <b>chia hết cho 3</b> là:</p>
+        <div class="q-options"><button>$\dfrac16$</button><button>$\dfrac13$</button><button>$\dfrac12$</button><button>$\dfrac23$</button></div>
+        <div class="q-explain">Các mặt chia hết cho 3 là $\{3,6\}$, nên $k=2$, $n=6$ và $P=\tfrac26=\tfrac13$.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Khảo sát 10 000 người thấy 51 người bị cao huyết áp. Xác suất ước lượng một người bị cao huyết áp là:</p>
+        <div class="q-options"><button>0,51</button><button>0,051</button><button>0,0051</button><button>51</button></div>
+        <div class="q-explain">$\tfrac{51}{10\,000}=0{,}0051$ (khoảng 0,51%).</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Thực hiện phép thử $n$ lần, hiện tượng A xuất hiện $m$ lần. <b>Tần suất</b> của A là:</p>
+        <div class="q-options"><button>$m$</button><button>$\dfrac{n}{m}$</button><button>$\dfrac{m}{n}$</button><button>$m\cdot n$</button></div>
+        <div class="q-explain">Tần <b>số</b> là $m$ (số lần). Tần <b>suất</b> là tỉ lệ $\tfrac{m}{n}$.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Ném ngẫu nhiên một hạt đậu lên mặt bàn rộng 1 m², trên bàn có tờ giấy rộng 0,25 m². Xác suất hạt đậu rơi lên tờ giấy là:</p>
+        <div class="q-options"><button>0,25</button><button>0,5</button><button>0,75</button><button>Không tính được</button></div>
+        <div class="q-explain">Dùng định nghĩa hình học: $P=\tfrac{S_A}{S}=\tfrac{0{,}25}{1}=0{,}25$.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Trong bảng tần suất, ô <b>tần suất tích lũy</b> ở dòng cuối cùng luôn bằng:</p>
+        <div class="q-options"><button>0%</button><button>50%</button><button>100%</button><button>Tuỳ số liệu</button></div>
+        <div class="q-explain">Cộng dồn đến dòng cuối là đã tính <b>tất cả</b> đối tượng, nên luôn bằng 100% (có thể lệch 0,01 do làm tròn).</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Một bạn nói: “Đi thi chỉ có đỗ hoặc trượt, nên xác suất đỗ là 1/2”. Nhận xét nào đúng?</p>
+        <div class="q-options"><button>Đúng, vì có đúng 2 kết quả</button><button>Sai, vì 2 kết quả không đồng khả năng</button><button>Đúng, nếu số câu hỏi là số chẵn</button><button>Sai, vì xác suất đỗ luôn là 1</button></div>
+        <div class="q-explain">Định nghĩa cổ điển đòi hỏi các kết quả <b>đồng khả năng</b>. Đỗ và trượt thì không như vậy, nên không thể nói 1/2.</div>
+      </div>
+    </div>
+
+    <!-- ===== 9. THẺ GHI NHỚ ===== -->
+    <h2>Thẻ ghi nhớ</h2>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th></th><th>Cổ điển</th><th>Thống kê</th><th>Hình học</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">Công thức</td><td>$P(A)=\dfrac{k}{n}$</td><td>$P(A)\approx\dfrac{k}{n}$</td><td>$P=\dfrac{S_A}{S}$</td></tr>
+        <tr><td class="row-head">Dùng khi</td><td>hữu hạn kết quả, đồng khả năng</td><td>lặp lại phép thử rất nhiều lần</td><td>điểm rơi ngẫu nhiên đều vào một miền</td></tr>
+        <tr><td class="row-head">Kết quả</td><td>chính xác</td><td>gần đúng (n càng lớn càng sát)</td><td>chính xác</td></tr>
+        <tr><td class="row-head">Ví dụ</td><td>xúc xắc, bốc thăm, bốc thuốc</td><td>tỉ lệ cao huyết áp, tỉ lệ khỏi bệnh</td><td>phi tiêu, chờ xe buýt</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-icon">📏</div><h4>Luôn đúng</h4><p>$0\le P(A)\le 1$<br>$P(\varnothing)=0,\quad P(\Omega)=1$<br>$P(\overline{A})=1-P(A)$</p></div>
+      <div class="card"><div class="card-icon">📊</div><h4>Tần số – tần suất</h4><p>Tần số $m$ là số lần (đếm).<br>Tần suất $f=\dfrac{m}{n}$, đổi ra % thì $\times 100$.<br>Tích lũy là cộng dồn từ trên xuống, dòng cuối $=100\%$.</p></div>
+      <div class="card"><div class="card-icon">⚠️</div><h4>3 bẫy cần tránh</h4><p>① “2 khả năng” chưa chắc là 1/2 mỗi bên.<br>② $n$ nhỏ thì tần suất chưa đáng tin.<br>③ Tần số ≠ tần suất.</p></div>
+      <div class="card"><div class="card-icon">⏭️</div><h4>Học tiếp</h4><p>Công thức cộng, công thức nhân, xác suất toàn phần, Bayes ở <a href="bai-4.html">Bài 4</a>, <a href="bai-5.html">Bài 5</a> (khi có tài liệu). Đại lượng ngẫu nhiên ở <a href="bai-6-7.html">Bài 6-7</a>.</p></div>
+    </div>
+
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

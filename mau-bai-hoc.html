@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mẫu bài học — XSTK YHCT</title>
+<meta name="description" content="Trang mẫu: các thành phần dùng để viết một bài học mới (Bài 4, Bài 5...).">
+<meta name="robots" content="noindex">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+</head>
+<!--
+  HƯỚNG DẪN VIẾT BÀI MỚI
+  - data-page phải trùng với id trong assets/js/lessons.js (vd: "bai-4")
+  - Mỗi <h2> trong <main> tự động thành 1 mục trong "Mục lục"
+  - Menu, nút tải PDF, nút "Đã học xong", Bài trước/Bài sau: main.js tự thêm
+  - Công thức: $...$ (trong dòng) hoặc $$...$$ (riêng dòng) — cú pháp LaTeX
+  - JS riêng của bài đặt ở assets/js/bai-X.js (thêm 1 thẻ <script defer> ở <head>)
+  - Emoji trong chữ (⚡ 💡 ⚠️ …) tự đổi thành icon tự vẽ (assets/js/icons.js).
+    Chèn icon trực tiếp: <i class="ic-slot" data-ic="pill"></i>. Không đặt emoji trong SVG <text>, <option>, thuộc tính.
+-->
+<body data-page="mau">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <!-- 1. Phần đầu bài -->
+    <section class="lesson-hero">
+      <span class="badge">Bài X</span>
+      <h1>Tên bài học</h1>
+      <p class="lead">Một câu giới thiệu: bài này giúp bạn làm được gì.</p>
+      <div class="objectives">
+        <p class="objectives-title">🎯 Học xong bài này, bạn sẽ:</p>
+        <ol><li>Mục tiêu 1</li><li>Mục tiêu 2</li></ol>
+      </div>
+    </section>
+
+    <!-- 2. Tóm tắt 30 giây -->
+    <div class="box core-big">
+      <p class="box-title">⚡ Tóm tắt 30 giây</p>
+      <ul><li>Ý cốt lõi 1</li><li>Ý cốt lõi 2</li></ul>
+    </div>
+
+    <h2>1. Tên mục lớn</h2>
+    <div class="box life"><p class="box-title">🏠 Nói đơn giản</p><p>Ví dụ đời thường trước khi vào định nghĩa.</p></div>
+    <div class="box core"><p class="box-title">📌 Định nghĩa / cốt lõi</p><p>Nội dung phải nhớ.</p></div>
+    <div class="box example"><p class="box-title">🩺 Ví dụ</p><p>Ví dụ y khoa / trong slide.</p></div>
+    <div class="box tip"><p class="box-title">💡 Mẹo nhớ</p><p>…</p></div>
+    <div class="box trap"><p class="box-title">⚠️ Bẫy hay nhầm</p><p>…</p></div>
+    <div class="box fix"><p class="box-title">📝 Ghi chú sửa slide</p><p>Slide ghi “…”, đúng phải là “…”.</p></div>
+    <div class="box extra"><p class="box-title">➕ Bổ sung</p><p>Phần mục tiêu có nêu nhưng slide chưa có.</p></div>
+
+    <div class="formula">
+      <span class="formula-name">Tổ hợp</span>
+      $$C_n^k = \frac{n!}{k!\,(n-k)!}$$
+      <span class="formula-note">n: số phần tử ban đầu · k: số phần tử chọn ra</span>
+    </div>
+
+    <figure class="fig framed">
+      <svg viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="Biểu đồ Venn A giao B">
+        <circle cx="125" cy="90" r="70" class="fill-a op-25 stroke-a sw-2"/>
+        <circle cx="195" cy="90" r="70" class="fill-b op-25 stroke-b sw-2"/>
+        <text x="85" y="95" class="svg-text svg-bold" text-anchor="middle">A</text>
+        <text x="235" y="95" class="svg-text svg-bold" text-anchor="middle">B</text>
+      </svg>
+      <figcaption>Hình: dùng class fill-a / fill-b / svg-text… để tự đổi màu theo sáng/tối.</figcaption>
+    </figure>
+
+    <!-- HÌNH CHIẾU TỪNG BƯỚC (anim.js): data-anim="steps" + data-step="k" + data-caption="k" -->
+    <figure class="fig framed" data-anim="steps">
+      <svg viewBox="0 0 320 190" width="320" height="190" role="img" aria-label="Venn: A, B, A giao B, A hợp B">
+        <circle cx="125" cy="95" r="70" class="fill-none stroke-a sw-2"/>
+        <circle cx="195" cy="95" r="70" class="fill-none stroke-b sw-2"/>
+        <text x="80" y="100" class="svg-text svg-bold" text-anchor="middle">A</text>
+        <text x="240" y="100" class="svg-text svg-bold" text-anchor="middle">B</text>
+        <circle data-step-only="1" cx="125" cy="95" r="70" class="fill-a op-35"/>
+        <circle data-step-only="2" cx="195" cy="95" r="70" class="fill-b op-35"/>
+        <path data-step-only="3" d="M160 34.3 A70 70 0 0 1 160 155.7 A70 70 0 0 1 160 34.3 Z" class="fill-primary op-50"/>
+        <g data-step-only="4"><circle cx="125" cy="95" r="70" class="fill-primary op-25"/><circle cx="195" cy="95" r="70" class="fill-primary op-25"/></g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Hai tập hợp A và B. Bấm <b>Bước tiếp</b> để xem từng phép toán.</p>
+        <p data-caption="1">Đây là tập <b class="c-a">A</b>.</p>
+        <p data-caption="2">Đây là tập <b class="c-b">B</b>.</p>
+        <p data-caption="3"><b>Giao</b> $A \cap B$: phần <b>chung</b> của cả hai.</p>
+        <p data-caption="4"><b>Hợp</b> $A \cup B$: thuộc <b>ít nhất một</b> tập.</p>
+      </div>
+    </figure>
+
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th>X</th><th>0</th><th>1</th><th>2</th></tr></thead>
+      <tbody><tr><td class="row-head">P</td><td>2/15</td><td>8/15</td><td>1/3</td></tr></tbody>
+    </table></div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-icon">🔁</div><h4>Thẻ 1</h4><p>…</p></div>
+      <div class="card"><div class="card-icon">🎯</div><h4>Thẻ 2</h4><p>…</p></div>
+    </div>
+
+    <h2>Bài tập tự luyện</h2>
+    <div class="exercise">
+      <p class="exercise-title">Bài 1.</p>
+      <p>Đề bài…</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps"><li>Bước 1…</li><li>Bước 2…</li></ol>
+      </div></details>
+    </div>
+
+    <div class="quiz" data-title="Kiểm tra nhanh">
+      <div class="q" data-answer="1">
+        <p class="q-text">Câu hỏi?</p>
+        <div class="q-options"><button>Đáp án A</button><button>Đáp án B (đúng)</button><button>Đáp án C</button></div>
+        <div class="q-explain">Giải thích vì sao B đúng.</div>
+      </div>
+    </div>
+
+    <h2>Công cụ & trò chơi</h2>
+    <div class="widget">
+      <p class="widget-title">Tên công cụ</p>
+      <p class="widget-desc">Mô tả ngắn cách dùng.</p>
+      <div class="btn-row"><button class="btn primary">Nút chính</button><button class="btn">Nút phụ</button></div>
+      <div class="stat-row"><div class="stat"><span class="stat-label">Trung bình</span><span class="stat-value">132</span></div></div>
+      <div class="widget-out"></div>
+    </div>
+
+    <div id="demo-game"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        XSTK.Game.mcq(document.getElementById("demo-game"), {
+          id: "mau-demo", title: "Trò chơi mẫu", intro: "Chọn đáp án đúng.", rounds: 2,
+          questions: [
+            { q: "$2 + 2 = ?$", options: ["3", "4", "5"], answer: 1, explain: "Vì $2+2=4$." },
+            { q: "$C_3^2 = ?$", options: ["3", "6", "9"], answer: 0, explain: "$C_3^2 = 3$." }
+          ]
+        });
+      });
+    </script>
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

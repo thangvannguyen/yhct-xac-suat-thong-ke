@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài 8 · Mẫu và thống kê mô tả — XSTK YHCT</title>
+<meta name="description" content="Bài 8: quần thể và mẫu, các loại biến số, bảng tần suất, histogram, phương pháp chọn mẫu, biểu đồ mô tả số liệu — giải thích dễ hiểu, có ví dụ y khoa và trò chơi tương tác.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+<script defer src="assets/js/bai-8.js"></script>
+<style>
+  /* ===== Bài 8 — chỉ phần riêng của trang; mọi màu lấy từ biến (token) trong style.css ===== */
+  .b8-mini { font-size: .72rem; }
+  .grid-2 > .box { margin: 0; }
+  .tbl > caption { padding: 10px 14px; font-size: .88rem; color: var(--text-muted); caption-side: top; }
+  .note-inline { margin: .8em 0 0; padding-top: .8em; border-top: 1px dashed color-mix(in srgb, var(--box-c) 30%, transparent); }
+
+  /* ---- Hình 2: cây phân loại biến số (trình chiếu từng bước) ---- */
+  .vtree .vt-root {
+    display: inline-flex; padding: 8px 24px; border-radius: 99px; font-weight: 800; font-size: 1.05rem;
+    background: var(--grad); color: var(--on-primary); box-shadow: var(--shadow-primary);
+  }
+  .vt-fork { position: relative; height: 30px; }
+  .vt-fork::before { content: ""; position: absolute; left: calc(50% - 1px); top: 0; width: 2px; height: 15px; background: var(--border); }
+  .vt-fork::after {
+    content: ""; position: absolute; top: 14px; height: 16px;
+    left: calc((100% - 14px) * .2778); right: calc((100% - 14px) * .2222);
+    border: 2px solid var(--border); border-bottom: 0; border-radius: 12px 12px 0 0;
+  }
+  .vt-branches { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; text-align: left; }
+  .vt-branch {
+    --vt: var(--set-a); padding: 14px; border-radius: var(--radius);
+    background: color-mix(in srgb, var(--vt) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--vt) var(--tint-border), var(--border));
+  }
+  .vt-branch.quant { --vt: var(--set-c); }
+  .vt-node { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin-bottom: 10px; font-weight: 800; }
+  .vt-node::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--vt); align-self: center; }
+  .vt-node small { font-weight: 500; font-size: .85rem; color: var(--text-muted); }
+  .vt-leaves { display: grid; gap: 8px; }
+  .vt-leaf {
+    padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow-sm);
+    font-size: .9rem; line-height: 1.5; transition: box-shadow .35s var(--ease);
+  }
+  .vt-leaf > b { display: block; font-size: 1rem; }
+  .vt-leaf > b::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--vt); vertical-align: 2px; }
+  .vt-leaf > span { display: block; color: var(--text-muted); }
+  .vt-leaf > span b { color: var(--text); }
+  .vt-leaf > em { display: block; margin-top: 4px; font-style: normal; }
+  .vt-leaf.vt-now { box-shadow: 0 0 0 2px var(--vt), var(--shadow); }
+  @media (max-width: 640px) {
+    .vt-branches { grid-template-columns: minmax(0, 1fr); }
+    .vt-fork { height: 16px; }
+    .vt-fork::after { display: none; }
+  }
+
+  /* ---- Hình 3: gạch đếm → tần số → histogram ---- */
+  .b8-t2h { display: grid; grid-template-columns: minmax(0, 262fr) minmax(0, 300fr); align-items: end; gap: 12px 28px; max-width: 600px; margin: 0 auto; }
+  .b8-t2h svg { display: block; width: 100%; height: auto; }
+  @media (max-width: 600px) {
+    .b8-t2h { grid-template-columns: minmax(0, 1fr); }
+    .b8-t2h svg { width: auto; margin: 0 auto; }
+  }
+  .b8-fly {
+    position: absolute; z-index: 3; pointer-events: none; padding: 1px 7px; border-radius: 8px; line-height: 1.2;
+    font-weight: 800; color: var(--primary); background: var(--primary-soft); box-shadow: var(--shadow-sm);
+  }
+
+  /* ---- Kết quả Stata ---- */
+  pre.stata {
+    margin: 1em 0; padding: 14px 16px; overflow-x: auto; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line);
+    font-family: var(--mono); font-size: .85rem; line-height: 1.5;
+  }
+
+  /* ---- Thẻ phương pháp chọn mẫu (mỗi hình tự diễn lại thứ tự chọn) ---- */
+  .smp-card { display: flex; flex-direction: column; gap: 6px; }
+  .smp-card h4 { margin: 2px 0 0; }
+  .smp-card p { margin: 0; font-size: .92rem; }
+  .smp-card .ex { color: var(--text-muted); font-size: .88rem; }
+  .smp-card .tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 99px; font-size: .72rem; font-weight: 700; vertical-align: middle; }
+  .smp-card .tag.rand { background: var(--success-soft); color: var(--success); }
+  .smp-card .tag.nonrand { background: var(--danger-soft); color: var(--danger); }
+  .smp-fig { width: 100%; max-width: 260px; margin: 0 auto; }
+  .smp-fig svg { display: block; width: 100%; height: auto; }
+  .smp-run {
+    display: flex; align-items: center; gap: 10px; min-height: 52px; margin-top: 6px; padding: 6px 10px 6px 6px;
+    border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line);
+  }
+  .smp-run .smp-btn { width: 36px; padding: 0; flex: none; border-radius: 99px; }
+  .smp-say { flex: 1; min-width: 0; font-size: .8rem; line-height: 1.4; color: var(--text-muted); text-align: left; }
+  .smp-say b { color: var(--text); }
+  .smp-cursor { transition: transform .18s var(--ease), opacity .2s; }
+
+  /* ---- Bốn biểu đồ nhỏ ---- */
+  .mini-chart svg { display: block; width: 100%; height: auto; }
+
+  /* ---- Hình 5: biểu đồ chấm (trình chiếu từng bước) ---- */
+  .b8-scatter .grid-4 { gap: 10px; margin: 0; }
+  @media (max-width: 760px) { .b8-scatter .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .sc-panel { padding: 10px 8px 8px; border-radius: var(--radius-sm); background: var(--surface); border: var(--line); }
+  .sc-panel svg { display: block; width: 100%; max-width: 220px; height: auto; margin: 0 auto; }
+  .sc-panel p { margin: 6px 0 0; font-size: .86rem; line-height: 1.4; }
+
+  /* ---- Histogram Hb (công cụ) ---- */
+  .hb-info { min-height: 2.6em; margin-top: 8px; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line); font-size: .95rem; }
+  #hb-hist { max-width: 620px; margin: 0 auto; }
+  #hb-hist svg { display: block; width: 100%; height: auto; }
+  #hb-hist svg rect.bar { cursor: pointer; transition: opacity .2s; }
+  #hb-hist svg rect.bar:hover { opacity: .85; }
+
+  /* ---- Trò chơi "Thử chọn mẫu" ---- */
+  .smp-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .smp-controls .lbl { margin-right: 4px; font-size: .9rem; font-weight: 700; }
+  .smp-controls .btn-row { margin: 0; align-items: center; }
+  .smp-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 760px) { .smp-layout { grid-template-columns: minmax(0, 1fr); } }
+  .smp-grid { max-width: 340px; margin: 0 auto; }
+  .smp-grid svg { display: block; width: 100%; height: auto; }
+  .smp-grid circle.p { transition: fill-opacity .2s, stroke-width .2s; }
+  .smp-grid circle.p.dim { fill-opacity: .22; }
+  .smp-grid circle.p.sel { fill-opacity: 1; stroke: var(--text); stroke-width: 3; }
+  .smp-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin-top: 6px; font-size: .85rem; }
+  .smp-legend i, .cmp-row .cmp-name i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+  .smp-legend i { margin-right: 5px; vertical-align: -1px; }
+  .cmp-head { margin: 0 0 4px; }
+  .cmp-row { margin: 8px 0; font-size: .88rem; }
+  .cmp-row .cmp-name { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+  .cmp-bar { display: grid; grid-template-columns: 74px minmax(0, 1fr) 46px; align-items: center; gap: 6px; margin-top: 3px; }
+  .cmp-bar.wide { grid-template-columns: 150px minmax(0, 1fr) 48px; margin: 6px 0; }
+  .cmp-bar .track { height: 12px; overflow: hidden; border-radius: 99px; background: var(--surface-2); }
+  .cmp-bar .fillbar { height: 100%; border-radius: 99px; transition: width .4s var(--ease); }
+  .cmp-bar .fillbar.pop { opacity: .45; }
+  .cmp-bar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .cmp-verdict { margin-top: 10px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: .93rem; }
+  .cmp-verdict.good { background: color-mix(in srgb, var(--success) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--success) var(--tint-border), var(--border)); }
+  .cmp-verdict.mid { background: color-mix(in srgb, var(--accent) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) var(--tint-border), var(--border)); }
+  .cmp-verdict.bad { background: color-mix(in srgb, var(--danger) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) var(--tint-border), var(--border)); }
+  .smp-sim { margin-top: 12px; }
+  .smp-sim .box { margin: 0; }
+  .smp-challenge { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
+  .smp-challenge .ch-title { margin: 0 0 6px; font-weight: 800; }
+  @media (max-width: 420px) { .cmp-bar.wide { grid-template-columns: 112px minmax(0, 1fr) 42px; } }
+
+  /* ---- Trò chơi nhận dạng tương quan ---- */
+  .corr-plot { max-width: 300px; margin: 6px auto 0; }
+  .corr-plot svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body data-page="bai-8">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <section class="lesson-hero">
+      <span class="badge">Bài 8</span>
+      <h1>Mẫu và thống kê mô tả</h1>
+      <p class="lead">Muốn biết sức khoẻ của cả một tỉnh, ta không thể khám hết mọi người. Bài này dạy cách <b>chọn một nhóm nhỏ (mẫu)</b> cho đúng, rồi <b>tóm tắt số liệu</b> bằng bảng, con số và biểu đồ.</p>
+      <div class="objectives">
+        <p class="objectives-title">🎯 Học xong bài này, bạn sẽ: <span class="badge soft b8-mini">bổ sung — slide gốc để trống mục tiêu</span></p>
+        <ol>
+          <li>Phân biệt được <b>quần thể</b> và <b>mẫu</b>, <b>tham số</b> và <b>thống kê</b>.</li>
+          <li>Phân loại được biến số: <b>định tính</b> (danh định, thứ tự, nhị giá) và <b>định lượng</b>.</li>
+          <li>Lập được <b>bảng phân phối tần suất</b> (tần số, %, % tích luỹ) và đọc được histogram.</li>
+          <li>Trình bày được các <b>phương pháp chọn mẫu</b> ngẫu nhiên và phi ngẫu nhiên.</li>
+          <li>Chọn được <b>con số thống kê</b> và <b>biểu đồ</b> phù hợp với từng loại biến.</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="box core-big">
+      <p class="box-title">⚡ Tóm tắt 30 giây</p>
+      <ul>
+        <li><b>Quần thể</b> là toàn bộ những người ta muốn biết; <b>mẫu</b> là nhóm nhỏ được chọn ra để nghiên cứu. Con số của quần thể gọi là <b>tham số</b>, con số tính trên mẫu gọi là <b>thống kê</b>.</li>
+        <li>Biến số có 2 nhóm lớn: <b>định tính</b> (danh định, thứ tự, nhị giá) và <b>định lượng</b> (giá trị là con số đo/đếm được).</li>
+        <li>Định tính → đếm <b>tần số, tỷ lệ %</b>, vẽ <b>biểu đồ cột / tròn</b>. Định lượng → <b>trung bình, trung vị, độ lệch chuẩn</b>, vẽ <b>histogram / boxplot</b>.</li>
+        <li>Chọn mẫu <b>ngẫu nhiên</b> (đơn, hệ thống, phân tầng, cụm, nhiều bậc) giúp mẫu đại diện; chọn <b>phi ngẫu nhiên</b> (chủ đích, thuận tiện, quota, bóng tuyết) dễ làm nhưng dễ lệch.</li>
+        <li><b>Biểu đồ chấm</b> (scatter) cho thấy 2 biến định lượng có tương quan với nhau hay không.</li>
+      </ul>
+    </div>
+
+    <!-- ================================================= -->
+    <h2>1. Quần thể và mẫu</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản: nếm 1 thìa để biết cả nồi canh</p>
+      <p>Muốn biết nồi canh mặn hay nhạt, bạn không cần ăn hết cả nồi — chỉ cần <b>khuấy đều rồi nếm 1 thìa</b>.</p>
+      <ul>
+        <li><b>Cả nồi canh</b> = <b>quần thể</b> (cái ta muốn biết).</li>
+        <li><b>Thìa canh</b> = <b>mẫu</b> (phần nhỏ ta thật sự nếm).</li>
+        <li><b>Độ mặn của cả nồi</b> = <b>tham số</b> (thường không đo trực tiếp được).</li>
+        <li><b>Độ mặn của thìa canh</b> = <b>thống kê</b> (đo được), dùng để đoán độ mặn cả nồi.</li>
+        <li><b>Khuấy đều trước khi múc</b> = <b>chọn mẫu ngẫu nhiên</b>. Không khuấy mà chỉ hớt lớp trên → thìa canh không đại diện!</li>
+      </ul>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa (theo slide)</p>
+      <ul>
+        <li><b>Quần thể / dân số (population):</b> tập hợp các cá thể có chung đặc điểm. Các con số mô tả quần thể gọi là <b>tham số</b> (parameters).</li>
+        <li><b>Mẫu (sample):</b> tập hợp con của quần thể. Các con số tính trên mẫu gọi là <b>số đo thống kê</b> (statistics).</li>
+        <li><b>Dân số đích:</b> tập hợp các đối tượng mà ta <i>muốn áp dụng</i> kết quả nghiên cứu.</li>
+        <li><b>Dân số nghiên cứu (mẫu):</b> những đối tượng <i>thực sự được khảo sát</i> một cách có hệ thống, để ước lượng đặc trưng (tham số) của dân số đích.</li>
+      </ul>
+    </div>
+
+    <figure class="fig framed" data-anim="steps" data-step-ms="4000">
+      <div id="fig-pop-sample" class="fig-body"></div>
+      <div class="step-captions">
+        <p data-caption="0">Đây là <b>quần thể</b>: tất cả những người ta muốn biết (cả nồi canh). Thường quá đông, không khảo sát hết được. Bấm <b>Bước tiếp</b> để xem cách chọn mẫu.</p>
+        <p data-caption="1"><b>Bốc thăm ngẫu nhiên</b> 10 người (chấm cam). Ai cũng có cơ hội được chọn như nhau, giống như <b>khuấy đều nồi canh</b> trước khi múc.</p>
+        <p data-caption="2">10 người đó tạo thành <b>mẫu</b> ($n = 10$): đây là “thìa canh” ta thật sự nếm.</p>
+        <p data-caption="3">Đo trên mẫu, ta tính ngay được các <b>thống kê</b>: $\bar{x},\ s,\ \hat{p}$. Ví dụ 1 bên dưới: $\hat{p} = 62/200 = 31\%$.</p>
+        <p data-caption="4"><b>Suy luận</b> ngược lại: dùng thống kê của mẫu để ước lượng <b>tham số</b> $\mu,\ \sigma,\ p$ của cả quần thể (thường chưa biết). Nếm 1 thìa để biết cả nồi.</p>
+      </div>
+      <figcaption>Hình 1. Chọn mẫu từ quần thể, rồi dùng con số của mẫu (thống kê) để suy ra con số của quần thể (tham số).</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th></th><th>Quần thể</th><th>Mẫu</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">Kích thước</td><td>$N$</td><td>$n$</td></tr>
+        <tr><td class="row-head">Trung bình</td><td>$\mu$ (đọc là “muy”)</td><td>$\bar{x}$ (đọc là “x ngang”)</td></tr>
+        <tr><td class="row-head">Độ lệch chuẩn</td><td>$\sigma$ (“xích-ma”)</td><td>$s$ hay SD</td></tr>
+        <tr><td class="row-head">Tỷ lệ</td><td>$p$</td><td>$\hat{p}$ (“p mũ”)</td></tr>
+        <tr><td class="row-head">Tên gọi chung</td><td><b>Tham số</b> – thường chưa biết</td><td><b>Thống kê</b> – tính được từ số liệu</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">➕ Bảng ký hiệu là phần bổ sung để bạn đọc tài liệu khác dễ hơn; slide chỉ nêu tên “tham số” và “thống kê”.</p>
+
+    <div class="grid-2">
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 1 – Khảo sát sinh viên trong trường</p>
+      <p>Muốn biết <b>tỷ lệ sinh viên ngủ dưới 6 tiếng/đêm</b> của cả trường (khoảng 2 000 bạn). Ta chọn ngẫu nhiên <b>200 bạn</b> để hỏi, thấy <b>62 bạn</b> ngủ dưới 6 tiếng.</p>
+      <ul>
+        <li>Quần thể: toàn bộ ~2 000 sinh viên của trường ($N \approx 2000$).</li>
+        <li>Mẫu: 200 sinh viên được hỏi ($n = 200$).</li>
+        <li>Thống kê: $\hat{p} = 62/200 = 0{,}31$ = 31%.</li>
+        <li>Tham số: tỷ lệ thật $p$ của cả trường — chưa biết, ta <b>ước lượng</b> là khoảng 31%.</li>
+      </ul>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 2 – Dân số đích và dân số nghiên cứu</p>
+      <p>Đề tài: “Hiệu quả của bài thuốc X trên người cao tuổi bị tăng huyết áp”.</p>
+      <ul>
+        <li><b>Dân số đích:</b> tất cả người cao tuổi bị tăng huyết áp (mà ta muốn áp dụng kết quả).</li>
+        <li><b>Dân số nghiên cứu:</b> 120 bệnh nhân THA từ 60 tuổi trở lên điều trị tại Bệnh viện YHCT tỉnh năm 2026, đủ tiêu chuẩn chọn.</li>
+      </ul>
+    </div>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li><b>Mẫu to chưa chắc đã tốt.</b> Hỏi 1 000 người nhưng toàn người ở 1 khoa thì vẫn lệch. <span class="hl">“Đại diện” quan trọng hơn “nhiều”.</span></li>
+        <li><b>Tham số thường không biết được</b> (vì không khảo sát hết quần thể). Thứ ta tính ra từ số liệu luôn là <b>thống kê</b>.</li>
+      </ul>
+    </div>
+
+    <!-- ================================================= -->
+    <h2>2. Biến số: định tính và định lượng</h2>
+
+    <div class="box core">
+      <p class="box-title">📌 Thống kê và biến số (theo slide)</p>
+      <p><b>Thống kê</b> là khoa học về <b>thu thập, phân tích và lí giải số liệu</b>. Phương pháp thống kê dùng để <b>so sánh một nhóm đối tượng</b>, không nhằm nghiên cứu từng cá nhân riêng lẻ.</p>
+      <p><b>Biến số</b> là những đại lượng hay đặc tính <b>có thể thay đổi</b> từ người này sang người khác, hoặc từ thời điểm này sang thời điểm khác.</p>
+    </div>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản: mỗi dòng trên phiếu khám là một biến số</p>
+      <p>Phiếu khám bệnh có: <i>giới tính, tuổi, dân tộc, nghề nghiệp, mạch, huyết áp, phân độ tăng huyết áp, có hút thuốc không…</i> Mỗi dòng như vậy là một <b>biến số</b>, vì mỗi bệnh nhân điền một giá trị khác nhau.</p>
+    </div>
+
+    <figure class="fig framed vtree" data-anim="steps" data-step-ms="3800" aria-label="Sơ đồ cây phân loại biến số">
+      <div class="vt-root">Biến số</div>
+      <div class="vt-fork" data-step="1"></div>
+      <div class="vt-branches">
+        <div class="vt-branch qual" data-step="1">
+          <div class="vt-node">Định tính <small>giá trị là tên gọi / nhóm / mức độ</small></div>
+          <div class="vt-leaves">
+            <div class="vt-leaf" data-step="2"><b>Danh định</b><span>Giá trị là <b>tên gọi</b> (danh = tên), <u>không</u> sắp xếp từ thấp đến cao được.</span><em>VD: dân tộc (Kinh, Hoa, Khmer, Chăm…); tình trạng hôn nhân (độc thân, có gia đình, li dị, goá); nhóm máu; nghề nghiệp.</em></div>
+            <div class="vt-leaf" data-step="3"><b>Thứ tự</b><span>Giá trị là các <b>mức</b> có thể <u>xếp theo thứ tự</u> thấp → cao.</span><em>VD: kinh tế giàu – khá – trung bình – kém; học lực giỏi – khá – trung bình – kém; mức sống; phân độ tăng huyết áp; mức độ đau.</em></div>
+            <div class="vt-leaf" data-step="4"><b>Nhị giá</b><span>Biến định tính chỉ có <u>đúng 2</u> giá trị.</span><em>VD: giới tính nam/nữ; có hút thuốc/không hút thuốc; xét nghiệm (+)/(−).</em></div>
+          </div>
+        </div>
+        <div class="vt-branch quant" data-step="1">
+          <div class="vt-node">Định lượng <small>giá trị là con số</small></div>
+          <div class="vt-leaves">
+            <div class="vt-leaf" data-step="5"><b>Rời rạc</b><span>Đếm được (số nguyên).</span><em>VD: số con, số lần tái khám.</em></div>
+            <div class="vt-leaf" data-step="5"><b>Liên tục</b><span>Đo được (có số lẻ).</span><em>VD: tuổi, chiều cao, cân nặng, đường huyết.</em></div>
+          </div>
+        </div>
+      </div>
+      <div class="step-captions">
+        <p data-caption="0">Gặp một biến số, hỏi trước tiên: giá trị của nó là <b>con số</b> hay là <b>tên gọi / mức độ</b>? Bấm <b>Bước tiếp</b> để dựng cây phân loại.</p>
+        <p data-caption="1">Cây tách làm 2 nhánh: <b>định tính</b> (giá trị là tên gọi, nhóm, mức độ) và <b>định lượng</b> (giá trị là con số đo hoặc đếm được).</p>
+        <p data-caption="2"><b>Danh định</b>: chỉ là tên gọi. Nhóm máu A, B, AB, O: không nhóm nào “cao hơn” nhóm nào.</p>
+        <p data-caption="3"><b>Thứ tự</b>: các mức xếp được từ thấp đến cao. THA độ 3 nặng hơn độ 1, nhưng không phải “gấp 3 lần”.</p>
+        <p data-caption="4"><b>Nhị giá</b>: chỉ có đúng 2 giá trị, như nam/nữ hay có/không hút thuốc.</p>
+        <p data-caption="5"><b>Định lượng</b> chia tiếp: <b>rời rạc</b> (đếm được: 0, 1, 2… lần tái khám) và <b>liên tục</b> (đo được, có số lẻ: 37,5 °C, 52,3 kg).</p>
+      </div>
+      <figcaption>Hình 2. Sơ đồ phân loại biến số. (Phần “rời rạc / liên tục” là bổ sung; slide có nhắc đến “biến số liên tục” ở phần trình bày số liệu.)</figcaption>
+    </figure>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ biến thứ tự trong slide – phân độ tăng huyết áp (mmHg)</p>
+      <div class="table-wrap"><table class="tbl">
+        <thead><tr><th class="left">Mức (theo thứ tự tăng dần)</th><th>Tâm thu / Tâm trương</th></tr></thead>
+        <tbody>
+          <tr><td class="left">Bình thường</td><td>&lt; 130 / &lt; 85</td></tr>
+          <tr><td class="left">Tiền tăng huyết áp</td><td>130 – 139 / 85 – 89</td></tr>
+          <tr><td class="left">Tăng huyết áp độ 1</td><td>140 – 159 / 90 – 99</td></tr>
+          <tr><td class="left">Tăng huyết áp độ 2</td><td class="fixed">160 – 179 / 100 – 109</td></tr>
+          <tr><td class="left">Tăng huyết áp độ 3 (nặng nhất)</td><td class="fixed">≥ 180 / ≥ 110</td></tr>
+        </tbody>
+      </table></div>
+      <p>Các mức xếp được từ nhẹ đến nặng, nên đây là <b>biến thứ tự</b>. Ta không nói “độ 2 gấp đôi độ 1”: chỉ biết độ 2 <i>nặng hơn</i> độ 1.</p>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide ghi THA độ 2 là “≥ 160 / ≥ 100” và độ 3 là “≥ 180 / ≥ 120”. Như vậy hai mức <b>chồng lên nhau</b>: người có HA 185 mmHg vừa “≥ 160” vừa “≥ 180”. Theo khuyến cáo của Hội Tim mạch học Việt Nam (2018), <b>độ 2 là 160–179 / 100–109</b> và <b>độ 3 là ≥ 180 / ≥ 110</b> (các ô tô màu trong bảng trên).</p>
+      <p>Đây cũng là một yêu cầu của biến thứ tự: <b>mỗi người chỉ được rơi vào đúng 1 mức</b>.</p>
+    </div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Mẹo phân loại nhanh: hỏi lần lượt 3 câu</p>
+      <ol class="steps">
+        <li>Giá trị là <b>con số đo hoặc đếm được</b>? → <b>Định lượng</b>.</li>
+        <li>Không phải số, và chỉ có <b>đúng 2 giá trị</b>? → <b>Nhị giá</b>.</li>
+        <li>Có <b>xếp được thứ tự</b> nặng–nhẹ, cao–thấp? Có → <b>Thứ tự</b>. Không → <b>Danh định</b>.</li>
+      </ol>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li><b>Mã hoá thành số không làm biến thành định lượng.</b> Nhập máy “Nam = 1, Nữ = 2” thì giới tính vẫn là biến <b>nhị giá</b>. Tính “giới tính trung bình = 1,4” là vô nghĩa.</li>
+        <li><b>Biến định lượng có thể chia nhóm thành biến thứ tự.</b> Tuổi 27, 30, 31… (định lượng) → nhóm tuổi “&lt;30, 30–40, 41–50…” (thứ tự). Khi chia nhóm, ta mất bớt thông tin.</li>
+      </ul>
+    </div>
+
+    <!-- ================================================= -->
+    <h2>3. Trình bày số liệu bằng bảng tần suất</h2>
+    <p>Sau khi thu thập, số liệu được trình bày thành bảng, gọi là <b>bảng phân phối tần suất</b>: mỗi giá trị (hoặc mỗi khoảng) xuất hiện bao nhiêu lần, chiếm bao nhiêu %.</p>
+
+    <div class="formula">
+      <span class="formula-name">Tỷ lệ phần trăm</span>
+      $$\% = \frac{m}{n} \times 100\%$$
+      <span class="formula-note">m: tần số (số lần gặp) · n: tổng số quan sát</span>
+      <span class="formula-note">% tích luỹ của 1 dòng = cộng dồn % của dòng đó và các dòng phía trên → dòng cuối cùng luôn bằng 100%.</span>
+    </div>
+
+    <h3>3.1. Biến định tính: đếm từng loại</h3>
+    <div class="table-wrap"><table class="tbl">
+      <caption>Bảng phân phối giới tính học sinh tại một trường</caption>
+      <thead><tr><th>Giới tính</th><th>Số trẻ (tần số)</th><th>Tỷ lệ %</th></tr></thead>
+      <tbody>
+        <tr><td>Nam</td><td>45</td><td class="fixed">65,2%</td></tr>
+        <tr><td>Nữ</td><td>24</td><td class="fixed">34,8%</td></tr>
+        <tr class="total"><td>Tổng số</td><td>69</td><td>100,0%</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide ghi Nam 65,0% và Nữ 35,0%. Tính lại: $45/69 = 0{,}6522$ → <b>65,2%</b>; $24/69 = 0{,}3478$ → <b>34,8%</b>. Cộng lại vẫn bằng 100%.</p>
+    </div>
+
+    <h3>3.2. Biến định lượng liên tục: chia khoảng</h3>
+    <p>Với biến liên tục (như Hemoglobin, đường huyết) ta <b>không thể liệt kê</b> mọi giá trị, vì gần như mỗi người một số khác nhau. Khi đó ta <b>chia phạm vi số liệu thành các khoảng (lớp)</b> rồi đếm số người rơi vào mỗi khoảng.</p>
+
+    <div class="box core">
+      <p class="box-title">📌 Quy tắc chia khoảng (theo slide)</p>
+      <ul>
+        <li><b>Độ rộng khoảng $d$</b> nên là ước số của 10: <b>1, 2, 5, 10</b> hoặc <b>0,5; 0,2</b>…</li>
+        <li><b>Số khoảng</b> nên từ <b>5 đến 12</b> (hay dùng nhất là 7–8 khoảng).</li>
+        <li>Ví dụ Hb của 70 phụ nữ dao động từ 8,8 đến 15,1 g/dl → chia <b>8 khoảng</b>, mỗi khoảng rộng <b>1 g/dl</b>: 8–8,9; 9–9,9; …; 15–15,9.</li>
+      </ul>
+    </div>
+
+    <ol class="steps">
+      <li><b>Tìm giá trị nhỏ nhất và lớn nhất</b> (8,8 và 15,1) → phạm vi 15,1 − 8,8 = 6,3.</li>
+      <li><b>Chọn độ rộng $d$</b> sao cho được 5–12 khoảng. Ở đây $d = 1$ cho 8 khoảng.</li>
+      <li><b>Gạch đếm</b>: đọc từng số liệu và gạch 1 vạch vào khoảng chứa nó, cứ 5 vạch thì gạch chéo thành 1 bó.</li>
+      <li><b>Đếm tần số</b> mỗi khoảng, tính <b>%</b> và <b>% tích luỹ</b>.</li>
+      <li><b>Vẽ histogram</b> để nhìn hình dạng phân phối.</li>
+    </ol>
+
+    <figure class="fig framed" data-anim="steps" data-step-ms="4300">
+      <div class="b8-t2h">
+        <div id="hb-tally"></div>
+        <div id="hb-build"></div>
+      </div>
+      <div class="step-captions">
+        <p data-caption="0"><b>Bước 1–2:</b> Hb thấp nhất 8,8, cao nhất 15,1 → chọn độ rộng $d = 1$, được 8 khoảng từ 8 đến 15,9 (bảng bên trái). Khung histogram bên phải còn trống.</p>
+        <p data-caption="1"><b>Bước 3 – Gạch đếm:</b> đọc lần lượt 70 số liệu, số rơi vào khoảng nào thì gạch 1 vạch ở dòng đó. Đủ 5 vạch thì gạch chéo thành 1 bó cho dễ đếm.</p>
+        <p data-caption="2"><b>Bước 4 – Đếm vạch thành tần số:</b> 1, 3, 14, 19, 14, 13, 5, 1. Cộng lại phải đủ $n = 70$ người.</p>
+        <p data-caption="3"><b>Bước 5 – Vẽ histogram:</b> mỗi tần số thành 1 cột, cột cao bằng số người trong khoảng đó. Các cột đứng <b>sát nhau</b> vì khoảng này nối liền khoảng kia.</p>
+        <p data-caption="4"><b>Đọc hình:</b> cột cao nhất là khoảng 11 – 11,9 (19 người). Cao ở giữa, thấp dần về hai bên, nên phân phối có dạng <b>gần hình chuông</b>.</p>
+        <p data-caption="5"><b>Cộng dồn</b> 4 cột đầu: 1 + 3 + 14 + 19 = 37 người = 37/70 = <b>52,86%</b>, đúng bằng % tích luỹ ở dòng 11 – 11,9 của bảng dưới. Hơn một nửa số phụ nữ có Hb dưới 12 g/dl.</p>
+      </div>
+      <figcaption>Hình 3. Từ bảng gạch đếm đến tần số và histogram: Hemoglobin của 70 phụ nữ (g/dl = g/100ml).</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table class="tbl">
+      <caption>Bước 4 – Bảng tần suất Hb của 70 phụ nữ</caption>
+      <thead><tr><th>Hb</th><th>Tần số</th><th>%</th><th>% tích luỹ</th></tr></thead>
+      <tbody>
+        <tr><td>8 – 8,9</td><td>1</td><td>1,43</td><td>1,43</td></tr>
+        <tr><td>9 – 9,9</td><td>3</td><td>4,29</td><td>5,71</td></tr>
+        <tr><td>10 – 10,9</td><td>14</td><td>20,00</td><td>25,71</td></tr>
+        <tr><td>11 – 11,9</td><td>19</td><td>27,14</td><td>52,86</td></tr>
+        <tr><td>12 – 12,9</td><td>14</td><td>20,00</td><td>72,86</td></tr>
+        <tr><td>13 – 13,9</td><td>13</td><td>18,57</td><td>91,43</td></tr>
+        <tr><td>14 – 14,9</td><td>5</td><td>7,14</td><td>98,57</td></tr>
+        <tr class="fixed"><td>15 – 15,9</td><td>1</td><td>1,43</td><td>100,00</td></tr>
+        <tr class="total"><td>Tổng</td><td>70</td><td>100</td><td></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Cách tính 1 dòng (khoảng 11 – 11,9)</p>
+      <p>Tần số = 19 người → % = $\dfrac{19}{70}\times 100\% = 27{,}14\%$.<br>
+      % tích luỹ = 1,43 + 4,29 + 20,00 + 27,14 = <b>52,86%</b> → hơn một nửa số phụ nữ có Hb dưới 12 g/dl.</p>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Bảng tần suất trong slide (“Hemoglobin của 69 phụ nữ”) <b>thiếu dòng 15 – 15,9</b>, nên tổng chỉ còn 69 và % tích luỹ dừng ở 98,57%. Nhưng bảng gạch đếm có dòng 15 – 15,9 (1 người) và kết quả Stata ghi <b>Obs = 70</b>. Các % trong slide cũng đã chia cho 70 (vd 1/70 = 1,43%). Bảng trên đã <b>thêm dòng 15 – 15,9: 1 người, 1,43%, tích luỹ 100%</b> (dòng tô màu).</p>
+      <p><b>Mẹo kiểm tra bảng:</b> tổng tần số phải bằng $n$, và % tích luỹ ở dòng cuối phải bằng 100%.</p>
+    </div>
+
+    <div class="widget">
+      <p class="widget-title">Histogram Hemoglobin của 70 phụ nữ</p>
+      <p class="widget-desc">Bấm vào từng cột để xem chi tiết. Bật “đường % tích luỹ” để thấy % cộng dồn tăng dần đến 100%.</p>
+      <div class="btn-row">
+        <button type="button" class="btn small is-on" data-hbmode="count">Trục dọc: số người</button>
+        <button type="button" class="btn small" data-hbmode="pct">Trục dọc: %</button>
+        <button type="button" class="btn small" id="hb-cum">📈 Đường % tích luỹ</button>
+      </div>
+      <div id="hb-hist" class="fig-body"></div>
+      <div class="hb-info" id="hb-info">👆 Bấm vào một cột…</div>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm: histogram khác biểu đồ cột</p>
+      <ul>
+        <li><b>Histogram</b> dùng cho biến <b>định lượng liên tục</b>: các cột <b>sát nhau</b>, vì khoảng này nối liền khoảng kia (9,9 rồi đến 10).</li>
+        <li><b>Biểu đồ cột</b> dùng cho biến <b>định tính</b>: các cột <b>tách rời</b>, vì “Kinh” và “Hoa” không nối liền nhau.</li>
+        <li>Khoảng “8 – 8,9” nghĩa là từ 8,0 đến 8,9 (số liệu làm tròn 1 chữ số thập phân), tức là $8 \le \text{Hb} &lt; 9$.</li>
+      </ul>
+    </div>
+
+    <h3>3.3. Đọc kết quả phần mềm thống kê (Stata)</h3>
+    <pre class="stata">    Variable |  Obs       Mean    Std. Dev.    Min    Max
+-------------+---------------------------------------------
+  hemoglobin |   70   11.98429    1.416122    8.8   15.1</pre>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th>Cột</th><th class="left">Nghĩa là</th><th>Giá trị</th></tr></thead>
+      <tbody>
+        <tr><td>Obs</td><td class="left">Số quan sát (số người có số liệu)</td><td>70 người</td></tr>
+        <tr><td>Mean</td><td class="left">Trung bình $\bar{x}$</td><td>≈ 11,98 g/dl</td></tr>
+        <tr><td>Std. Dev.</td><td class="left">Độ lệch chuẩn SD: số liệu phân tán quanh trung bình nhiều hay ít</td><td>≈ 1,42 g/dl</td></tr>
+        <tr><td>Min / Max</td><td class="left">Giá trị nhỏ nhất / lớn nhất</td><td>8,8 / 15,1 g/dl</td></tr>
+      </tbody>
+    </table></div>
+    <p>Nói bằng lời: <i>“70 phụ nữ có Hb trung bình khoảng 12,0 g/dl, độ lệch chuẩn 1,4 g/dl, thấp nhất 8,8 và cao nhất 15,1.”</i> Histogram có dạng gần hình chuông, nên khoảng <b>2/3 số phụ nữ</b> có Hb trong khoảng $11{,}98 \pm 1{,}42$, tức <b>10,6 – 13,4 g/dl</b>.</p>
+    <p class="small muted">Lưu ý dấu thập phân: phần mềm viết “11.98” (dấu chấm kiểu Anh), tiếng Việt viết “11,98”.</p>
+
+    <!-- ================================================= -->
+    <h2>4. Nghiên cứu tổng thể và nghiên cứu mẫu</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <ul>
+        <li><b>Xét nghiệm máu</b> chỉ cần rút vài ml, không ai rút hết máu để xét nghiệm. Đó là <b>nghiên cứu mẫu</b>.</li>
+        <li><b>Tổng điều tra dân số</b> (khoảng 10 năm một lần) đến từng hộ gia đình. Đó là <b>nghiên cứu tổng thể</b>: rất tốn kém nên không làm thường xuyên.</li>
+      </ul>
+    </div>
+
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th></th><th class="left">Nghiên cứu tổng thể (toàn bộ)</th><th class="left">Nghiên cứu mẫu</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">Khái niệm</td><td class="left">Thu thập dữ liệu từ <b>mọi đơn vị</b> trong tổng thể mục tiêu.</td><td class="left">Chỉ thu thập từ <b>một tập con</b> được chọn theo nguyên tắc đại diện, rồi suy rộng cho toàn bộ tổng thể bằng suy luận thống kê.</td></tr>
+        <tr><td class="row-head">Khi nào dùng</td><td class="left">Cần số liệu đầy đủ, độ chính xác rất cao, phân tổ đến các nhóm rất nhỏ; tổng thể không quá lớn hoặc có đủ nguồn lực.</td><td class="left">Tổng thể quá lớn, nguồn lực hạn chế, biến nghiên cứu thay đổi nhanh, hoặc phép đo kiểm định chất lượng (đo xong là hỏng mẫu).</td></tr>
+        <tr><td class="row-head">Ưu điểm</td><td class="left">Không có sai số chọn mẫu; thống kê được chi tiết; tạo được khung mẫu chuẩn cho các khảo sát sau.</td><td class="left">Nhanh, rẻ, dễ tổ chức; có thể đo kỹ hơn trên từng người <span class="small muted">(bổ sung)</span>.</td></tr>
+        <tr><td class="row-head">Hạn chế</td><td class="left">Chi phí và thời gian lớn, khó tổ chức, khó lặp lại thường xuyên; <b>vẫn có sai số phi mẫu</b>.</td><td class="left">Có <b>sai số chọn mẫu</b>; nếu chọn không đúng cách thì mẫu không đại diện <span class="small muted">(bổ sung)</span>.</td></tr>
+      </tbody>
+    </table></div>
+
+    <p><b>Quy trình nghiên cứu tổng thể</b> (theo slide):</p>
+    <ol class="steps">
+      <li>Xác định mục tiêu.</li>
+      <li>Xác định tổng thể và khung đơn vị (danh sách các đơn vị).</li>
+      <li>Thiết kế công cụ đo lường (phiếu hỏi, thiết bị đo).</li>
+      <li>Làm thí điểm.</li>
+      <li>Thu thập toàn bộ.</li>
+      <li>Làm sạch, tổng hợp và phân tích số liệu.</li>
+    </ol>
+
+    <div class="box core">
+      <p class="box-title">📌 Vì sao thực tế hay dùng nghiên cứu mẫu? (theo slide)</p>
+      <ul>
+        <li>Nghiên cứu toàn bộ tốn rất nhiều <b>thời gian, nhân lực, tiền bạc, phương tiện</b>.</li>
+        <li>Khi tập hợp quá lớn, dễ <b>trùng hoặc bỏ sót</b> phần tử, dễ sai sót khi thu thập, làm giảm độ chính xác.</li>
+        <li>Nhiều khi <b>không xác định được hết N phần tử</b> của tổng thể.</li>
+      </ul>
+      <p>Vì vậy người ta chọn ra <b>$n$ phần tử</b> để nghiên cứu. Tập hợp $n$ phần tử này gọi là <b>mẫu kích thước $n$</b>.</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>“Khảo sát hết mọi người thì không còn sai số” là <b>sai</b>. Nghiên cứu tổng thể chỉ hết <b>sai số chọn mẫu</b>, vẫn còn <b>sai số phi mẫu</b>: ghi chép nhầm, người trả lời nói không đúng, máy đo lệch…</p>
+    </div>
+
+    <!-- ================================================= -->
+    <h2>5. Phương pháp chọn mẫu</h2>
+
+    <div class="box core">
+      <p class="box-title">📌 Chọn mẫu ngẫu nhiên (theo slide)</p>
+      <ul>
+        <li>Mỗi lần lấy vào mẫu <b>chỉ một phần tử</b>.</li>
+        <li>Lấy phần tử nào vào mẫu là <b>hoàn toàn ngẫu nhiên</b>: ai cũng có cơ hội được chọn như nhau.</li>
+        <li>Các phần tử được lấy theo phương thức <b>có hoàn lại</b>.</li>
+      </ul>
+      <p class="note-inline">💡 <b>Hiểu đúng ý “có hoàn lại”:</b> “có hoàn lại” là <b>giả thiết lý thuyết</b> của mẫu ngẫu nhiên đơn: lần chọn nào mọi phần tử cũng có cùng cơ hội. Trong nghiên cứu y học thực tế, người ta thường chọn <b>không hoàn lại</b> (không phỏng vấn 1 người 2 lần). Khi quần thể lớn hơn mẫu rất nhiều thì hai cách cho kết quả gần như nhau.</p>
+    </div>
+
+    <h3>5.1. Các cách chọn mẫu ngẫu nhiên</h3>
+    <p class="small muted">Trong hình: chấm viền đậm = người được chọn vào mẫu; chấm mờ = không được chọn. Mỗi hình tự diễn lại <b>thứ tự chọn</b> khi bạn cuộn tới; bấm nút tròn bên dưới hình để xem lại.</p>
+    <div class="grid-3">
+      <div class="card smp-card"><div class="smp-fig" data-pattern="simple"></div><h4>Ngẫu nhiên đơn <span class="tag rand">ngẫu nhiên</span></h4><p>Có danh sách cả quần thể, <b>bốc thăm</b> (hoặc dùng số ngẫu nhiên) để chọn.</p><p class="ex">VD: bốc thăm 50 SV từ danh sách 500 SV.</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="systematic"></div><h4>Hệ thống <span class="tag rand">ngẫu nhiên</span></h4><p>Chọn ngẫu nhiên người đầu tiên, sau đó cứ <b>cách đều $k$ người</b> chọn 1 người, với $k = N/n$.</p><p class="ex">VD: BN đến khám, chọn người số 2, 7, 12, 17… ($k = 5$).</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="stratified"></div><h4>Phân tầng <span class="tag rand">ngẫu nhiên</span></h4><p>Chia quần thể thành các <b>tầng</b> (nhóm đồng nhất: nam/nữ, khối lớp…), rồi chọn ngẫu nhiên <b>trong mỗi tầng</b>.</p><p class="ex">VD: mỗi khối năm 1, 2, 3 bốc thăm số SV theo tỷ lệ.</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="cluster"></div><h4>Cụm <span class="tag rand">ngẫu nhiên</span></h4><p>Chia quần thể thành các <b>cụm</b> (lớp, thôn, tổ), chọn ngẫu nhiên vài cụm rồi lấy <b>tất cả</b> người trong cụm.</p><p class="ex">VD: bốc thăm 2 lớp, khảo sát toàn bộ SV 2 lớp đó.</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="multistage"></div><h4>Nhiều bậc <span class="tag rand">ngẫu nhiên</span></h4><p>Chọn qua <b>nhiều bước</b>: chọn cụm lớn → trong đó chọn cụm nhỏ hơn → … → chọn người.</p><p class="ex">VD: chọn huyện → chọn xã → chọn hộ → chọn người.</p></div>
+    </div>
+
+    <h3>5.2. Các cách chọn mẫu phi ngẫu nhiên</h3>
+    <div class="grid-2">
+      <div class="card smp-card"><div class="smp-fig" data-pattern="purposive"></div><h4>Có chủ đích <span class="tag nonrand">phi ngẫu nhiên</span></h4><p>Người nghiên cứu <b>tự chọn</b> những người phù hợp với mục đích.</p><p class="ex">VD: chỉ phỏng vấn các lương y trên 20 năm kinh nghiệm (chấm hình sao).</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="convenience"></div><h4>Thuận tiện <span class="tag nonrand">phi ngẫu nhiên</span></h4><p><b>Ai dễ gặp thì chọn</b>: nhanh, rẻ, nhưng dễ lệch nhất.</p><p class="ex">VD: hỏi các bạn ngồi gần cửa (thanh màu cam trong hình); BN có mặt sáng nay.</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="quota"></div><h4>Quota (phân bổ chỉ tiêu) <span class="tag nonrand">phi ngẫu nhiên</span></h4><p>Đặt <b>chỉ tiêu</b> cho mỗi nhóm (vd 4 nam, 4 nữ), rồi lấy người nào gặp trước cho đủ chỉ tiêu.</p><p class="ex">Giống phân tầng, nhưng trong mỗi nhóm <b>không bốc thăm</b>.</p></div>
+      <div class="card smp-card"><div class="smp-fig" data-pattern="snowball"></div><h4>Bóng tuyết (hòn tuyết lăn) <span class="tag nonrand">phi ngẫu nhiên</span></h4><p>Người tham gia <b>giới thiệu người tiếp theo</b>, mẫu lớn dần như hòn tuyết lăn.</p><p class="ex">Dùng cho nhóm khó tiếp cận: người mắc bệnh hiếm, người nghiện…</p></div>
+    </div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Mẹo nhớ: phân tầng khác cụm ở đâu?</p>
+      <p><b>Phân tầng: mọi tầng, mỗi tầng một ít.</b> &nbsp;·&nbsp; <b>Cụm: vài cụm, cụm nào được chọn thì lấy hết.</b></p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li><b>Ngẫu nhiên không có nghĩa là tuỳ tiện.</b> Phỏng vấn “bệnh nhân nào đến khám sáng nay” là mẫu <b>thuận tiện</b>, không phải mẫu ngẫu nhiên.</li>
+        <li><b>Quota trông giống phân tầng</b> (cũng chia nhóm), nhưng trong mỗi nhóm quota lấy người gặp trước chứ không bốc thăm, nên vẫn là <b>phi ngẫu nhiên</b>.</li>
+      </ul>
+    </div>
+    <p>👉 Muốn thấy tận mắt mẫu bị lệch ra sao? Chơi trò <a href="#game-chon-mau">“Thử chọn mẫu”</a> ở mục 7.</p>
+
+    <!-- ================================================= -->
+    <h2>6. Mô tả số liệu: con số và biểu đồ</h2>
+    <p>Chọn con số thống kê và biểu đồ nào là tuỳ <b>loại biến</b> (theo slide):</p>
+
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th></th><th class="left">Biến định lượng</th><th class="left">Biến định tính</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="row-head">Con số thống kê</td>
+          <td class="left"><b>Giá trị trung tâm:</b> trung bình, trung vị, trung bình nhân.<br><b>Mức độ biến thiên:</b> độ lệch chuẩn, khoảng tứ phân vị, khoảng giá trị (min – max), khoảng trung bình ± 1 độ lệch chuẩn.</td>
+          <td class="left"><b>Tỷ lệ %</b> của:<br>• giá trị tiêu biểu của biến nhị giá (vd % nữ);<br>• các giá trị xếp theo thứ tự (biến thứ tự);<br>• các giá trị xếp theo tần suất (biến danh định).</td>
+        </tr>
+        <tr>
+          <td class="row-head">Biểu đồ</td>
+          <td class="left">Histogram, biểu đồ hộp (boxplot)</td>
+          <td class="left">Biểu đồ cột, biểu đồ tròn</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">➕ <b>Trung bình nhân</b> dùng cho số liệu tăng theo cấp số nhân, ví dụ hiệu giá kháng thể 1:2, 1:4, 1:8, 1:16…</p>
+
+    <h3>6.1. Bốn loại biểu đồ hay gặp</h3>
+    <div class="grid-2">
+      <div class="card mini-chart"><div id="mini-hist"></div><h4>Histogram</h4><p class="small">Biến <b>định lượng</b>: hình dạng phân phối (cân đối, lệch…). Cột sát nhau.</p></div>
+      <div class="card mini-chart"><div id="mini-box"></div><h4>Biểu đồ hộp (boxplot)</h4><p class="small">Biến <b>định lượng</b>: trung vị, tứ phân vị, giá trị ngoại lai.</p></div>
+      <div class="card mini-chart"><div id="mini-bar"></div><h4>Biểu đồ cột</h4><p class="small">Biến <b>định tính</b>: so sánh số lượng giữa các nhóm. Cột tách rời.</p></div>
+      <div class="card mini-chart"><div id="mini-pie"></div><h4>Biểu đồ tròn</h4><p class="small">Biến <b>định tính</b>: mỗi nhóm chiếm bao nhiêu % của tổng (cả hình = 100%).</p></div>
+    </div>
+    <p class="small muted">Hai biểu đồ cột và tròn dùng cùng số liệu minh hoạ: số bà mẹ sinh con theo nhóm tuổi.</p>
+
+    <h3>6.2. Đọc biểu đồ hộp (boxplot)</h3>
+    <figure class="fig framed" data-anim="steps" data-step-ms="4300">
+      <div id="fig-boxplot" class="fig-body"></div>
+      <div class="step-captions">
+        <p data-caption="0">Mỗi chấm là cân nặng của 1 trẻ sơ sinh (40 trẻ, số liệu minh hoạ), xếp theo trục dọc từ nhẹ đến nặng. Bấm <b>Bước tiếp</b> để dựng biểu đồ hộp.</p>
+        <p data-caption="1"><b>Trung vị = 3200 g</b> là vạch chia đôi số trẻ: 20 trẻ nhẹ hơn, 20 trẻ nặng hơn.</p>
+        <p data-caption="2">Chia đôi tiếp mỗi nửa: <b>Q1 = 2900</b> (25% số trẻ nhẹ hơn) và <b>Q3 = 3500</b> (75% nhẹ hơn). Hộp từ Q1 đến Q3 chứa <b>50% số trẻ ở giữa</b>; chiều dài hộp IQR = 3500 − 2900 = 600 g.</p>
+        <p data-caption="3">Dựng “hàng rào” cách hộp 1,5 × IQR = 1,5 × 600 = 900 g: dưới là 2900 − 900 = <b>2000</b>, trên là 3500 + 900 = <b>4400</b>.</p>
+        <p data-caption="4"><b>Râu</b> kéo đến trẻ nhẹ nhất và nặng nhất còn nằm trong hàng rào: 2000 g và 4400 g.</p>
+        <p data-caption="5">Chấm nằm ngoài râu là <b>giá trị ngoại lai</b>: 1200, 1500, 1800 và 4650 g. Chúng khác hẳn số đông, nên cần kiểm tra lại.</p>
+      </div>
+      <figcaption>Hình 4. Cấu tạo biểu đồ hộp, ví dụ cân nặng trẻ sơ sinh (gram). Hộp chứa 50% số trẻ ở giữa.</figcaption>
+    </figure>
+    <div class="box core">
+      <p class="box-title">📌 Năm con số của biểu đồ hộp</p>
+      <ul>
+        <li><b>Q1</b> (tứ phân vị thứ nhất): 25% số liệu nhỏ hơn giá trị này.</li>
+        <li><b>Trung vị</b> (vạch giữa hộp): 50% nhỏ hơn, 50% lớn hơn.</li>
+        <li><b>Q3</b> (tứ phân vị thứ ba): 75% số liệu nhỏ hơn giá trị này.</li>
+        <li><b>Khoảng tứ phân vị</b> IQR = Q3 − Q1 (chiều dài của hộp).</li>
+        <li><b>Râu</b> kéo đến giá trị nhỏ nhất và lớn nhất <i>không phải ngoại lai</i>. Các chấm nằm ngoài râu là <b>giá trị ngoại lai</b> (cách hộp hơn 1,5 × IQR).</li>
+      </ul>
+    </div>
+
+    <h3>6.3. Biểu đồ chấm: hai biến định lượng có liên quan không?</h3>
+    <p><b>Biểu đồ chấm</b> (scatter plot) biểu thị <b>mối tương quan giữa 2 biến định lượng</b>. Mỗi chấm là 1 người: hoành độ là biến thứ nhất, tung độ là biến thứ hai.</p>
+    <figure class="fig framed b8-scatter" data-anim="steps" data-step-ms="4000">
+      <div class="grid-4" id="scatter-examples"></div>
+      <div class="step-captions">
+        <p data-caption="0">Bốn nhóm số liệu, mỗi chấm là 1 người. Thử đoán trước: các chấm <b>đi lên</b>, <b>đi xuống</b> hay <b>rải lung tung</b>?</p>
+        <p data-caption="1">Kẻ 1 đường thẳng đi qua giữa đám chấm. Đường <b>dốc lên</b> → tương quan dương; <b>dốc xuống</b> → tương quan âm; gần như <b>nằm ngang</b> → không tương quan.</p>
+        <p data-caption="2">Nhìn khoảng cách từ mỗi chấm đến đường (các vạch cam). Vạch <b>ngắn</b>, chấm bám sát đường → tương quan <b>mạnh</b>; vạch <b>dài</b>, chấm tản mát → tương quan <b>yếu</b> hơn.</p>
+        <p data-caption="3">Kết luận cho 4 hình. Hệ số tương quan $r$ càng gần 1 hoặc −1 thì càng chặt; gần 0 là không tương quan.</p>
+      </div>
+      <figcaption>Hình 5. Bốn kiểu biểu đồ chấm hay gặp.</figcaption>
+    </figure>
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ y khoa</p>
+      <ul>
+        <li><b>Dương:</b> chiều cao càng lớn thì cân nặng thường càng lớn; tuổi càng cao thì huyết áp tâm thu thường càng cao.</li>
+        <li><b>Âm:</b> số giờ vận động mỗi tuần càng nhiều thì vòng bụng thường càng nhỏ.</li>
+        <li><b>Không tương quan:</b> ngày sinh trong tháng và đường huyết.</li>
+      </ul>
+    </div>
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p><b>Tương quan không có nghĩa là nguyên nhân.</b> Số que kem bán ra và số ca đuối nước cùng tăng vào mùa hè, nhưng ăn kem không gây đuối nước: cả hai cùng do trời nóng.</p>
+    </div>
+
+    <h3>6.4. Bảng dự kiến kết quả: bảng 1 chiều và bảng 2 chiều</h3>
+    <p><b>Bảng 1 chiều:</b> mô tả <b>1 biến</b> định tính, có 1 dòng tổng cộng. Ví dụ tình trạng dinh dưỡng của 200 trẻ:</p>
+    <div class="table-wrap"><table class="tbl wide">
+      <thead><tr><th>TT</th><th class="left">Tình trạng dinh dưỡng</th><th>Tần số</th><th>Tỷ lệ %</th><th>Tần số cộng dồn</th><th>Tỷ lệ % cộng dồn</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="left">Suy dinh dưỡng độ 1</td><td>30</td><td>15,0</td><td>30</td><td>15,0</td></tr>
+        <tr><td>2</td><td class="left">Suy dinh dưỡng độ 2</td><td>12</td><td>6,0</td><td>42</td><td>21,0</td></tr>
+        <tr><td>3</td><td class="left">Suy dinh dưỡng độ 3</td><td>4</td><td>2,0</td><td>46</td><td>23,0</td></tr>
+        <tr><td>4</td><td class="left">Bình thường</td><td>154</td><td>77,0</td><td>200</td><td>100,0</td></tr>
+        <tr class="total"><td></td><td class="left">Tổng cộng</td><td>200</td><td>100,0</td><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+
+    <p><b>Bảng 2 chiều:</b> mô tả <b>2 biến</b> định tính cùng lúc (ở đây là dinh dưỡng × giới). Bảng có cả dòng tổng và cột tổng (slide gọi là “2 dòng tổng cộng”). Tỷ lệ % tính theo cột: % trong nam, % trong nữ.</p>
+    <div class="table-wrap"><table class="tbl wide">
+      <thead>
+        <tr><th rowspan="2">TT</th><th rowspan="2" class="left">Tình trạng dinh dưỡng</th><th colspan="2">Nam</th><th colspan="2">Nữ</th><th colspan="2">Tổng cộng</th></tr>
+        <tr><th>Tần số</th><th>%</th><th>Tần số</th><th>%</th><th>Tần số</th><th>%</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td class="left">Suy dinh dưỡng độ 1</td><td>18</td><td>18,0</td><td>12</td><td>12,0</td><td>30</td><td>15,0</td></tr>
+        <tr><td>2</td><td class="left">Suy dinh dưỡng độ 2</td><td>7</td><td>7,0</td><td>5</td><td>5,0</td><td>12</td><td>6,0</td></tr>
+        <tr><td>3</td><td class="left">Suy dinh dưỡng độ 3</td><td>3</td><td>3,0</td><td>1</td><td>1,0</td><td>4</td><td>2,0</td></tr>
+        <tr><td>4</td><td class="left">Bình thường</td><td>72</td><td>72,0</td><td>82</td><td>82,0</td><td>154</td><td>77,0</td></tr>
+        <tr class="total"><td></td><td class="left">Tổng cộng</td><td>100</td><td>100</td><td>100</td><td>100</td><td>200</td><td>100</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Trong bảng mẫu của slide có các ô ghi “a/n*100=1”, “b/n*100=2”… Số <b>1, 2, 3, 4</b> ở đây chỉ là <b>ký hiệu ô</b> (tỷ lệ % thứ nhất, thứ hai…), <b>không</b> phải kết quả phép tính bằng 1. Đúng ra: tỷ lệ % = $\frac{a}{n}\times 100$; tỷ lệ % cộng dồn = cộng các tỷ lệ % từ dòng đầu đến dòng đó.</p>
+    </div>
+
+    <!-- ================================================= -->
+    <h2>7. 🎮 Chơi mà học</h2>
+    <p>Ba trò chơi giúp bạn luyện phần cốt lõi của bài. Điểm cao nhất được lưu lại trên trình duyệt của bạn.</p>
+    <div id="game-bien-so"></div>
+    <div id="game-chon-mau"></div>
+    <div id="game-tuong-quan"></div>
+
+    <!-- ================================================= -->
+    <h2>8. Bài tập tự luyện</h2>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 1. Quần thể – mẫu – tham số – thống kê</p>
+      <p>Để biết tỷ lệ thiếu máu ở phụ nữ có thai của huyện X, người ta chọn ngẫu nhiên 300 thai phụ để xét nghiệm Hb, thấy 54 người thiếu máu. Hãy chỉ ra quần thể, mẫu, thống kê và tham số.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li><b>Quần thể:</b> tất cả phụ nữ có thai ở huyện X.</li>
+          <li><b>Mẫu:</b> 300 thai phụ được xét nghiệm ($n = 300$).</li>
+          <li><b>Thống kê:</b> tỷ lệ thiếu máu trong mẫu $\hat{p} = 54/300 = 0{,}18$ = 18%.</li>
+          <li><b>Tham số:</b> tỷ lệ thiếu máu thật của <i>toàn bộ</i> thai phụ huyện X. Chưa biết, ta ước lượng khoảng 18%.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 2. Phân loại biến số</p>
+      <p>Phiếu nghiên cứu có các biến: (a) tuổi (năm); (b) giới; (c) nghề nghiệp; (d) chỉ số BMI (kg/m²); (e) phân loại BMI: gầy – bình thường – thừa cân – béo phì; (f) có tiền sử đái tháo đường không; (g) số lần nhập viện trong năm. Mỗi biến thuộc loại nào?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <div class="table-wrap"><table class="tbl">
+          <thead><tr><th class="left">Biến</th><th>Loại</th><th class="left">Vì sao</th></tr></thead>
+          <tbody>
+            <tr><td class="left">(a) Tuổi</td><td>Định lượng</td><td class="left">Giá trị là con số đo được.</td></tr>
+            <tr><td class="left">(b) Giới</td><td>Nhị giá</td><td class="left">Chỉ có 2 giá trị nam / nữ.</td></tr>
+            <tr><td class="left">(c) Nghề nghiệp</td><td>Danh định</td><td class="left">Chỉ là tên gọi, không xếp cao – thấp.</td></tr>
+            <tr><td class="left">(d) BMI</td><td>Định lượng</td><td class="left">Con số (vd 22,5 kg/m²).</td></tr>
+            <tr><td class="left">(e) Phân loại BMI</td><td>Thứ tự</td><td class="left">Các mức xếp được từ gầy đến béo phì. (Đây là BMI đã chia nhóm.)</td></tr>
+            <tr><td class="left">(f) Tiền sử ĐTĐ</td><td>Nhị giá</td><td class="left">Có / không.</td></tr>
+            <tr><td class="left">(g) Số lần nhập viện</td><td>Định lượng (rời rạc)</td><td class="left">Đếm được: 0, 1, 2, …</td></tr>
+          </tbody>
+        </table></div>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 3. Lập bảng tần suất cho biến định tính</p>
+      <p>Nhóm máu của 20 người hiến máu: O, A, B, O, O, A, AB, O, B, A, O, O, A, B, O, A, O, AB, O, A. Lập bảng tần suất, cho biết yếu vị và biểu đồ nên dùng.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Đếm: O = 9, A = 6, B = 3, AB = 2. Kiểm tra tổng: 9 + 6 + 3 + 2 = 20 ✓.</li>
+          <li>Tính %: O = 9/20 = 45%; A = 30%; B = 15%; AB = 10%. Tổng = 100% ✓.</li>
+          <li>Nhóm máu là biến <b>danh định</b>, nên xếp các dòng theo tần suất giảm dần: O → A → B → AB.</li>
+          <li>Yếu vị (giá trị gặp nhiều nhất) là <b>nhóm O</b>.</li>
+          <li>Biểu đồ phù hợp: <b>biểu đồ cột</b> hoặc <b>biểu đồ tròn</b> (không dùng histogram).</li>
+        </ol>
+        <div class="table-wrap"><table class="tbl">
+          <thead><tr><th>Nhóm máu</th><th>Tần số</th><th>Tỷ lệ %</th></tr></thead>
+          <tbody><tr><td>O</td><td>9</td><td>45</td></tr><tr><td>A</td><td>6</td><td>30</td></tr><tr><td>B</td><td>3</td><td>15</td></tr><tr><td>AB</td><td>2</td><td>10</td></tr><tr class="total"><td>Tổng</td><td>20</td><td>100</td></tr></tbody>
+        </table></div>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 4. Chia khoảng cho biến liên tục</p>
+      <p>Cân nặng của 40 sinh viên nằm trong khoảng từ 41 kg đến 78 kg. Nên chọn độ rộng khoảng bằng bao nhiêu và chia thành những khoảng nào?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Phạm vi = 78 − 41 = 37 kg.</li>
+          <li>Thử các độ rộng “đẹp”: $d = 2$ → khoảng 19 khoảng (quá nhiều); $d = 10$ → chỉ 4 khoảng (quá ít); <b>$d = 5$ → 8 khoảng</b> ✓ (nằm trong 5–12).</li>
+          <li>Bắt đầu từ số tròn 40: 40–44,9; 45–49,9; 50–54,9; 55–59,9; 60–64,9; 65–69,9; 70–74,9; 75–79,9.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 5. Đọc bảng tần suất Hb (bảng đã sửa ở mục 3)</p>
+      <p>(a) Bao nhiêu % phụ nữ có Hb dưới 12 g/dl? (b) Bao nhiêu người có Hb từ 13 g/dl trở lên? (c) Khoảng nào có nhiều người nhất? (d) Trung vị nằm trong khoảng nào?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Đọc cột % tích luỹ ở dòng 11 – 11,9: <b>52,86%</b> (= 37/70 người). Ngưỡng thiếu máu của WHO cho phụ nữ không mang thai là Hb &lt; 12 g/dl, nên hơn một nửa nhóm này bị thiếu máu.</li>
+          <li>(b) 13 + 5 + 1 = <b>19 người</b>, chiếm 100% − 72,86% = 27,14%.</li>
+          <li>(c) Khoảng <b>11 – 11,9</b> (19 người) là khoảng có nhiều người nhất.</li>
+          <li>(d) Có 70 người, trung vị nằm giữa người thứ 35 và 36. Tần số cộng dồn: 1, 4, 18, <b>37</b>… Người thứ 35 và 36 đều thuộc khoảng <b>11 – 11,9</b>.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 6. Gọi tên phương pháp chọn mẫu</p>
+      <p>(a) Từ danh sách 1 000 hộ, chọn hộ số 7, 27, 47, 67… (b) Chia SV theo năm học 1, 2, 3 rồi mỗi năm bốc thăm 30 bạn. (c) Bốc thăm 5 thôn trong xã, khảo sát mọi hộ của 5 thôn đó. (d) Phỏng vấn 50 bệnh nhân đầu tiên đến khám sáng thứ Hai. (e) Nhờ mỗi người mắc bệnh hiếm giới thiệu thêm người bệnh khác.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) <b>Hệ thống</b>: cách đều $k = 20$ hộ.</li>
+          <li>(b) <b>Phân tầng</b>: mỗi tầng (năm học) chọn ngẫu nhiên một ít.</li>
+          <li>(c) <b>Cụm</b>: chọn vài cụm (thôn), lấy hết trong cụm.</li>
+          <li>(d) <b>Thuận tiện</b>: ai đến trước thì chọn, nên phi ngẫu nhiên.</li>
+          <li>(e) <b>Bóng tuyết</b>: người này giới thiệu người kia.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="quiz" data-title="Kiểm tra nhanh Bài 8">
+      <div class="q" data-answer="1">
+        <p class="q-text">Con số tính được trên mẫu (vd: 18% thiếu máu trong 300 thai phụ) gọi là gì?</p>
+        <div class="q-options"><button>Tham số</button><button>Thống kê</button><button>Quần thể</button><button>Biến số</button></div>
+        <div class="q-explain">Con số của <b>mẫu</b> là <b>thống kê</b>; con số (thường chưa biết) của <b>quần thể</b> là <b>tham số</b>.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Biến “mức độ hài lòng: rất không hài lòng → không hài lòng → bình thường → hài lòng → rất hài lòng” thuộc loại nào?</p>
+        <div class="q-options"><button>Danh định</button><button>Nhị giá</button><button>Thứ tự</button><button>Định lượng</button></div>
+        <div class="q-explain">Các mức là chữ (định tính) và <b>xếp được thứ tự</b> → biến thứ tự.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Biểu đồ nào phù hợp nhất để trình bày biến “nhóm máu”?</p>
+        <div class="q-options"><button>Histogram</button><button>Biểu đồ hộp</button><button>Biểu đồ cột hoặc biểu đồ tròn</button><button>Biểu đồ chấm</button></div>
+        <div class="q-explain">Nhóm máu là biến <b>danh định</b> (định tính) → biểu đồ cột hoặc tròn. Histogram và boxplot dành cho biến định lượng; biểu đồ chấm cần 2 biến định lượng.</div>
+      </div>
+      <div class="q" data-answer="3">
+        <p class="q-text">Trong bảng tần suất, cột “% tích luỹ” ở dòng cuối cùng phải bằng bao nhiêu?</p>
+        <div class="q-options"><button>Bằng % của dòng cuối</button><button>50%</button><button>Bằng tần số của dòng cuối</button><button>100%</button></div>
+        <div class="q-explain">Cộng dồn đến dòng cuối là cộng tất cả các dòng → <b>100%</b>. Đây là mẹo phát hiện bảng bị thiếu dòng (như bảng Hb trong slide).</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Chia SV theo khối lớp, rồi bốc thăm một số bạn <b>trong mỗi khối</b>. Đây là cách chọn mẫu nào?</p>
+        <div class="q-options"><button>Phân tầng</button><button>Cụm</button><button>Hệ thống</button><button>Quota</button></div>
+        <div class="q-explain">Mọi tầng, mỗi tầng một ít, có bốc thăm → <b>phân tầng</b>. Nếu trong mỗi khối lấy người gặp trước (không bốc thăm) thì mới là quota.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Đâu là <b>ưu điểm</b> của nghiên cứu tổng thể so với nghiên cứu mẫu?</p>
+        <div class="q-options"><button>Rẻ và nhanh hơn</button><button>Không có sai số chọn mẫu</button><button>Không có bất kỳ sai số nào</button><button>Dễ lặp lại thường xuyên</button></div>
+        <div class="q-explain">Nghiên cứu tổng thể không có <b>sai số chọn mẫu</b>, nhưng vẫn có <b>sai số phi mẫu</b>, lại tốn kém và khó lặp lại.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Trên biểu đồ chấm, các điểm đi <b>xuống</b> từ trái sang phải. Hai biến có quan hệ gì?</p>
+        <div class="q-options"><button>Tương quan dương</button><button>Không tương quan</button><button>Tương quan âm</button><button>Không đọc được gì</button></div>
+        <div class="q-explain">Biến này tăng thì biến kia giảm → <b>tương quan âm</b>.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Nhập máy “Nam = 1, Nữ = 2”. Vậy “giới tính” trở thành loại biến nào?</p>
+        <div class="q-options"><button>Định lượng, vì giờ đã là con số</button><button>Vẫn là biến nhị giá (định tính)</button><button>Biến thứ tự</button><button>Biến liên tục</button></div>
+        <div class="q-explain">Con số 1, 2 chỉ là <b>mã</b>, không đo lường gì. Giới tính vẫn là biến <b>nhị giá</b>, và không được tính trung bình.</div>
+      </div>
+    </div>
+
+    <!-- ================================================= -->
+    <h2>9. Thẻ ghi nhớ</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🍲</div>
+        <h4>Quần thể – Mẫu</h4>
+        <p>Quần thể ($N$) → <b>tham số</b> $\mu, \sigma, p$ (thường chưa biết).<br>Mẫu ($n$) → <b>thống kê</b> $\bar{x}, s, \hat{p}$ (tính được).<br>Mẫu phải <b>đại diện</b>: “khuấy đều rồi mới nếm”.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏷️</div>
+        <h4>4 loại biến</h4>
+        <p><b>Danh định</b> (tên, không thứ tự) · <b>Thứ tự</b> (xếp mức được) · <b>Nhị giá</b> (2 giá trị) · <b>Định lượng</b> (con số đo/đếm).</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h4>Bảng tần suất</h4>
+        <p>% = $\frac{m}{n}\times 100\%$. Cột % tích luỹ: dòng cuối = 100%.<br>Chia khoảng: $d$ = 1, 2, 5, 10 (0,5; 0,2); 5–12 khoảng.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h4>Chọn mẫu</h4>
+        <p><b>Ngẫu nhiên:</b> đơn · hệ thống · phân tầng · cụm · nhiều bậc.<br><b>Phi ngẫu nhiên:</b> chủ đích · thuận tiện · quota · bóng tuyết.<br>Phân tầng: mọi tầng một ít; Cụm: vài cụm lấy hết.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h4>Biến định lượng</h4>
+        <p>Trung bình, trung vị, độ lệch chuẩn, khoảng tứ phân vị, min–max.<br>Biểu đồ: <b>histogram</b> (cột sát nhau), <b>boxplot</b>.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🥧</div>
+        <h4>Biến định tính</h4>
+        <p>Tần số và tỷ lệ %.<br>Biểu đồ: <b>cột</b> (cột tách rời), <b>tròn</b>.<br>2 biến định lượng → <b>biểu đồ chấm</b> (tương quan).</p>
+      </div>
+    </div>
+
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

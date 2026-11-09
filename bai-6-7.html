@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài 6-7 · Đại lượng ngẫu nhiên — XSTK YHCT</title>
+<meta name="description" content="Bài 6-7 Xác suất thống kê: đại lượng ngẫu nhiên, bảng phân phối, hàm phân phối, kỳ vọng, trung bình – trung vị – yếu vị, phương sai, độ lệch chuẩn. Giải thích dễ hiểu, có ví dụ y khoa, công cụ tính và trò chơi.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+<script defer src="assets/js/bai-6-7.js"></script>
+<style>
+  /* Bài 6-7 — chỉ phần riêng của trang. Màu, bo góc, nền đều lấy từ token chung (style.css). */
+  /* hình */
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x > svg { display: block; width: 100%; min-width: 620px; max-width: none; height: auto; margin: 0 auto; }
+  .hl-path { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-opacity: .55; }
+  .fill-b-strong { fill: color-mix(in srgb, var(--set-b) 72%, var(--text)); }
+  .c-b-strong { color: color-mix(in srgb, var(--set-b) 72%, var(--text)); font-weight: 700; }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: .88rem; margin: 10px 0 0; }
+  .legend i { display: inline-block; width: 18px; height: 0; border-top: 3px solid currentColor; vertical-align: middle; margin-right: 6px; }
+  .legend .l-mean { color: var(--primary); } .legend .l-mean i { border-top-style: dashed; }
+  .legend .l-median { color: var(--accent); }
+  .legend .l-mode { color: var(--set-d); }
+  /* ghi chú sửa slide: gọn hơn để không lấn nội dung chính */
+  .box.fix { font-size: .93rem; padding: 14px 18px; }
+  .box.fix ul { margin: .3em 0 0; }
+  /* công cụ */
+  .dist-table input { width: 110px; text-align: center; }
+  .dist-table td { padding: 6px 8px; }
+  .dist-check { margin: 10px 0; padding: 10px 14px; border-radius: var(--radius-sm); font-weight: 650; font-size: .95rem; }
+  .dist-check.ok { background: color-mix(in srgb, var(--success) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--success) var(--tint-border), var(--border)); color: var(--success); }
+  .dist-check.bad { background: color-mix(in srgb, var(--danger) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) var(--tint-border), var(--border)); color: var(--danger); }
+  .calc-line { overflow-x: auto; padding: 6px 0; font-size: 1rem; }
+  .w-figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px; }
+  .w-figs > div { background: var(--surface); border: var(--line); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+  .w-figs .w-cap { font-size: .85rem; color: var(--text-muted); font-weight: 650; margin: 2px 0 4px; }
+  @media (max-width: 640px) { .w-figs { grid-template-columns: minmax(0, 1fr); } }
+  textarea.data-input { width: 100%; min-height: 70px; resize: vertical; font-family: var(--mono); }
+  .dev-table-wrap { max-height: 360px; overflow-y: auto; }
+  .stat .stat-label.nt { text-transform: none; letter-spacing: 0; font-size: .85rem; }
+  .stat .frac-note { display: block; font-size: .8rem; font-weight: 600; color: var(--text-muted); }
+  /* trò chơi */
+  .pred-box { margin-bottom: 14px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line); }
+  .sim-log { font-family: var(--mono); font-size: .85rem; color: var(--text-muted); word-break: break-all; }
+  .seesaw-svg { touch-action: none; user-select: none; -webkit-user-select: none; display: block; width: 100%; height: auto; }
+  .seesaw-svg .ball { cursor: grab; }
+  .seesaw-svg .ball:active { cursor: grabbing; }
+  .challenge { margin: 10px 0; padding: 12px 16px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--accent) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) var(--tint-border), var(--border)); font-weight: 600; }
+  .challenge.done { background: color-mix(in srgb, var(--success) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--success) var(--tint-border), var(--border)); }
+  /* thẻ ghi nhớ */
+  .memo-card .formula { margin: .4em 0; font-size: 1rem; padding: 8px; }
+</style>
+</head>
+<body data-page="bai-6-7">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <section class="lesson-hero">
+      <span class="badge">Bài 6-7</span>
+      <h1>Đại lượng ngẫu nhiên</h1>
+      <p class="lead">Hàm phân phối và các số đặc trưng: biến kết quả “may rủi” thành con số, rồi tóm tắt cả đống số liệu bằng vài con số dễ hiểu như trung bình, trung vị, độ lệch chuẩn.</p>
+      <div class="objectives">
+        <p class="objectives-title">🎯 Học xong bài này, bạn sẽ:</p>
+        <ol>
+          <li>Nói được <b>đại lượng ngẫu nhiên</b> là gì và phân biệt được loại <b>rời rạc</b> với loại <b>liên tục</b>.</li>
+          <li>Lập được <b>bảng phân phối xác suất</b>, hiểu <b>hàm phân phối F(x)</b> và tính được <b>kỳ vọng E(X)</b>.</li>
+          <li>Tính được <b>trung bình, trung vị, yếu vị, phương sai, độ lệch chuẩn</b> và biết khi nào dùng số đo nào.</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="box core-big">
+      <p class="box-title">⚡ Tóm tắt 30 giây</p>
+      <ul>
+        <li><b>Đại lượng ngẫu nhiên (ĐLNN)</b> = một <i>con số</i> gắn với kết quả của phép thử ngẫu nhiên. <b>Đếm</b> được → rời rạc; <b>đo</b> được → liên tục.</li>
+        <li><b>Bảng phân phối</b> liệt kê X nhận giá trị nào, mỗi giá trị có xác suất bao nhiêu. Tổng các xác suất <b>luôn bằng 1</b>.</li>
+        <li><b>Hàm phân phối</b> $F(x) = P(X \le x)$: cộng dồn xác suất, vẽ ra thành <b>bậc thang</b>.</li>
+        <li><b>Kỳ vọng</b> $E(X) = \sum x_i p_i$: giá trị trung bình nếu lặp lại phép thử <b>rất nhiều lần</b>.</li>
+        <li><b>Trung bình, trung vị, yếu vị</b> cho biết “trung tâm” của số liệu; <b>phương sai, độ lệch chuẩn</b> cho biết số liệu “phân tán” bao nhiêu. Số liệu bị lệch thì dùng <b>trung vị</b>.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== 1 -->
+    <h2>1. Đại lượng ngẫu nhiên là gì?</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Khám một bệnh nhân, kết quả có thể là “sốt” hoặc “không sốt”. Nhưng nếu <b>đo nhiệt độ</b> thì ta được một <b>con số</b>: 36,8°C, 37,5°C, 38,9°C… Trước khi đo, không ai biết chắc sẽ ra số nào. Một con số như vậy, phụ thuộc vào kết quả ngẫu nhiên, gọi là <b>đại lượng ngẫu nhiên</b>.</p>
+      <p>Nói gọn: <b>ĐLNN là cách “dịch” kết quả của phép thử thành con số</b> để có thể cộng, trừ, tính trung bình…</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa</p>
+      <p>Xét phép thử có không gian mẫu $\Omega$. Nếu ứng với mỗi kết quả (biến cố sơ cấp) $\omega \in \Omega$ ta gắn với một số thực $X(\omega)$, thì $X$ được gọi là một <b>đại lượng ngẫu nhiên</b> (hay biến ngẫu nhiên):</p>
+      $$X:\ \Omega \to \mathbb{R}, \qquad \omega \mapsto X(\omega)$$
+      <p class="small muted">Quy ước: ĐLNN viết bằng chữ <b>in hoa</b> $X, Y, Z$; một giá trị cụ thể của nó viết bằng chữ <b>thường</b> $x, y, z$.</p>
+    </div>
+
+    <!-- HÌNH ĐỘNG 1: X "dịch" từng kết quả thành số (data-step / data-d: xem anim.js và bai-6-7.js) -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3400">
+      <svg viewBox="0 0 420 240" width="480" height="274" role="img" aria-label="Sơ đồ X từ Ω vào ℝ: mặt sấp ứng với số 1, mặt ngửa ứng với số −1">
+        <defs>
+          <marker id="m67-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 Z" class="fill-primary"/>
+          </marker>
+        </defs>
+        <!-- Ω -->
+        <text x="78" y="20" text-anchor="middle" class="fill-text svg-bold" font-size="15">Không gian mẫu Ω</text>
+        <ellipse cx="78" cy="130" rx="64" ry="96" class="fill-a op-15 stroke-a sw-2"/>
+        <circle data-step-only="1" cx="78" cy="84" r="31" class="fill-primary op-35"/>
+        <circle data-step-only="2" cx="78" cy="170" r="31" class="fill-primary op-35"/>
+        <circle cx="78" cy="84" r="24" class="fill-surface stroke-a sw-2"/>
+        <text x="78" y="91" text-anchor="middle" class="fill-text svg-bold" font-size="20">S</text>
+        <text x="78" y="127" text-anchor="middle" class="fill-muted" font-size="14">(sấp)</text>
+        <circle cx="78" cy="170" r="24" class="fill-surface stroke-a sw-2"/>
+        <text x="78" y="177" text-anchor="middle" class="fill-text svg-bold" font-size="20">N</text>
+        <text x="78" y="213" text-anchor="middle" class="fill-muted" font-size="14">(ngửa)</text>
+        <!-- trục số -->
+        <text x="372" y="20" text-anchor="middle" class="fill-text svg-bold" font-size="15">Trục số ℝ</text>
+        <line x1="372" y1="34" x2="372" y2="226" class="svg-line"/>
+        <line x1="365" y1="84" x2="379" y2="84" class="svg-line"/>
+        <line x1="365" y1="127" x2="379" y2="127" class="svg-line"/>
+        <line x1="365" y1="170" x2="379" y2="170" class="svg-line"/>
+        <text x="386" y="90" class="fill-text svg-bold" font-size="17">1</text>
+        <text x="386" y="133" class="fill-muted" font-size="16">0</text>
+        <text x="386" y="176" class="fill-text svg-bold" font-size="17">−1</text>
+        <!-- bước 1: S → 1 -->
+        <g data-step="1">
+          <path d="M104 82 C 180 52, 290 54, 361 83" class="stroke-primary sw-2" fill="none" marker-end="url(#m67-arrow)"/>
+          <circle data-d="600" cx="372" cy="84" r="7" class="fill-primary"/>
+          <text data-d="350" x="232" y="44" text-anchor="middle" class="fill-text svg-bold" font-size="15">X(S) = 1 <tspan class="fill-muted" font-weight="500">(được 1 đồng)</tspan></text>
+        </g>
+        <!-- bước 2: N → −1 -->
+        <g data-step="2">
+          <path d="M104 172 C 180 202, 290 200, 361 171" class="stroke-primary sw-2" fill="none" marker-end="url(#m67-arrow)"/>
+          <circle data-d="600" cx="372" cy="170" r="7" class="fill-primary"/>
+          <text data-d="350" x="232" y="226" text-anchor="middle" class="fill-text svg-bold" font-size="15">X(N) = −1 <tspan class="fill-muted" font-weight="500">(mất 1 đồng)</tspan></text>
+        </g>
+        <!-- bước 3: tổng kết -->
+        <g data-step="3">
+          <circle cx="372" cy="84" r="13" class="fill-primary op-25"/>
+          <circle cx="372" cy="170" r="13" class="fill-primary op-25"/>
+          <text data-d="200" x="232" y="124" text-anchor="middle" class="fill-primary svg-bold" font-size="30">X</text>
+          <text data-d="450" x="232" y="150" text-anchor="middle" class="fill-text" font-size="15">X(Ω) = {−1; 1}</text>
+        </g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0"><b>Ví dụ 1 (slide):</b> tung đồng xu, sấp được 1 đồng, ngửa mất 1 đồng. Bên trái là không gian mẫu $\Omega = \{S, N\}$, bên phải là trục số. Bấm <b>Bước tiếp</b> để xem X “dịch” từng mặt thành số.</p>
+        <p data-caption="1">Ra <b>Sấp</b> thì được 1 đồng: X gắn S với số <b>1</b>, viết là $X(S) = 1$.</p>
+        <p data-caption="2">Ra <b>Ngửa</b> thì mất 1 đồng: X gắn N với số <b>−1</b>, viết là $X(N) = -1$.</p>
+        <p data-caption="3">Mỗi kết quả $\omega \in \Omega$ được gắn với <b>đúng một</b> con số. Quy tắc đó chính là ĐLNN $X: \Omega \to \mathbb{R}$. Ở đây X chỉ nhận 2 giá trị: $-1$ và $1$.</p>
+      </div>
+    </figure>
+
+    <div class="box example">
+      <p class="box-title">🩺 Thêm vài ví dụ</p>
+      <ul>
+        <li>Tung 1 xúc xắc, <b>X = số chấm</b> xuất hiện → X nhận các giá trị 1, 2, 3, 4, 5, 6.</li>
+        <li>Khám 3 người, <b>X = số người bị tăng huyết áp</b> → X nhận 0, 1, 2, 3.</li>
+        <li>Chọn ngẫu nhiên 1 bệnh nhân, <b>X = nồng độ Hemoglobin</b> (g/dl) → X có thể là 11,2; 12,75; 13,1…</li>
+      </ul>
+    </div>
+
+    <h3>Phân loại: rời rạc và liên tục</h3>
+    <div class="box tip">
+      <p class="box-title">💡 Mẹo nhận biết</p>
+      <p>Tự hỏi: <b>“Con số này có được nhờ ĐẾM hay nhờ ĐO?”</b> Đếm (người, lần, viên thuốc…) → <b>rời rạc</b>. Đo (cm, kg, mmHg, °C…) → <b>liên tục</b>.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🔢</div>
+        <h4>ĐLNN rời rạc — “đếm được”</h4>
+        <p>Tập giá trị là <b>hữu hạn</b> $\{x_1, x_2, \dots, x_n\}$ hoặc một <b>dãy</b> $\{x_1, x_2, \dots\}$, liệt kê ra được từng giá trị.</p>
+        <p class="small">Ví dụ: số chấm xúc xắc; số sinh viên vắng trong buổi học; số máy hỏng mỗi ca; số bệnh nhân cấp cứu trong ngày; số con trong gia đình.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📏</div>
+        <h4>ĐLNN liên tục — “đo được”</h4>
+        <p>Tập giá trị là <b>một khoảng</b> của trục số (hoặc cả $\mathbb{R}$). Giữa hai giá trị bất kỳ luôn còn vô số giá trị khác.</p>
+        <p class="small">Ví dụ: chiều cao, cân nặng, huyết áp, nhiệt độ cơ thể, nồng độ đường huyết, thời gian chờ khám.</p>
+      </div>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li>Huyết áp ghi “120 mmHg” là số nguyên nhưng vẫn là <b>liên tục</b>: số tròn chỉ là do máy đo làm tròn, còn huyết áp thật có thể là 120,37…</li>
+        <li>“Trung bình mỗi gia đình có 2,3 con” không biến số con thành liên tục. <b>Số con</b> vẫn là <b>rời rạc</b> (0, 1, 2, 3…).</li>
+      </ul>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide viết “ứng với mỗi <i>biến số</i> sơ cấp w ∈ Ω” → đúng là “mỗi <b>biến cố</b> sơ cấp $\omega \in \Omega$”. Ở phần phân loại, “X(Ω) là một dãy {X1,…, Xn}” nên hiểu là <b>dãy vô hạn</b> $\{x_1, x_2, \dots\}$, ví dụ X = số lần gieo đến khi ra mặt 6.</p>
+    </div>
+
+    <!-- ===================================================== 2 -->
+    <h2>2. Bảng phân phối xác suất</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Bảng phân phối giống như <b>“thực đơn” của X</b>: ghi rõ X có thể ra những giá trị nào và <b>mỗi giá trị có khả năng xảy ra bao nhiêu</b>.</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Bảng phân phối xác suất của ĐLNN rời rạc</p>
+      <div class="table-wrap"><table class="tbl">
+        <tbody>
+          <tr><td class="row-head">X</td><td>$x_1$</td><td>$x_2$</td><td>…</td><td>$x_n$</td></tr>
+          <tr><td class="row-head">P</td><td>$p_1$</td><td>$p_2$</td><td>…</td><td>$p_n$</td></tr>
+        </tbody>
+      </table></div>
+      <p>trong đó $p_i = P(X = x_i)$, các giá trị xếp tăng dần $x_1 &lt; x_2 &lt; \dots$, và luôn có:</p>
+      $$0 \le p_i \le 1, \qquad p_1 + p_2 + \dots + p_n = 1$$
+      <p>✅ <b>Luôn tự kiểm tra:</b> lập xong bảng, <b>cộng hàng P lại</b>. Nếu tổng khác 1 thì chắc chắn đã <b>tính sai hoặc bỏ sót trường hợp</b>.</p>
+    </div>
+
+    <h3>Ví dụ 3 (slide): lấy sản phẩm trong hộp</h3>
+    <div class="box example">
+      <p class="box-title">🩺 Đề bài</p>
+      <p>Trong hộp có 10 sản phẩm, trong đó có 6 chính phẩm (4 phế phẩm). Lấy ngẫu nhiên 2 sản phẩm. Lập bảng phân phối xác suất cho <b>số chính phẩm</b> được lấy ra.</p>
+      <p class="small muted">Đổi sang bối cảnh y khoa cho dễ hình dung: hộp có 10 lọ thuốc, 6 lọ đạt chuẩn, lấy ngẫu nhiên 2 lọ để kiểm nghiệm.</p>
+    </div>
+    <!-- HÌNH ĐỘNG 2: đếm số cách cho từng giá trị của X rồi "mọc" cột xác suất -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3800">
+      <svg viewBox="0 0 420 340" width="480" height="389" role="img" aria-label="Ví dụ 3: hộp 6 chính phẩm, 4 phế phẩm và biểu đồ cột P(X=0)=2/15, P(X=1)=8/15, P(X=2)=1/3">
+        <text x="210" y="20" text-anchor="middle" class="fill-text svg-bold" font-size="15">Hộp 10 sản phẩm · lấy ngẫu nhiên 2</text>
+        <!-- khung tô các sản phẩm được chọn ở mỗi bước -->
+        <rect data-step-only="1" x="250" y="29" width="142" height="48" rx="12" class="fill-primary op-15 stroke-primary sw-2"/>
+        <g data-step-only="2"><rect x="28" y="29" width="210" height="48" rx="12" class="fill-primary op-15 stroke-primary sw-2"/><rect x="250" y="29" width="142" height="48" rx="12" class="fill-primary op-15 stroke-primary sw-2"/></g>
+        <rect data-step-only="3" x="28" y="29" width="210" height="48" rx="12" class="fill-primary op-15 stroke-primary sw-2"/>
+        <g><rect x="36" y="36" width="24" height="34" rx="8" class="fill-c"/><rect x="70" y="36" width="24" height="34" rx="8" class="fill-c"/><rect x="104" y="36" width="24" height="34" rx="8" class="fill-c"/><rect x="138" y="36" width="24" height="34" rx="8" class="fill-c"/><rect x="172" y="36" width="24" height="34" rx="8" class="fill-c"/><rect x="206" y="36" width="24" height="34" rx="8" class="fill-c"/></g>
+        <g><rect x="258" y="36" width="24" height="34" rx="8" class="fill-danger"/><rect x="292" y="36" width="24" height="34" rx="8" class="fill-danger"/><rect x="326" y="36" width="24" height="34" rx="8" class="fill-danger"/><rect x="360" y="36" width="24" height="34" rx="8" class="fill-danger"/></g>
+        <path d="M36 80 v6 H230 v-6 M258 80 v6 H384 v-6" class="svg-line-muted"/>
+        <text x="133" y="104" text-anchor="middle" class="fill-text svg-bold" font-size="14">6 chính phẩm</text>
+        <text x="321" y="104" text-anchor="middle" class="fill-text svg-bold" font-size="14">4 phế phẩm</text>
+        <!-- biểu đồ cột -->
+        <g transform="translate(0 16)">
+        <line x1="62" y1="238.7" x2="404" y2="238.7" class="svg-grid"/>
+        <line x1="62" y1="185.3" x2="404" y2="185.3" class="svg-grid"/>
+        <line x1="62" y1="132" x2="404" y2="132" class="svg-grid"/>
+        <g class="fill-muted" font-size="14" text-anchor="end">
+          <text x="56" y="296">0</text><text x="56" y="242.7">0,2</text><text x="56" y="189.3">0,4</text><text x="56" y="136">0,6</text>
+        </g>
+        <text x="62" y="122" class="fill-muted" font-size="14">P(X = k)</text>
+        <g data-step="1">
+          <rect data-grow="bottom" data-d="250" x="87" y="256.4" width="64" height="35.6" rx="6" class="fill-primary"/>
+          <text data-d="900" x="119" y="246" text-anchor="middle" class="fill-text svg-bold" font-size="15">6/45 = 2/15</text>
+        </g>
+        <g data-step="2">
+          <rect data-grow="bottom" data-d="250" x="201" y="149.8" width="64" height="142.2" rx="6" class="fill-primary"/>
+          <text data-d="900" x="233" y="140" text-anchor="middle" class="fill-text svg-bold" font-size="15">24/45 = 8/15</text>
+        </g>
+        <g data-step="3">
+          <rect data-grow="bottom" data-d="250" x="315" y="203.1" width="64" height="88.9" rx="6" class="fill-primary"/>
+          <text data-d="900" x="347" y="193" text-anchor="middle" class="fill-text svg-bold" font-size="15">15/45 = 1/3</text>
+        </g>
+        <g data-step="4">
+          <rect x="201" y="149.8" width="64" height="142.2" rx="6" class="fill-accent"/>
+          <text data-d="300" x="66" y="174" class="fill-success svg-bold" font-size="14">6 + 24 + 15 = 45 ✓</text>
+        </g>
+        <line x1="62" y1="292" x2="404" y2="292" class="svg-line"/>
+        <g class="fill-text" font-size="15" text-anchor="middle">
+          <text x="119" y="314">X = 0</text><text x="233" y="314">X = 1</text><text x="347" y="314">X = 2</text>
+        </g>
+        </g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Hộp có <b class="c-c">6 chính phẩm</b> (xanh) và <b class="c-danger">4 phế phẩm</b> (đỏ). Lấy 2 sản phẩm thì có $C_{10}^2 = 45$ cách. X = số chính phẩm lấy được, nên X chỉ có thể là 0, 1 hoặc 2.</p>
+        <p data-caption="1"><b>X = 0</b>: cả 2 đều là phế phẩm, tức chọn 2 trong 4 sản phẩm đỏ: $C_4^2 = 6$ cách. Vậy $P(X=0) = \dfrac{6}{45} = \dfrac{2}{15}$.</p>
+        <p data-caption="2"><b>X = 1</b>: 1 chính phẩm (6 cách chọn) và 1 phế phẩm (4 cách chọn): $C_6^1 \cdot C_4^1 = 24$ cách. Vậy $P(X=1) = \dfrac{24}{45} = \dfrac{8}{15}$.</p>
+        <p data-caption="3"><b>X = 2</b>: cả 2 đều là chính phẩm: $C_6^2 = 15$ cách. Vậy $P(X=2) = \dfrac{15}{45} = \dfrac{1}{3}$.</p>
+        <p data-caption="4">Kiểm tra: $6 + 24 + 15 = 45$, tức tổng xác suất bằng 1 ✓. Cột cao nhất (màu cam) là X = 1: lấy được <b>đúng 1 chính phẩm</b> là có khả năng nhất.</p>
+      </div>
+    </figure>
+    <p class="small muted">Lời giải viết gọn (cách trình bày khi làm bài):</p>
+    <ol class="steps">
+      <li>Gọi X là số chính phẩm trong <b>2</b> sản phẩm lấy ra, nên $X \in \{0, 1, 2\}$.</li>
+      <li>Số cách lấy 2 sản phẩm bất kỳ trong 10 sản phẩm: $C_{10}^2 = 45$ (chính là $n$ trong $P = k/n$ ở Bài 3).</li>
+      <li>$X = 0$: cả 2 đều là phế phẩm, có $C_4^2 = 6$ cách, nên $P(X=0) = \dfrac{C_4^2}{C_{10}^2} = \dfrac{6}{45} = \dfrac{2}{15}$.</li>
+      <li>$X = 1$: 1 chính phẩm và 1 phế phẩm, có $C_6^1 \cdot C_4^1 = 24$ cách, nên $P(X=1) = \dfrac{24}{45} = \dfrac{8}{15}$.</li>
+      <li>$X = 2$: cả 2 đều là chính phẩm, có $C_6^2 = 15$ cách, nên $P(X=2) = \dfrac{15}{45} = \dfrac{1}{3}$.</li>
+      <li>Kiểm tra: $6 + 24 + 15 = 45$, tức là $\frac{2}{15} + \frac{8}{15} + \frac{5}{15} = 1$ ✓</li>
+    </ol>
+    <div class="table-wrap"><table class="tbl">
+      <tbody>
+        <tr><td class="row-head">X</td><td>0</td><td>1</td><td>2</td></tr>
+        <tr><td class="row-head">P</td><td>2/15</td><td>8/15</td><td>1/3</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Lời giải trong slide viết “số chính phẩm được lấy ra trong <b>3</b> sản phẩm”. Đề bài chỉ lấy <b>2</b> sản phẩm.</li>
+        <li>Slide gọi bảng này là “bảng phân phối <i>tầng</i> suất”. Đúng là <b>bảng phân phối xác suất</b> (“tần suất” viết không có chữ g).</li>
+      </ul>
+    </div>
+
+    <h3>Ví dụ 4 (slide): ba chiếc xe của cơ quan</h3>
+    <div class="box example">
+      <p class="box-title">🩺 Đề bài</p>
+      <p>Một cơ quan có 3 xe: 1 xe 4 chỗ, 1 xe 50 chỗ, 1 xe tải. Trong một ngày làm việc, xác suất mỗi xe được sử dụng lần lượt là 0,8; 0,4; 0,9 (độc lập với nhau). Lập bảng phân phối của X = <b>số xe được sử dụng trong ngày</b>.</p>
+    </div>
+    <p>Gọi $A_1, A_2, A_3$ là biến cố xe 4 chỗ, xe 50 chỗ, xe tải <b>được</b> dùng; $\bar A_i$ là xe đó <b>không</b> được dùng, nên $P(\bar A_1) = 1 - 0{,}8 = 0{,}2$, $P(\bar A_2) = 0{,}6$, $P(\bar A_3) = 0{,}1$. Vì các xe độc lập nên xác suất của mỗi “nhánh” bằng <b>tích</b> các xác suất trên nhánh đó. Cây dưới đây liệt kê đủ 8 khả năng:</p>
+
+    <!-- HÌNH ĐỘNG 3: gom các nhánh theo số xe X = 0, 1, 2, 3 -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="4000">
+      <div class="scroll-x">
+      <svg viewBox="0 0 720 384" width="720" height="384" role="img" aria-label="Cây xác suất 8 nhánh cho 3 xe, gom theo số xe được dùng">
+        <!-- nhãn cột -->
+        <g class="fill-muted" font-size="13" text-anchor="middle">
+          <text x="170" y="14">Xe 4 chỗ</text><text x="310" y="14">Xe 50 chỗ</text><text x="450" y="14">Xe tải</text>
+          <text x="560" y="14">Xác suất nhánh</text><text x="680" y="14">Số xe</text>
+        </g>
+        <!-- tô nền các lá thuộc cùng một giá trị của X (giữ lại sau mỗi bước) -->
+        <g data-step="1" data-d="450" class="fill-danger op-15"><rect x="460" y="348" width="254" height="26" rx="8"/></g>
+        <g data-step="2" data-d="450" class="fill-b op-15"><rect x="460" y="164" width="254" height="26" rx="8"/><rect x="460" y="256" width="254" height="26" rx="8"/><rect x="460" y="302" width="254" height="26" rx="8"/></g>
+        <g data-step="3" data-d="450" class="fill-a op-15"><rect x="460" y="72" width="254" height="26" rx="8"/><rect x="460" y="118" width="254" height="26" rx="8"/><rect x="460" y="210" width="254" height="26" rx="8"/></g>
+        <g data-step="4" data-d="450" class="fill-primary op-15"><rect x="460" y="26" width="254" height="26" rx="8"/></g>
+        <!-- cạnh -->
+        <g class="svg-line-muted">
+          <line x1="30" y1="200" x2="170" y2="108"/><line x1="30" y1="200" x2="170" y2="292"/>
+          <line x1="170" y1="108" x2="310" y2="62"/><line x1="170" y1="108" x2="310" y2="154"/>
+          <line x1="170" y1="292" x2="310" y2="246"/><line x1="170" y1="292" x2="310" y2="338"/>
+          <line x1="310" y1="62" x2="450" y2="39"/><line x1="310" y1="62" x2="450" y2="85"/>
+          <line x1="310" y1="154" x2="450" y2="131"/><line x1="310" y1="154" x2="450" y2="177"/>
+          <line x1="310" y1="246" x2="450" y2="223"/><line x1="310" y1="246" x2="450" y2="269"/>
+          <line x1="310" y1="338" x2="450" y2="315"/><line x1="310" y1="338" x2="450" y2="361"/>
+        </g>
+        <!-- đường đi được tô ở từng bước -->
+        <g data-step-only="1" data-pan="sweep" class="hl-path stroke-danger"><polyline points="30,200 170,292 310,338 450,361"/></g>
+        <g data-step-only="2" data-pan="sweep" class="hl-path stroke-b"><polyline points="30,200 170,108 310,154 450,177"/><polyline points="30,200 170,292 310,246 450,269"/><polyline points="30,200 170,292 310,338 450,315"/></g>
+        <g data-step-only="3" data-pan="sweep" class="hl-path stroke-a"><polyline points="30,200 170,108 310,62 450,85"/><polyline points="30,200 170,108 310,154 450,131"/><polyline points="30,200 170,292 310,246 450,223"/></g>
+        <g data-step-only="4" data-pan="sweep" class="hl-path stroke-primary"><polyline points="30,200 170,108 310,62 450,39"/></g>
+        <!-- trên điện thoại (cuộn ngang): bước 0 về đầu cây, bước tổng kết lướt tới cột “Số xe” -->
+        <g data-step-only="0" data-pan="start"></g><g data-step-only="5" data-pan="end"></g>
+        <!-- xác suất trên cạnh -->
+        <g class="fill-accent" font-size="13" font-weight="700">
+          <text x="92" y="142">0,8</text><text x="92" y="272">0,2</text>
+          <text x="236" y="76">0,4</text><text x="236" y="146">0,6</text>
+          <text x="236" y="260">0,4</text><text x="236" y="330">0,6</text>
+          <text x="372" y="45">0,9</text><text x="372" y="88">0,1</text>
+          <text x="372" y="137">0,9</text><text x="372" y="180">0,1</text>
+          <text x="372" y="229">0,9</text><text x="372" y="272">0,1</text>
+          <text x="372" y="321">0,9</text><text x="372" y="364">0,1</text>
+        </g>
+        <!-- nút -->
+        <circle cx="30" cy="200" r="7" class="fill-text"/>
+        <g class="fill-surface stroke-primary sw-2">
+          <circle cx="170" cy="108" r="15"/><circle cx="170" cy="292" r="15"/>
+          <circle cx="310" cy="62" r="15"/><circle cx="310" cy="154" r="15"/><circle cx="310" cy="246" r="15"/><circle cx="310" cy="338" r="15"/>
+          <circle cx="450" cy="39" r="15"/><circle cx="450" cy="85" r="15"/><circle cx="450" cy="131" r="15"/><circle cx="450" cy="177" r="15"/>
+          <circle cx="450" cy="223" r="15"/><circle cx="450" cy="269" r="15"/><circle cx="450" cy="315" r="15"/><circle cx="450" cy="361" r="15"/>
+        </g>
+        <g class="fill-text" font-size="12" font-weight="700" text-anchor="middle">
+          <text x="170" y="112">A₁</text><text x="170" y="296">Ā₁</text>
+          <text x="310" y="66">A₂</text><text x="310" y="158">Ā₂</text><text x="310" y="250">A₂</text><text x="310" y="342">Ā₂</text>
+          <text x="450" y="43">A₃</text><text x="450" y="89">Ā₃</text><text x="450" y="135">A₃</text><text x="450" y="181">Ā₃</text>
+          <text x="450" y="227">A₃</text><text x="450" y="273">Ā₃</text><text x="450" y="319">A₃</text><text x="450" y="365">Ā₃</text>
+        </g>
+        <!-- lá -->
+        <g class="fill-text" font-size="13">
+          <text x="476" y="43">0,8·0,4·0,9 = 0,288</text>
+          <text x="476" y="89">0,8·0,4·0,1 = 0,032</text>
+          <text x="476" y="135">0,8·0,6·0,9 = 0,432</text>
+          <text x="476" y="181">0,8·0,6·0,1 = 0,048</text>
+          <text x="476" y="227">0,2·0,4·0,9 = 0,072</text>
+          <text x="476" y="273">0,2·0,4·0,1 = 0,008</text>
+          <text x="476" y="319">0,2·0,6·0,9 = 0,108</text>
+          <text x="476" y="365">0,2·0,6·0,1 = 0,012</text>
+        </g>
+        <g font-size="13" font-weight="800" text-anchor="middle">
+          <g data-step="1" data-d="650" class="fill-danger"><text x="680" y="365">X = 0</text></g>
+          <g data-step="2" data-d="650" class="fill-b-strong"><text x="680" y="181">X = 1</text><text x="680" y="273">X = 1</text><text x="680" y="319">X = 1</text></g>
+          <g data-step="3" data-d="650" class="fill-a"><text x="680" y="89">X = 2</text><text x="680" y="135">X = 2</text><text x="680" y="227">X = 2</text></g>
+          <g data-step="4" data-d="650" class="fill-primary"><text x="680" y="43">X = 3</text></g>
+        </g>
+      </svg>
+      </div>
+      <div class="step-captions">
+        <p data-caption="0">Cây liệt kê đủ <b>8 khả năng</b>. Đi từ trái sang phải và <b>nhân</b> các xác suất trên đường đi (vì 3 xe độc lập). Sau đó <b>gom</b> các nhánh có cùng số xe lại rồi <b>cộng</b>. <span class="muted">(Trên điện thoại có thể vuốt ngang để xem hết cây.)</span></p>
+        <p data-caption="1"><b class="c-danger">X = 0</b> (không xe nào được dùng): chỉ có 1 nhánh $\bar A_1 \bar A_2 \bar A_3$, nên $P(X=0) = 0{,}2 \cdot 0{,}6 \cdot 0{,}1 = 0{,}012$.</p>
+        <p data-caption="2"><b class="c-b-strong">X = 1</b> (đúng 1 xe được dùng): có 3 nhánh, nên $P(X=1) = 0{,}048 + 0{,}008 + 0{,}108 = 0{,}164$.</p>
+        <p data-caption="3"><b class="c-a">X = 2</b> (đúng 2 xe được dùng): có 3 nhánh, nên $P(X=2) = 0{,}032 + 0{,}432 + 0{,}072 = 0{,}536$.</p>
+        <p data-caption="4"><b class="c-primary">X = 3</b> (cả 3 xe được dùng): chỉ có 1 nhánh $A_1 A_2 A_3$, nên $P(X=3) = 0{,}8 \cdot 0{,}4 \cdot 0{,}9 = 0{,}288$.</p>
+        <p data-caption="5">Đủ 8 nhánh đã được gom vào 4 nhóm màu. Kiểm tra: $0{,}012 + 0{,}164 + 0{,}536 + 0{,}288 = 1$ ✓</p>
+      </div>
+    </figure>
+
+    <div class="formula">
+      $$P(X=0) = P(\bar A_1 \bar A_2 \bar A_3) = 0{,}2 \cdot 0{,}6 \cdot 0{,}1 = 0{,}012$$
+      $$P(X=1) = \underbrace{0{,}8\cdot0{,}6\cdot0{,}1}_{A_1\bar A_2\bar A_3} + \underbrace{0{,}2\cdot0{,}4\cdot0{,}1}_{\bar A_1 A_2\bar A_3} + \underbrace{0{,}2\cdot0{,}6\cdot0{,}9}_{\bar A_1\bar A_2 A_3} = 0{,}164$$
+      $$P(X=2) = 0{,}8\cdot0{,}4\cdot0{,}1 + 0{,}8\cdot0{,}6\cdot0{,}9 + 0{,}2\cdot0{,}4\cdot0{,}9 = 0{,}536$$
+      $$P(X=3) = P(A_1A_2A_3) = 0{,}8\cdot0{,}4\cdot0{,}9 = 0{,}288$$
+    </div>
+    <div class="table-wrap"><table class="tbl">
+      <tbody>
+        <tr><td class="row-head">X</td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+        <tr><td class="row-head">P</td><td>0,012</td><td>0,164</td><td>0,536</td><td>0,288</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Kiểm tra: 0,012 + 0,164 + 0,536 + 0,288 = 1 ✓</p>
+
+    <h3>Ví dụ nghề nghiệp (slide): cẩn thận với biến định tính</h3>
+    <p>Slide đưa ví dụ 10 người: CBVC 2 người, kinh doanh 3, nông dân 4, khác 1, rồi lập bảng:</p>
+    <div class="table-wrap"><table class="tbl">
+      <tbody>
+        <tr><td class="row-head">Nghề nghiệp</td><td>CBVC</td><td>Kinh doanh</td><td>Nông dân</td><td>Khác</td></tr>
+        <tr><td class="row-head">Tỷ lệ</td><td>2/10 = 0,2</td><td>3/10 = 0,3</td><td>4/10 = 0,4</td><td>1/10 = 0,1</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box tip">
+      <p class="box-title">💡 Hiểu đúng ví dụ này</p>
+      <ul>
+        <li>“Nghề nghiệp” là <b>biến định tính danh định</b> (xem Bài 8): giá trị của nó là <b>tên gọi</b> chứ không phải con số. Bảng trên thực chất là <b>bảng phân phối tần suất (tỷ lệ)</b>, nhưng cách lập giống hệt bảng phân phối xác suất: tổng các tỷ lệ = 1.</li>
+        <li>Muốn coi nó là một ĐLNN thì phải <b>mã hoá thành số</b>, ví dụ 1 = CBVC, 2 = Kinh doanh, 3 = Nông dân, 4 = Khác. Slide 17 đang làm đúng việc mã hoá này.</li>
+        <li>Nhưng các số mã hoá chỉ là <b>nhãn</b>: tính “trung bình nghề nghiệp = 2,4” là vô nghĩa! Với biến này chỉ dùng <b>yếu vị</b>: nghề phổ biến nhất là <b>Nông dân</b>.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== 3 -->
+    <h2>3. Hàm phân phối F(x)</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>$F(x)$ trả lời câu hỏi: <b>“Xác suất để X không vượt quá x là bao nhiêu?”</b> Cách tính giống cột <b>“% tích lũy”</b> trong bảng tần suất Hemoglobin (Bài 3, Bài 8): đi từ giá trị nhỏ nhất và <b>cộng dồn</b> dần.</p>
+    </div>
+
+    <div class="formula">
+      <span class="formula-name">Hàm phân phối (tích lũy)</span>
+      $$F(x) = P(X \le x) = \sum_{x_i \le x} p_i$$
+      <span class="formula-note">X: đại lượng ngẫu nhiên · x: một số thực bất kỳ · cộng xác suất của mọi giá trị $x_i$ không vượt quá x</span>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Chỉ số dưới dấu tổng trong slide ghi “$x \ge x_i$”, nghĩa là <b>$x_i \le x$</b>: cộng các giá trị nằm bên trái x.</li>
+        <li>Slide ghi “X là biến số ngẫu nhiên, <b>X</b> là biến số bất kỳ”. Đúng là: <b>X (in hoa)</b> là ĐLNN, còn <b>x (thường)</b> là một số thực bất kỳ.</li>
+      </ul>
+    </div>
+
+    <p><b>Áp dụng cho Ví dụ 3</b> (2/15, 8/15, 1/3 = 5/15):</p>
+    <div class="formula">
+      $$F(x) = \begin{cases} 0 & \text{nếu } x < 0 \\[2pt] \dfrac{2}{15} & \text{nếu } 0 \le x < 1 \\[6pt] \dfrac{2}{15} + \dfrac{8}{15} = \dfrac{10}{15} = \dfrac{2}{3} & \text{nếu } 1 \le x < 2 \\[6pt] \dfrac{2}{15} + \dfrac{8}{15} + \dfrac{5}{15} = 1 & \text{nếu } x \ge 2 \end{cases}$$
+    </div>
+
+    <!-- HÌNH ĐỘNG 4: vẽ F(x) bằng cách cộng dồn, từng bước nhảy -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3800">
+      <svg viewBox="0 0 440 272" width="500" height="309" role="img" aria-label="Đồ thị bậc thang của hàm phân phối Ví dụ 3: nhảy 2/15 tại 0, 8/15 tại 1, 1/3 tại 2">
+        <!-- lưới + trục -->
+        <g class="svg-grid">
+          <line x1="52" y1="209.3" x2="428" y2="209.3"/><line x1="52" y1="102.7" x2="428" y2="102.7"/><line x1="52" y1="36" x2="428" y2="36"/>
+        </g>
+        <line x1="52" y1="236" x2="430" y2="236" class="svg-line"/>
+        <line x1="148" y1="26" x2="148" y2="240" class="svg-line-muted"/>
+        <g class="fill-muted" font-size="14" text-anchor="end">
+          <text x="46" y="240">0</text><text x="46" y="214">2/15</text><text x="46" y="107">2/3</text><text x="46" y="41">1</text>
+        </g>
+        <g font-size="15" text-anchor="middle">
+          <text x="60" y="258" class="fill-muted">−1</text><text x="148" y="258" class="fill-text">0</text>
+          <text x="236" y="258" class="fill-text">1</text><text x="324" y="258" class="fill-text">2</text><text x="412" y="258" class="fill-muted">3</text>
+        </g>
+        <text x="436" y="231" text-anchor="end" class="fill-muted" font-size="15" font-style="italic">x</text>
+        <text x="156" y="22" class="fill-muted" font-size="14">F(x)</text>
+        <!-- bước 1: x < 0 -->
+        <g data-step="1">
+          <line x1="52" y1="236" x2="142" y2="236" class="stroke-primary" stroke-width="4" stroke-linecap="round"/>
+          <circle data-d="500" cx="148" cy="236" r="5.5" class="fill-surface stroke-primary sw-2"/>
+        </g>
+        <!-- bước 2: nhảy 2/15 tại 0 -->
+        <g data-step="2">
+          <line x1="148" y1="236" x2="148" y2="209.3" class="stroke-muted svg-dash" stroke-width="1.5"/>
+          <circle data-d="300" cx="148" cy="209.3" r="6.5" class="fill-primary"/>
+          <text data-d="300" x="156" y="229" class="fill-accent svg-bold" font-size="15">+2/15</text>
+          <line data-d="550" x1="148" y1="209.3" x2="230" y2="209.3" class="stroke-primary" stroke-width="4" stroke-linecap="round"/>
+          <circle data-d="1100" cx="236" cy="209.3" r="5.5" class="fill-surface stroke-primary sw-2"/>
+        </g>
+        <!-- bước 3: nhảy 8/15 tại 1 -->
+        <g data-step="3">
+          <line x1="236" y1="209.3" x2="236" y2="102.7" class="stroke-muted svg-dash" stroke-width="1.5"/>
+          <circle data-d="300" cx="236" cy="102.7" r="6.5" class="fill-primary"/>
+          <text data-d="300" x="244" y="162" class="fill-accent svg-bold" font-size="15">+8/15</text>
+          <line data-d="550" x1="236" y1="102.7" x2="318" y2="102.7" class="stroke-primary" stroke-width="4" stroke-linecap="round"/>
+          <circle data-d="1100" cx="324" cy="102.7" r="5.5" class="fill-surface stroke-primary sw-2"/>
+        </g>
+        <!-- bước 4: nhảy 1/3 tại 2 -->
+        <g data-step="4">
+          <line x1="324" y1="102.7" x2="324" y2="36" class="stroke-muted svg-dash" stroke-width="1.5"/>
+          <circle data-d="300" cx="324" cy="36" r="6.5" class="fill-primary"/>
+          <text data-d="300" x="332" y="76" class="fill-accent svg-bold" font-size="15">+1/3</text>
+          <line data-d="550" x1="324" y1="36" x2="428" y2="36" class="stroke-primary" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <!-- bước 5: đọc F(1) -->
+        <g data-step-only="5">
+          <line x1="236" y1="236" x2="236" y2="112" class="stroke-accent" stroke-width="2.5"/>
+          <line data-d="500" x1="226" y1="102.7" x2="52" y2="102.7" class="stroke-accent svg-dash" stroke-width="2"/>
+          <circle data-d="450" cx="236" cy="102.7" r="12" class="fill-none stroke-accent sw-3"/>
+          <text data-d="700" x="227" y="93" text-anchor="end" class="fill-accent svg-bold" font-size="14">F(1) = 2/3</text>
+        </g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Vẽ $F(x) = P(X \le x)$ cho Ví dụ 3: đi từ trái sang phải trên trục x và <b>cộng dồn</b> xác suất mỗi khi gặp một giá trị của X (0, 1, 2).</p>
+        <p data-caption="1">Khi $x &lt; 0$: không có giá trị nào của X nằm bên trái x (X nhỏ nhất là 0), nên $F(x) = 0$.</p>
+        <p data-caption="2">Tới $x = 0$: cộng thêm $P(X=0) = \frac{2}{15}$. Đồ thị <b>nhảy lên</b> 2/15 rồi đi ngang tới trước $x = 1$. <b>Chấm đặc</b> là giá trị được lấy, <b>chấm rỗng</b> là giá trị không lấy.</p>
+        <p data-caption="3">Tới $x = 1$: cộng thêm $\frac{8}{15}$, được $\frac{2}{15} + \frac{8}{15} = \frac{10}{15} = \frac{2}{3}$.</p>
+        <p data-caption="4">Tới $x = 2$: cộng thêm $\frac{1}{3} = \frac{5}{15}$, được đúng <b>1</b>, và giữ nguyên 1 mãi vì đã gom đủ xác suất. Mỗi lần nhảy cao <b>đúng bằng</b> xác suất tại điểm đó.</p>
+        <p data-caption="5">Đọc $F(1)$: đứng ở $x = 1$, đi thẳng lên tới <b>chấm đặc</b>, được $F(1) = \frac{2}{3}$ (có tính cả X = 1), chứ <b>không phải</b> $\frac{2}{15}$</p>
+      </div>
+    </figure>
+
+    <div class="box core">
+      <p class="box-title">📌 3 tính chất của hàm phân phối</p>
+      <ol>
+        <li>$0 \le F(x) \le 1$ với mọi x; khi $x \to -\infty$ thì $F(x) \to 0$, khi $x \to +\infty$ thì $F(x) \to 1$.</li>
+        <li>$F(x)$ <b>không giảm</b>: nếu $x_1 &lt; x_2$ thì $F(x_1) \le F(x_2)$, giống như cộng dồn thì chỉ có tăng thêm.</li>
+        <li>$F(x)$ <b>liên tục bên phải</b>: $\lim_{x \to a^+} F(x) = F(a)$. Đây chính là chỗ “chấm đặc” nằm ở đầu trái của mỗi bậc.</li>
+      </ol>
+      <p>Hệ quả hay dùng: $P(a &lt; X \le b) = F(b) - F(a)$.</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>$F(1) = P(X \le 1)$ có tính <b>cả</b> $X = 1$, nên $F(1) = \frac{2}{15} + \frac{8}{15} = \frac{2}{3}$ chứ <b>không phải</b> $\frac{2}{15}$. Tại điểm nhảy, F lấy giá trị <b>ở bậc trên</b> (chấm đặc).</p>
+    </div>
+
+    <!-- ===================================================== 4 -->
+    <h2>4. Kỳ vọng E(X): trung bình “về lâu dài”</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Ví dụ đời thường (slide): trò chơi tung đồng xu</p>
+      <p>Ra <b>Sấp</b> bạn được <b>10.000đ</b>, ra <b>Ngửa</b> bạn mất <b>4.000đ</b>, mỗi mặt có xác suất 0,5. Mỗi lần chơi thì bạn chỉ có thể <b>được 10.000đ</b> hoặc <b>mất 4.000đ</b>. Nhưng chơi hàng nghìn lần thì <b>trung bình mỗi lần bạn lãi khoảng 3.000đ</b>. Con số 3.000đ đó chính là <b>kỳ vọng</b>.</p>
+      $$E(X) = 10.000 \times 0{,}5 + (-4.000) \times 0{,}5 = 5.000 - 2.000 = 3.000\text{đ}$$
+    </div>
+
+    <div class="formula">
+      <span class="formula-name">Kỳ vọng (ĐLNN rời rạc)</span>
+      $$E(X) = \sum_i x_i\, p_i = x_1p_1 + x_2p_2 + \dots + x_np_n$$
+      <span class="formula-note">Nhân mỗi giá trị với xác suất của nó rồi cộng lại, tức là “trung bình có trọng số”</span>
+    </div>
+    <p class="small muted">Tổng quát hơn (như slide): kỳ vọng của một hàm $u(X)$ là $E[u(X)] = \sum_i u(x_i)\,f(x_i)$. Nếu X <b>liên tục</b> với hàm mật độ $f(x)$ thì dấu tổng được thay bằng tích phân: $E[u(X)] = \int_{-\infty}^{+\infty} u(x)\,f(x)\,dx$. Ở mức bài này bạn chỉ cần nhớ ý nghĩa, không cần tính tích phân.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>Ví dụ 3 (sản phẩm)</h4>
+        <p>$E(X) = 0\cdot\frac{2}{15} + 1\cdot\frac{8}{15} + 2\cdot\frac{1}{3} = \frac{8}{15} + \frac{10}{15} = \frac{18}{15} = 1{,}2$</p>
+        <p class="small">Lặp lại việc lấy 2 sản phẩm thật nhiều lần thì <b>trung bình</b> mỗi lần được 1,2 chính phẩm.</p>
+      </div>
+      <div class="card">
+        <h4>Ví dụ 4 (ba xe)</h4>
+        <p>$E(X) = 0(0{,}012) + 1(0{,}164) + 2(0{,}536) + 3(0{,}288) = 2{,}1$</p>
+        <p class="small">Trung bình mỗi ngày cơ quan dùng 2,1 xe. Mẹo: $2{,}1 = 0{,}8 + 0{,}4 + 0{,}9$, tức là tổng xác suất từng xe được dùng!</p>
+      </div>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Ý nghĩa của kỳ vọng (slide)</p>
+      <ul>
+        <li>Kỳ vọng phản ánh <b>giá trị trung tâm</b> của phân phối xác suất.</li>
+        <li>Xét <b>rất nhiều</b> phép thử giống nhau thì kỳ vọng là <b>giá trị trung bình</b>. Xét <b>một</b> phép thử đơn lẻ thì nó là <b>giá trị mong đợi</b>.</li>
+      </ul>
+      <p>⚠️ <b>Bẫy hay nhầm:</b> E(X) <b>không nhất thiết</b> là một giá trị mà X có thể nhận. Không ai lấy được “1,2 chính phẩm” và cũng không ván nào bạn được đúng “3.000đ”. Kỳ vọng là <b>trung bình về lâu dài</b>, không phải kết quả của một lần.</p>
+    </div>
+
+    <div class="box extra">
+      <p class="box-title">➕ Bổ sung: phương sai của ĐLNN</p>
+      <p>Mục tiêu bài có “các số đặc trưng”. Ngoài kỳ vọng (trung tâm), ta cần biết X <b>dao động quanh kỳ vọng</b> nhiều hay ít:</p>
+      $$V(X) = E\big[(X - E(X))^2\big] = E(X^2) - \big[E(X)\big]^2, \qquad \sigma(X) = \sqrt{V(X)}$$
+      <p>với $E(X^2) = \sum x_i^2\, p_i$.</p>
+      <p><b>Ví dụ 4:</b> $E(X^2) = 0^2(0{,}012) + 1^2(0{,}164) + 2^2(0{,}536) + 3^2(0{,}288) = 0{,}164 + 2{,}144 + 2{,}592 = 4{,}9$</p>
+      <p>$V(X) = 4{,}9 - 2{,}1^2 = 4{,}9 - 4{,}41 = 0{,}49 \;\Rightarrow\; \sigma = \sqrt{0{,}49} = 0{,}7$ xe.</p>
+      <p class="small">Nghĩa là: mỗi ngày dùng khoảng 2,1 xe, thường lệch quanh đó chừng 0,7 xe. Với trò chơi đồng xu: $V = 58.000.000 - 3.000^2 = 49.000.000$, nên $\sigma = 7.000$đ (mỗi ván lệch khỏi 3.000đ đúng 7.000đ).</p>
+    </div>
+
+    <!-- ===================================================== 5 -->
+    <h2>5. Trung bình, trung vị, yếu vị: “trung tâm” của số liệu</h2>
+
+    <p>Khi có một <b>dãy số liệu thật</b> (huyết áp, chiều cao… của một nhóm người), ta dùng 3 con số để mô tả <b>khuynh hướng tập trung</b>:</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon">➗</div>
+        <h4>Trung bình $\bar x$</h4>
+        <p class="small">Tổng tất cả giá trị chia cho số quan sát N.</p>
+        <p class="small">$\bar x = \dfrac{\sum x_i}{N}$</p>
+        <p class="small">Huyết áp 120, 125, 130, 135, 150:<br>$\bar x = \frac{660}{5} = $ <b>132 mmHg</b></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">↔️</div>
+        <h4>Trung vị (Median)</h4>
+        <p class="small"><b>Sắp xếp</b> tăng dần rồi lấy giá trị <b>ở giữa</b>. Nếu N chẵn thì lấy trung bình của 2 số ở giữa.</p>
+        <p class="small">Huyết áp trên → <b>130</b>.<br>Chiều cao 153, 155, 160, 162, 165, 161 → sắp xếp → (160 + 161)/2 = <b>160,5 cm</b></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏆</div>
+        <h4>Yếu vị (Mode)</h4>
+        <p class="small">Giá trị <b>xuất hiện nhiều nhất</b>, tức là có tần suất cao nhất.</p>
+        <p class="small">Điểm 5, 5, 5, 6, 7, 9 → <b>5</b>.<br>Dân tộc: Kinh 361, Khmer 120, Hoa 27 → <b>Kinh</b>.<br>Huyết áp trên: <b>không có</b> yếu vị (mỗi giá trị chỉ xuất hiện 1 lần).</p>
+      </div>
+    </div>
+
+    <figure class="fig framed">
+      <svg viewBox="0 0 520 176" width="520" height="176" role="img" aria-label="Cách tìm trung vị khi số phần tử lẻ và chẵn">
+        <text x="10" y="18" class="svg-muted">N = 5 (lẻ): lấy số đứng thứ 3</text>
+        <g font-size="14" text-anchor="middle">
+          <rect x="10" y="26" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="40" y="48" class="svg-text">120</text>
+          <rect x="76" y="26" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="106" y="48" class="svg-text">125</text>
+          <rect x="142" y="26" width="60" height="34" rx="7" class="fill-primary-soft stroke-primary sw-2"/><text x="172" y="48" class="svg-text svg-bold">130</text>
+          <rect x="208" y="26" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="238" y="48" class="svg-text">135</text>
+          <rect x="274" y="26" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="304" y="48" class="svg-text">150</text>
+        </g>
+        <text x="346" y="48" class="fill-primary svg-bold" font-size="14">→ Trung vị = 130</text>
+        <text x="10" y="100" class="svg-muted">N = 6 (chẵn): trung bình của số thứ 3 và thứ 4</text>
+        <g font-size="14" text-anchor="middle">
+          <rect x="10" y="108" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="40" y="130" class="svg-text">153</text>
+          <rect x="76" y="108" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="106" y="130" class="svg-text">155</text>
+          <rect x="142" y="108" width="60" height="34" rx="7" class="fill-primary-soft stroke-primary sw-2"/><text x="172" y="130" class="svg-text svg-bold">160</text>
+          <rect x="208" y="108" width="60" height="34" rx="7" class="fill-primary-soft stroke-primary sw-2"/><text x="238" y="130" class="svg-text svg-bold">161</text>
+          <rect x="274" y="108" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="304" y="130" class="svg-text">162</text>
+          <rect x="340" y="108" width="60" height="34" rx="7" class="fill-soft stroke-border"/><text x="370" y="130" class="svg-text">165</text>
+        </g>
+        <text x="205" y="168" text-anchor="middle" class="fill-primary svg-bold" font-size="14">Trung vị = (160 + 161) / 2 = 160,5 cm</text>
+      </svg>
+      <figcaption>Nhớ: <b>phải sắp xếp trước</b> rồi mới tìm số ở giữa (dãy chiều cao gốc chưa được sắp xếp!).</figcaption>
+    </figure>
+
+    <div class="box life">
+      <p class="box-title">🏠 Ví dụ dễ hiểu: lương của một công ty có giám đốc</p>
+      <p>Công ty có 10 người. Lương (triệu đồng/tháng) của 9 nhân viên: 7, 7, 8, 8, 8, 9, 9, 10, 10; còn giám đốc nhận <b>120</b>.</p>
+      <ul>
+        <li><b>Trung bình</b> = 196 / 10 = <b>19,6 triệu</b>. Nghe thì cao, nhưng 9/10 người nhận ≤ 10 triệu!</li>
+        <li><b>Trung vị</b> = (8 + 9)/2 = <b>8,5 triệu</b>, phản ánh đúng “mức lương điển hình”.</li>
+        <li><b>Yếu vị</b> = <b>8 triệu</b>, là mức lương nhiều người nhận nhất.</li>
+      </ul>
+      <p>Chỉ <b>một giá trị ngoại lai</b> (lương giám đốc) đã kéo trung bình lên rất xa, còn trung vị gần như không đổi. Thử ngay ở <a href="#cong-cu">công cụ mục 7</a> hoặc trò chơi <a href="#choi-ma-hoc">“Bập bênh trung bình”</a>.</p>
+    </div>
+
+    <!-- HÌNH ĐỘNG 5: một giá trị ngoại lai kéo trung bình đi xa, trung vị gần như đứng yên -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="4000">
+      <svg viewBox="0 0 420 290" width="480" height="331" role="img" aria-label="Lương 9 nhân viên và giám đốc: trung bình tăng từ 8,4 lên 19,6, trung vị chỉ từ 8 lên 8,5">
+        <text x="46" y="22" class="fill-muted" font-size="14">Lương (triệu đồng/tháng)</text>
+        <g class="svg-grid"><line x1="46" y1="200" x2="318" y2="200"/><line x1="46" y1="150" x2="318" y2="150"/><line x1="46" y1="100" x2="318" y2="100"/><line x1="46" y1="50" x2="318" y2="50"/></g>
+        <g class="fill-muted" font-size="14" text-anchor="end"><text x="40" y="254">0</text><text x="40" y="204">10</text><text x="40" y="154">20</text><text x="40" y="104">30</text><text x="40" y="54">40</text></g>
+        <!-- bước 3: khoảng trống giữa lương nhân viên và đường trung bình -->
+        <g data-step="3">
+          <rect x="47" y="153" width="236" height="45" rx="6" class="fill-primary op-15"/>
+          <text data-d="300" x="165" y="181" text-anchor="middle" class="fill-text svg-bold" font-size="13">9/10 người nhận ít hơn TB</text>
+        </g>
+        <g class="fill-primary"><rect x="50.5" y="215" width="18" height="35" rx="4"/><rect x="77.5" y="215" width="18" height="35" rx="4"/><rect x="104.5" y="210" width="18" height="40" rx="4"/><rect x="131.5" y="210" width="18" height="40" rx="4"/><rect x="158.5" y="210" width="18" height="40" rx="4"/><rect x="185.5" y="205" width="18" height="45" rx="4"/><rect x="212.5" y="205" width="18" height="45" rx="4"/><rect x="239.5" y="200" width="18" height="50" rx="4"/><rect x="266.5" y="200" width="18" height="50" rx="4"/></g>
+        <g class="fill-surface svg-bold" font-size="13" text-anchor="middle"><text x="59.5" y="244">7</text><text x="86.5" y="244">7</text><text x="113.5" y="244">8</text><text x="140.5" y="244">8</text><text x="167.5" y="244">8</text><text x="194.5" y="244">9</text><text x="221.5" y="244">9</text><text x="248.5" y="244">10</text><text x="275.5" y="244">10</text></g>
+        <!-- bước 2: giám đốc -->
+        <g data-step="2">
+          <rect data-grow="bottom" x="293.5" y="36" width="18" height="214" rx="4" class="fill-accent"/>
+          <path data-d="750" d="M288 82 L317 70 M288 91 L317 79" fill="none" stroke-width="4" style="stroke:var(--surface)"/>
+          <text data-d="750" x="302.5" y="28" text-anchor="middle" class="fill-accent svg-bold" font-size="15">120</text>
+          <text x="304" y="282" text-anchor="middle" class="fill-text svg-bold" font-size="14">Giám đốc</text>
+        </g>
+        <line x1="46" y1="250" x2="318" y2="250" class="svg-line"/>
+        <path d="M50 258 v6 H276 v-6" class="svg-line-muted"/>
+        <text x="163" y="282" text-anchor="middle" class="fill-muted" font-size="14">9 nhân viên</text>
+        <!-- bước 1: chưa có giám đốc -->
+        <g data-step-only="1">
+          <line x1="46" y1="210" x2="318" y2="210" class="stroke-accent" stroke-width="2.5"/>
+          <line x1="46" y1="207.8" x2="318" y2="207.8" class="stroke-primary svg-dash" stroke-width="2.5"/>
+          <g data-d="300" class="fill-primary svg-bold"><text x="326" y="184" font-size="13">Trung bình</text><text x="326" y="201" font-size="16">≈ 8,4</text></g>
+          <g data-d="300" class="fill-accent svg-bold"><text x="326" y="228" font-size="13">Trung vị</text><text x="326" y="245" font-size="16">8</text></g>
+        </g>
+        <!-- bước 2: hai đường trượt tới vị trí mới -->
+        <g data-step="2" data-d="900" data-move-from="0,2.5">
+          <line x1="46" y1="207.5" x2="318" y2="207.5" class="stroke-accent" stroke-width="2.5"/>
+          <text x="326" y="225.5" class="fill-accent svg-bold" font-size="13">Trung vị</text><text x="326" y="242.5" class="fill-accent svg-bold" font-size="16">8,5</text>
+        </g>
+        <g data-step="2" data-d="900" data-move-from="0,55.8">
+          <line x1="46" y1="152" x2="318" y2="152" class="stroke-primary svg-dash" stroke-width="2.5"/>
+          <text x="326" y="128" class="fill-primary svg-bold" font-size="13">Trung bình</text><text x="326" y="145" class="fill-primary svg-bold" font-size="16">19,6</text>
+        </g>
+        <rect data-step="3" data-d="500" x="320" y="210" width="92" height="40" rx="10" class="fill-none stroke-accent sw-2"/>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">9 nhân viên có lương 7; 7; 8; 8; 8; 9; 9; 10; 10 (triệu đồng/tháng). Mỗi cột là một người.</p>
+        <p data-caption="1">Chưa có giám đốc: trung bình $= \frac{76}{9} \approx 8{,}4$, trung vị = 8 (người đứng thứ 5). Hai đường <b>gần như trùng nhau</b>.</p>
+        <p data-caption="2">Giám đốc vào, lương <b>120 triệu</b> (giá trị ngoại lai; cột cam bị cắt bớt cho vừa hình). Trung bình bị kéo vọt lên $\frac{196}{10} =$ <b>19,6</b>, cao hơn lương của cả 9 nhân viên! Trung vị chỉ nhích từ 8 lên <b>8,5</b>.</p>
+        <p data-caption="3">Kết luận: số liệu có giá trị ngoại lai (bị lệch) thì dùng <b>trung vị</b> (8,5 triệu) để mô tả mức lương điển hình. Yếu vị = 8 triệu, là mức nhiều người nhận nhất.</p>
+      </div>
+    </figure>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Ví dụ yếu vị ghi “Điểm số của <b>5</b> học sinh là 5, 5, 5, 6, 7, 9” nhưng liệt kê <b>6</b> điểm. Đúng là 6 học sinh; yếu vị vẫn là 5.</li>
+        <li>Slide 24 ghi “Điểm số học sinh (biến số danh định)”. Điểm số thật ra là biến <b>định lượng</b>; ví dụ chỉ minh hoạ cách đếm tần số để tìm yếu vị.</li>
+        <li>“Khome” thường viết là <b>Khmer</b>.</li>
+      </ul>
+    </div>
+
+    <h3>Loại biến nào dùng được số đo nào?</h3>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th class="left">Loại biến (xem Bài 8)</th><th>Yếu vị</th><th>Trung vị</th><th>Trung bình</th></tr></thead>
+      <tbody>
+        <tr><td class="left"><b>Danh định</b><br><span class="small muted">dân tộc, nghề nghiệp, nhóm máu</span></td><td class="c-success">✓</td><td class="c-danger">✗</td><td class="c-danger">✗</td></tr>
+        <tr><td class="left"><b>Thứ tự</b><br><span class="small muted">học lực, phân độ tăng huyết áp</span></td><td class="c-success">✓</td><td class="c-success">✓</td><td class="c-danger">✗</td></tr>
+        <tr><td class="left"><b>Định lượng</b><br><span class="small muted">huyết áp, chiều cao, Hb</span></td><td class="c-success">✓</td><td class="c-success">✓</td><td class="c-success">✓</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Biến danh định không sắp xếp được nên không có trung vị. Biến định tính (danh định, thứ tự) không tính trung bình.</p>
+
+    <h3>Hình dạng phân phối quyết định nên dùng số đo nào</h3>
+    <!-- HÌNH ĐỘNG 6: quy tắc 68 – 95 – 99,7 -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3600">
+      <svg viewBox="0 0 400 268" width="480" height="322" role="img" aria-label="Đường cong chuẩn: khoảng 68% số liệu trong TB ± 1SD, 95% trong TB ± 2SD, 99,7% trong TB ± 3SD">
+        <path data-step="3" d="M32 220 L32 218.3 L39 217.6 L46 216.6 L53 215.2 L60 213.4 L67 211.1 L74 208.1 L81 204.3 L88 199.7 L95 194.1 L102 187.6 L109 179.9 L116 171.3 L123 161.7 L130 151.3 L137 140.3 L144 129 L151 117.7 L158 106.8 L165 96.6 L172 87.6 L179 80.2 L186 74.6 L193 71.2 L200 70 L207 71.2 L214 74.6 L221 80.2 L228 87.6 L235 96.6 L242 106.8 L249 117.7 L256 129 L263 140.3 L270 151.3 L277 161.7 L284 171.3 L291 179.9 L298 187.6 L305 194.1 L312 199.7 L319 204.3 L326 208.1 L333 211.1 L340 213.4 L347 215.2 L354 216.6 L361 217.6 L368 218.3 L368 220 Z" class="fill-primary op-15"/>
+        <path data-step="2" d="M88 220 L88 199.7 L95 194.1 L102 187.6 L109 179.9 L116 171.3 L123 161.7 L130 151.3 L137 140.3 L144 129 L151 117.7 L158 106.8 L165 96.6 L172 87.6 L179 80.2 L186 74.6 L193 71.2 L200 70 L207 71.2 L214 74.6 L221 80.2 L228 87.6 L235 96.6 L242 106.8 L249 117.7 L256 129 L263 140.3 L270 151.3 L277 161.7 L284 171.3 L291 179.9 L298 187.6 L305 194.1 L312 199.7 L312 220 Z" class="fill-primary op-25"/>
+        <path data-step="1" d="M144 220 L144 129 L151 117.7 L158 106.8 L165 96.6 L172 87.6 L179 80.2 L186 74.6 L193 71.2 L200 70 L207 71.2 L214 74.6 L221 80.2 L228 87.6 L235 96.6 L242 106.8 L249 117.7 L256 129 L256 220 Z" class="fill-primary op-35"/>
+        <path d="M4 219.7 L11 219.5 L18 219.2 L25 218.9 L32 218.3 L39 217.6 L46 216.6 L53 215.2 L60 213.4 L67 211.1 L74 208.1 L81 204.3 L88 199.7 L95 194.1 L102 187.6 L109 179.9 L116 171.3 L123 161.7 L130 151.3 L137 140.3 L144 129 L151 117.7 L158 106.8 L165 96.6 L172 87.6 L179 80.2 L186 74.6 L193 71.2 L200 70 L207 71.2 L214 74.6 L221 80.2 L228 87.6 L235 96.6 L242 106.8 L249 117.7 L256 129 L263 140.3 L270 151.3 L277 161.7 L284 171.3 L291 179.9 L298 187.6 L305 194.1 L312 199.7 L319 204.3 L326 208.1 L333 211.1 L340 213.4 L347 215.2 L354 216.6 L361 217.6 L368 218.3 L375 218.9 L382 219.2 L389 219.5 L396 219.7" class="stroke-primary sw-3" fill="none"/>
+        <line x1="0" y1="220" x2="400" y2="220" class="svg-line"/>
+        <line x1="200" y1="70" x2="200" y2="220" class="stroke-text svg-dash" stroke-width="1.2"/>
+        <g class="fill-muted" font-size="14" text-anchor="middle"><text x="32" y="240">−3SD</text><text x="88" y="240">−2SD</text><text x="144" y="240">−1SD</text><text x="200" y="240" class="fill-text svg-bold">TB</text><text x="256" y="240">+1SD</text><text x="312" y="240">+2SD</text><text x="368" y="240">+3SD</text></g>
+        <g data-step="1" data-d="350">
+          <path d="M144 129 V54 M256 129 V54" class="stroke-primary svg-dash" stroke-width="1.3" fill="none"/>
+          <path d="M144 54 H172 M228 54 H256" class="stroke-primary" stroke-width="2" fill="none"/>
+          <text x="200" y="59" text-anchor="middle" class="fill-primary svg-bold" font-size="14">≈ 68%</text>
+        </g>
+        <g data-step="2" data-d="350">
+          <path d="M88 199.7 V34 M312 199.7 V34" class="stroke-primary svg-dash" stroke-width="1.3" fill="none"/>
+          <path d="M88 34 H168 M232 34 H312" class="stroke-primary" stroke-width="2" fill="none"/>
+          <text x="200" y="39" text-anchor="middle" class="fill-primary svg-bold" font-size="14">≈ 95%</text>
+        </g>
+        <g data-step="3" data-d="350">
+          <path d="M32 218.3 V14 M368 218.3 V14" class="stroke-primary svg-dash" stroke-width="1.3" fill="none"/>
+          <path d="M32 14 H162 M238 14 H368" class="stroke-primary" stroke-width="2" fill="none"/>
+          <text x="200" y="19" text-anchor="middle" class="fill-primary svg-bold" font-size="14">≈ 99,7%</text>
+        </g>
+        <g data-step="4" class="fill-primary svg-bold" font-size="13" text-anchor="middle"><text x="32" y="259">97,5</text><text x="88" y="259">109</text><text x="144" y="259">120,5</text><text x="200" y="259">132</text><text x="256" y="259">143,5</text><text x="312" y="259">155</text><text x="368" y="259">166,5</text></g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Phân phối chuẩn (hình chuông) đối xứng quanh trung bình, nên <b>TB = trung vị = yếu vị</b>. Trục ngang đánh dấu khoảng cách tới TB, tính bằng số lần độ lệch chuẩn (SD, xem mục 6).</p>
+        <p data-caption="1">Từ TB − 1SD đến TB + 1SD: khoảng <b>68%</b> số liệu (hơn 2/3).</p>
+        <p data-caption="2">Từ TB − 2SD đến TB + 2SD: khoảng <b>95%</b> số liệu (chính xác là TB ± 1,96SD).</p>
+        <p data-caption="3">Từ TB − 3SD đến TB + 3SD: khoảng <b>99,7%</b>, gần như toàn bộ số liệu.</p>
+        <p data-caption="4">Áp dụng cho huyết áp ở mục 6 (TB = 132, SD ≈ 11,5 mmHg): nếu số liệu có dạng chuẩn thì khoảng 95% bệnh nhân có huyết áp trong $132 \pm 23$, tức khoảng <b>109 – 155 mmHg</b>.</p>
+      </div>
+    </figure>
+
+    <div class="grid-3">
+      <figure class="fig framed" style="margin:0">
+        <svg viewBox="0 6 250 122" width="250" height="122" role="img" aria-label="Phân phối lệch phải">
+          <path d="M20.0 120.0 L23.0 97.9 L26.0 79.9 L29.0 65.6 L32.0 54.4 L35.0 45.8 L38.0 39.4 L41.0 35.0 L44.0 32.1 L47.0 30.5 L50.0 30.0 L53.0 30.4 L56.0 31.6 L59.0 33.3 L62.0 35.5 L65.0 38.1 L68.0 41.0 L71.0 44.0 L74.0 47.2 L77.0 50.5 L80.0 53.8 L83.0 57.1 L86.0 60.4 L89.0 63.6 L92.0 66.7 L95.0 69.8 L98.0 72.8 L101.0 75.6 L104.0 78.3 L107.0 81.0 L110.0 83.5 L113.0 85.8 L116.0 88.1 L119.0 90.2 L122.0 92.2 L125.0 94.1 L128.0 95.9 L131.0 97.6 L134.0 99.2 L137.0 100.7 L140.0 102.1 L143.0 103.4 L146.0 104.6 L149.0 105.7 L152.0 106.8 L155.0 107.8 L158.0 108.7 L161.0 109.5 L164.0 110.3 L167.0 111.1 L170.0 111.8 L173.0 112.4 L176.0 113.0 L179.0 113.5 L182.0 114.0 L185.0 114.5 L188.0 114.9 L191.0 115.3 L194.0 115.7 L197.0 116.0 L200.0 116.4 L203.0 116.7 L206.0 116.9 L209.0 117.2 L212.0 117.4 L215.0 117.6 L218.0 117.8 L221.0 118.0 L224.0 118.1 L227.0 118.3 L230.0 118.4" class="stroke-text sw-2" fill="none"/>
+          <line x1="15" y1="120" x2="238" y2="120" class="svg-line"/>
+          <line x1="50" y1="18" x2="50" y2="120" class="stroke-d" stroke-width="2.5"/>
+          <line x1="70.4" y1="18" x2="70.4" y2="120" class="stroke-accent" stroke-width="2.5"/>
+          <line x1="80" y1="18" x2="80" y2="120" class="stroke-primary svg-dash" stroke-width="2.5"/>
+        </svg>
+        <figcaption><b>① Lệch phải (lệch dương)</b><br>Yếu vị &lt; Trung vị &lt; Trung bình</figcaption>
+      </figure>
+      <figure class="fig framed" style="margin:0">
+        <svg viewBox="0 6 250 122" width="250" height="122" role="img" aria-label="Phân phối đối xứng">
+          <path d="M20.0 119.8 L23.0 119.7 L26.0 119.6 L29.0 119.5 L32.0 119.3 L35.0 119.0 L38.0 118.7 L41.0 118.2 L44.0 117.6 L47.0 116.9 L50.0 116.0 L53.0 114.9 L56.0 113.6 L59.0 112.0 L62.0 110.1 L65.0 107.8 L68.0 105.2 L71.0 102.2 L74.0 98.8 L77.0 95.0 L80.0 90.8 L83.0 86.2 L86.0 81.3 L89.0 76.2 L92.0 70.9 L95.0 65.4 L98.0 60.0 L101.0 54.6 L104.0 49.6 L107.0 44.8 L110.0 40.6 L113.0 36.9 L116.0 34.0 L119.0 31.8 L122.0 30.4 L125.0 30.0 L128.0 30.4 L131.0 31.8 L134.0 34.0 L137.0 36.9 L140.0 40.6 L143.0 44.8 L146.0 49.6 L149.0 54.6 L152.0 60.0 L155.0 65.4 L158.0 70.9 L161.0 76.2 L164.0 81.3 L167.0 86.2 L170.0 90.8 L173.0 95.0 L176.0 98.8 L179.0 102.2 L182.0 105.2 L185.0 107.8 L188.0 110.1 L191.0 112.0 L194.0 113.6 L197.0 114.9 L200.0 116.0 L203.0 116.9 L206.0 117.6 L209.0 118.2 L212.0 118.7 L215.0 119.0 L218.0 119.3 L221.0 119.5 L224.0 119.6 L227.0 119.7 L230.0 119.8" class="stroke-text sw-2" fill="none"/>
+          <line x1="15" y1="120" x2="238" y2="120" class="svg-line"/>
+          <line x1="125" y1="18" x2="125" y2="120" class="stroke-d" stroke-width="6" stroke-opacity=".5"/>
+          <line x1="125" y1="18" x2="125" y2="120" class="stroke-accent" stroke-width="2.5"/>
+          <line x1="125" y1="18" x2="125" y2="120" class="stroke-primary svg-dash" stroke-width="2.5"/>
+        </svg>
+        <figcaption><b>② Đối xứng (chuẩn)</b><br>TB ≈ Trung vị ≈ Yếu vị</figcaption>
+      </figure>
+      <figure class="fig framed" style="margin:0">
+        <svg viewBox="0 6 250 122" width="250" height="122" role="img" aria-label="Phân phối lệch trái">
+          <path d="M230.0 120.0 L227.0 97.9 L224.0 79.9 L221.0 65.6 L218.0 54.4 L215.0 45.8 L212.0 39.4 L209.0 35.0 L206.0 32.1 L203.0 30.5 L200.0 30.0 L197.0 30.4 L194.0 31.6 L191.0 33.3 L188.0 35.5 L185.0 38.1 L182.0 41.0 L179.0 44.0 L176.0 47.2 L173.0 50.5 L170.0 53.8 L167.0 57.1 L164.0 60.4 L161.0 63.6 L158.0 66.7 L155.0 69.8 L152.0 72.8 L149.0 75.6 L146.0 78.3 L143.0 81.0 L140.0 83.5 L137.0 85.8 L134.0 88.1 L131.0 90.2 L128.0 92.2 L125.0 94.1 L122.0 95.9 L119.0 97.6 L116.0 99.2 L113.0 100.7 L110.0 102.1 L107.0 103.4 L104.0 104.6 L101.0 105.7 L98.0 106.8 L95.0 107.8 L92.0 108.7 L89.0 109.5 L86.0 110.3 L83.0 111.1 L80.0 111.8 L77.0 112.4 L74.0 113.0 L71.0 113.5 L68.0 114.0 L65.0 114.5 L62.0 114.9 L59.0 115.3 L56.0 115.7 L53.0 116.0 L50.0 116.4 L47.0 116.7 L44.0 116.9 L41.0 117.2 L38.0 117.4 L35.0 117.6 L32.0 117.8 L29.0 118.0 L26.0 118.1 L23.0 118.3 L20.0 118.4" class="stroke-text sw-2" fill="none"/>
+          <line x1="12" y1="120" x2="235" y2="120" class="svg-line"/>
+          <line x1="200" y1="18" x2="200" y2="120" class="stroke-d" stroke-width="2.5"/>
+          <line x1="179.6" y1="18" x2="179.6" y2="120" class="stroke-accent" stroke-width="2.5"/>
+          <line x1="170" y1="18" x2="170" y2="120" class="stroke-primary svg-dash" stroke-width="2.5"/>
+        </svg>
+        <figcaption><b>③ Lệch trái (lệch âm)</b><br>Trung bình &lt; Trung vị &lt; Yếu vị</figcaption>
+      </figure>
+    </div>
+    <div class="legend">
+      <span class="l-mode"><i></i>Yếu vị (đỉnh cao nhất)</span>
+      <span class="l-median"><i></i>Trung vị (chia đôi diện tích)</span>
+      <span class="l-mean"><i></i>Trung bình</span>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Chọn số đo nào?</p>
+      <ul>
+        <li>Biến định lượng có phân phối <b>chuẩn (hình chuông)</b>: trung bình ≈ trung vị ≈ yếu vị, nên người ta thường dùng <b>trung bình</b> (vì nó có nhiều tính chất toán học tốt).</li>
+        <li>Số liệu <b>bị lệch</b> (có giá trị quá lớn hoặc quá nhỏ): dùng <b>trung vị</b> vì nó phản ánh giá trị tiêu biểu chính xác hơn.</li>
+      </ul>
+      <p>💡 <b>Mẹo nhớ: “Trung bình bị cái đuôi kéo đi”.</b> Đuôi dài nằm bên nào thì trung bình bị kéo về bên đó: đuôi bên phải thì TB lớn nhất, đuôi bên trái thì TB nhỏ nhất. Yếu vị luôn nằm ở <b>đỉnh</b>, trung vị nằm <b>giữa</b> hai số kia.</p>
+    </div>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide ghi “độ lệch <i>tích cực</i>” và “độ lệch <i>tiêu cực</i>” (dịch máy từ <i>positive/negative skew</i>). Thuật ngữ chuẩn là <b>lệch dương (lệch phải)</b> và <b>lệch âm (lệch trái)</b>. “Sắp xỉ” → <b>xấp xỉ</b>.</p>
+    </div>
+
+    <!-- ===================================================== 6 -->
+    <h2>6. Phương sai và độ lệch chuẩn: số liệu “phân tán” bao nhiêu?</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Vì sao cần thêm số đo này?</p>
+      <p>Hai nhóm bệnh nhân có huyết áp tâm thu <b>trung bình đều là 132 mmHg</b>:</p>
+      <ul>
+        <li>Nhóm A: 130, 131, 132, 133, 134, các giá trị sát nhau.</li>
+        <li>Nhóm B: 110, 120, 132, 144, 154, các giá trị dao động rất nhiều.</li>
+      </ul>
+      <p>Chỉ nhìn trung bình thì <b>không phân biệt được</b> hai nhóm. <b>Độ lệch chuẩn (SD)</b> cho biết các giá trị <b>thường nằm cách trung bình bao xa</b>: nhóm A có SD ≈ 1,6, còn nhóm B có SD ≈ 17,7.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="formula">
+        <span class="formula-name">Phương sai mẫu (Var, s²)</span>
+        $$s^2 = \frac{\sum_{i=1}^{n} (x_i - \bar x)^2}{N - 1}$$
+      </div>
+      <div class="formula">
+        <span class="formula-name">Độ lệch chuẩn (SD, s)</span>
+        $$SD = s = \sqrt{s^2} = \sqrt{\frac{\sum (x_i - \bar x)^2}{N - 1}}$$
+      </div>
+    </div>
+
+    <h3>Tính từng bước (ví dụ slide): huyết áp 120, 125, 130, 135, 150</h3>
+    <!-- HÌNH ĐỘNG 7: phương sai và độ lệch chuẩn, từng bước -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="4000">
+      <svg viewBox="0 0 440 314" width="500" height="357" role="img" aria-label="Tính độ lệch chuẩn của 120, 125, 130, 135, 150: trung bình 132, độ lệch, bình phương, tổng 530, phương sai 132,5, SD ≈ 11,51">
+        <rect data-step="5" data-grow="center" x="122.9" y="38" width="138.1" height="184" rx="6" class="fill-primary op-15"/>
+        <text x="40" y="26" text-anchor="middle" class="fill-muted svg-bold" font-size="15">xᵢ</text>
+        <g class="svg-grid"><line x1="84" y1="56" x2="336" y2="56"/><line x1="84" y1="92" x2="336" y2="92"/><line x1="84" y1="128" x2="336" y2="128"/><line x1="84" y1="164" x2="336" y2="164"/><line x1="84" y1="200" x2="336" y2="200"/></g>
+        <g class="fill-text svg-bold" font-size="15" text-anchor="middle"><text x="40" y="61">120</text><text x="40" y="97">125</text><text x="40" y="133">130</text><text x="40" y="169">135</text><text x="40" y="205">150</text></g>
+        <line x1="84" y1="222" x2="336" y2="222" class="svg-line"/>
+        <g class="svg-line"><line x1="120" y1="222" x2="120" y2="227"/><line x1="180" y1="222" x2="180" y2="227"/><line x1="240" y1="222" x2="240" y2="227"/><line x1="300" y1="222" x2="300" y2="227"/></g>
+        <g class="fill-muted" font-size="14" text-anchor="middle"><text x="120" y="242">120</text><text x="180" y="242">130</text><text x="240" y="242">140</text><text x="300" y="242">150</text></g>
+        <!-- bước 2: độ lệch mọc ra từ đường trung bình -->
+        <g data-step="2" class="fill-accent op-70"><rect data-grow="right" data-d="0" x="120" y="50" width="72" height="12" rx="3"/><rect data-grow="right" data-d="120" x="150" y="86" width="42" height="12" rx="3"/><rect data-grow="right" data-d="240" x="180" y="122" width="12" height="12" rx="3"/><rect data-grow="left" data-d="360" x="192" y="158" width="18" height="12" rx="3"/><rect data-grow="left" data-d="480" x="192" y="194" width="108" height="12" rx="3"/></g>
+        <!-- bước 1: trung bình -->
+        <g data-step="1">
+          <line x1="192" y1="38" x2="192" y2="222" class="stroke-primary svg-dash" stroke-width="2.2"/>
+          <text x="192" y="26" text-anchor="middle" class="fill-primary svg-bold" font-size="15">Trung bình 132</text>
+        </g>
+        <g class="fill-text"><circle cx="120" cy="56" r="6.5"/><circle cx="150" cy="92" r="6.5"/><circle cx="180" cy="128" r="6.5"/><circle cx="210" cy="164" r="6.5"/><circle cx="300" cy="200" r="6.5"/></g>
+        <g data-step="2" data-d="800" class="fill-text svg-bold" font-size="14"><text x="109" y="61" text-anchor="end">−12</text><text x="139" y="97" text-anchor="end">−7</text><text x="169" y="133" text-anchor="end">−2</text><text x="221" y="169">+3</text><text x="311" y="205">+18</text></g>
+        <!-- bước 3: bình phương -->
+        <g data-step="3" class="fill-text svg-bold" font-size="15" text-anchor="middle">
+          <text x="396" y="26" class="fill-muted" font-size="14">Bình phương</text><text data-d="0" x="396" y="61">144</text><text data-d="150" x="396" y="97">49</text><text data-d="300" x="396" y="133">4</text><text data-d="450" x="396" y="169">9</text><text data-d="600" x="396" y="205">324</text>
+        </g>
+        <!-- bước 4: cộng lại, chia N − 1 -->
+        <g data-step="4">
+          <line x1="362" y1="216" x2="430" y2="216" class="svg-line"/>
+          <text x="396" y="241" text-anchor="middle" class="fill-primary svg-bold" font-size="16">= 530</text>
+          <text data-d="500" x="220" y="274" text-anchor="middle" class="fill-text svg-bold" font-size="15">s² = 530 : (5 − 1) = 132,5 mmHg²</text>
+        </g>
+        <!-- bước 5: lấy căn -->
+        <text data-step="5" data-d="500" x="220" y="302" text-anchor="middle" class="fill-primary svg-bold" font-size="15">SD = √132,5 ≈ 11,51 → 132 ± 11,5 mmHg</text>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">5 giá trị huyết áp tâm thu (mmHg), mỗi chấm là một người. Câu hỏi: các giá trị nằm <b>cách trung bình bao xa</b>?</p>
+        <p data-caption="1"><b>Bước 1.</b> Trung bình $\bar x = \dfrac{120 + 125 + 130 + 135 + 150}{5} = \dfrac{660}{5} = 132$ (đường nét đứt).</p>
+        <p data-caption="2"><b>Bước 2.</b> Độ lệch $x_i - \bar x$: −12; −7; −2; +3; +18. Bên trái cộng lại −21, bên phải +21, nên tổng <b>luôn bằng 0</b>. Vì vậy không thể chỉ cộng các độ lệch.</p>
+        <p data-caption="3"><b>Bước 3.</b> Bình phương để bỏ dấu âm: 144; 49; 4; 9; 324. Giá trị càng xa trung bình thì góp càng nhiều (riêng 150 đã góp 324).</p>
+        <p data-caption="4"><b>Bước 4.</b> Cộng lại: $144 + 49 + 4 + 9 + 324 = 530$. Chia cho $N - 1 = 4$ được phương sai $s^2 = 132{,}5$ mmHg².</p>
+        <p data-caption="5"><b>Bước 5.</b> Lấy căn để trở về đơn vị mmHg: $SD = \sqrt{132{,}5} \approx 11{,}51$. Dải tím là $132 \pm 11{,}5$, có 3/5 giá trị nằm trong đó. Báo cáo: <b>132 ± 11,5 mmHg</b>.</p>
+      </div>
+    </figure>
+    <p class="small muted">Lời giải viết gọn (cách trình bày khi làm bài):</p>
+    <ol class="steps">
+      <li>Tính trung bình: $\bar x = 660 / 5 = 132$ mmHg.</li>
+      <li>Lấy từng giá trị <b>trừ trung bình</b> (độ lệch), rồi <b>bình phương</b> lên (để số âm không triệt tiêu số dương):</li>
+    </ol>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th>$x_i$</th><th>$x_i - \bar x$</th><th>$(x_i - \bar x)^2$</th></tr></thead>
+      <tbody>
+        <tr><td>120</td><td>120 − 132 = −12</td><td>144</td></tr>
+        <tr><td>125</td><td>125 − 132 = −7</td><td>49</td></tr>
+        <tr><td>130</td><td>130 − 132 = −2</td><td>4</td></tr>
+        <tr><td>135</td><td>135 − 132 = 3</td><td>9</td></tr>
+        <tr><td>150</td><td>150 − 132 = 18</td><td>324</td></tr>
+        <tr class="total"><td>Tổng</td><td>0 <span class="small muted">(luôn bằng 0)</span></td><td>530</td></tr>
+      </tbody>
+    </table></div>
+    <ol class="steps" start="3" style="counter-reset: step 2">
+      <li>Phương sai: $s^2 = \dfrac{530}{5 - 1} = \dfrac{530}{4} = 132{,}5$ mmHg².</li>
+      <li>Độ lệch chuẩn: $SD = \sqrt{132{,}5} \approx 11{,}51 \approx 11{,}5$ mmHg.</li>
+      <li>Kết luận: huyết áp tâm thu của nhóm là <b>132 ± 11,5 mmHg</b> (trung bình ± độ lệch chuẩn).</li>
+    </ol>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Trong lời giải slide có số hạng $(132 - 130)^2$. Đúng thứ tự phải là $(130 - 132)^2$, nhưng bình phương của hai số này bằng nhau (= 4) nên kết quả không đổi.</li>
+        <li>Slide 30 viết $s^2 = \sqrt{\dots}$, tức là để phương sai nằm <b>dưới dấu căn</b>. Sai rồi: <b>phương sai không có căn</b>, $s^2 = 530/4 = 132{,}5$. Lấy căn của phương sai mới ra độ lệch chuẩn ($\approx 11{,}5$).</li>
+        <li>Đơn vị của phương sai là <b>mmHg²</b> (bình phương đơn vị gốc), không phải mmHg. Vì vậy người ta hay dùng SD (cùng đơn vị mmHg) để báo cáo.</li>
+      </ul>
+    </div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Hiểu nhanh</p>
+      <ul>
+        <li>SD = 0 khi <b>mọi giá trị bằng nhau</b> (không phân tán chút nào). SD càng lớn thì số liệu càng “tản mát”.</li>
+        <li>Vì sao chia cho <b>N − 1</b> mà không chia N? Với mẫu nhỏ, độ phân tán tính được thường <b>bị hụt</b> so với thực tế; chia N − 1 để bù lại. Bạn chỉ cần nhớ công thức.</li>
+        <li>Nếu số liệu có dạng chuẩn thì khoảng 95% bệnh nhân nằm trong $\bar x \pm 2SD$: $132 \pm 23$, tức khoảng 109 – 155 mmHg.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== 7 -->
+    <h2 id="cong-cu">7. Công cụ tính toán</h2>
+
+    <div class="widget" id="w-dist">
+      <p class="widget-title">Máy tính bảng phân phối xác suất</p>
+      <p class="widget-desc">Nhập các giá trị x và xác suất p (gõ phân số như <code>2/15</code> hoặc số thập phân như <code>0,2</code>). Máy tự kiểm tra tổng xác suất, tính E(X), V(X), σ và vẽ biểu đồ cột cùng đồ thị bậc thang F(x).</p>
+      <noscript><p>Cần bật JavaScript để dùng công cụ này.</p></noscript>
+    </div>
+
+    <div class="widget" id="w-data">
+      <p class="widget-title">Mô tả một dãy số liệu</p>
+      <p class="widget-desc">Gõ hoặc dán dãy số (cách nhau bởi dấu cách, dấu chấm phẩy hoặc “, ”; số thập phân dùng dấu phẩy như <code>11,5</code>). Máy tính trung bình, trung vị, yếu vị, phương sai, độ lệch chuẩn kèm bảng tính từng bước.</p>
+      <noscript><p>Cần bật JavaScript để dùng công cụ này.</p></noscript>
+    </div>
+
+    <!-- ===================================================== 8 -->
+    <h2 id="choi-ma-hoc">8. 🎮 Chơi mà học</h2>
+    <p>Hai trò chơi giúp bạn <b>cảm nhận</b> kỳ vọng và trung bình thay vì chỉ học thuộc công thức.</p>
+    <div id="g-coin"></div>
+    <div id="g-seesaw"></div>
+
+    <!-- ===================================================== 9 -->
+    <h2>9. Bài tập tự luyện</h2>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 1. Tung 2 đồng xu</p>
+      <p>Tung đồng thời 2 đồng xu cân đối. Gọi X là số mặt sấp. Lập bảng phân phối của X, tính E(X) và V(X).</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Không gian mẫu: {SS, SN, NS, NN}, gồm 4 kết quả đồng khả năng, và $X \in \{0, 1, 2\}$.</li>
+          <li>$P(X=0) = P(NN) = \frac14$; $P(X=1) = P(SN, NS) = \frac24 = \frac12$; $P(X=2) = P(SS) = \frac14$. Tổng = 1 ✓</li>
+          <li>$E(X) = 0\cdot\frac14 + 1\cdot\frac12 + 2\cdot\frac14 = 1$.</li>
+          <li>$E(X^2) = 0 + 1\cdot\frac12 + 4\cdot\frac14 = 1{,}5$, nên $V(X) = 1{,}5 - 1^2 = 0{,}5$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 2. Kiểm nghiệm lọ thuốc</p>
+      <p>Một lô có 5 lọ thuốc, trong đó 2 lọ không đạt chuẩn. Lấy ngẫu nhiên 2 lọ. Gọi X là số lọ không đạt. Lập bảng phân phối, tính E(X), viết F(x) và tính $P(X \le 1)$.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>$X \in \{0,1,2\}$; số cách lấy 2 lọ trong 5 lọ: $C_5^2 = 10$.</li>
+          <li>$P(X=0) = \frac{C_3^2}{10} = \frac{3}{10}$; $P(X=1) = \frac{C_2^1 C_3^1}{10} = \frac{6}{10}$; $P(X=2) = \frac{C_2^2}{10} = \frac{1}{10}$. Tổng = 1 ✓</li>
+          <li>$E(X) = 0 + 1\cdot0{,}6 + 2\cdot0{,}1 = 0{,}8$ lọ.</li>
+          <li>$F(x) = 0$ khi $x&lt;0$; $0{,}3$ khi $0\le x&lt;1$; $0{,}9$ khi $1 \le x &lt; 2$; $1$ khi $x \ge 2$.</li>
+          <li>$P(X \le 1) = F(1) = 0{,}3 + 0{,}6 = 0{,}9$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 3. Tìm xác suất còn thiếu</p>
+      <p>Cho bảng phân phối: X nhận −1; 0; 2 với xác suất 0,2; 0,5; p. Tìm p, rồi tính E(X) và V(X).</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Tổng xác suất bằng 1: $0{,}2 + 0{,}5 + p = 1$, nên $p = 0{,}3$.</li>
+          <li>$E(X) = (-1)(0{,}2) + 0(0{,}5) + 2(0{,}3) = -0{,}2 + 0{,}6 = 0{,}4$.</li>
+          <li>$E(X^2) = 1(0{,}2) + 0 + 4(0{,}3) = 1{,}4$, nên $V(X) = 1{,}4 - 0{,}4^2 = 1{,}24$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 4. Xổ số có đáng chơi?</p>
+      <p>Mua 1 vé số giá 10.000đ. Xác suất trúng 1.000.000đ là 0,005; còn lại không trúng gì. Gọi X là tiền <b>lãi</b> của bạn. Tính E(X) và cho nhận xét.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Trúng: lãi $1.000.000 - 10.000 = 990.000$đ với xác suất 0,005. Không trúng: lãi $-10.000$đ với xác suất 0,995.</li>
+          <li>$E(X) = 990.000 \times 0{,}005 + (-10.000) \times 0{,}995 = 4.950 - 9.950 = -5.000$đ.</li>
+          <li>Nhận xét: về lâu dài, <b>trung bình mỗi vé bạn mất 5.000đ</b>. Kỳ vọng âm nghĩa là trò chơi có lợi cho người bán.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 5. Đường huyết lúc đói</p>
+      <p>Đường huyết lúc đói (mmol/L) của 5 bệnh nhân: 5,0; 5,2; 5,6; 5,2; 6,0. Tính trung bình, trung vị, yếu vị, phương sai, độ lệch chuẩn.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Trung bình: $\bar x = \frac{5{,}0 + 5{,}2 + 5{,}6 + 5{,}2 + 6{,}0}{5} = \frac{27}{5} = 5{,}4$.</li>
+          <li>Sắp xếp: 5,0; 5,2; <b>5,2</b>; 5,6; 6,0. Trung vị = <b>5,2</b> (số thứ 3). Yếu vị = <b>5,2</b> (xuất hiện 2 lần).</li>
+          <li>Độ lệch: −0,4; −0,2; 0,2; −0,2; 0,6. Bình phương: 0,16; 0,04; 0,04; 0,04; 0,36, tổng = 0,64.</li>
+          <li>$s^2 = 0{,}64 / 4 = 0{,}16$ (mmol/L)²; $SD = \sqrt{0{,}16} = 0{,}4$ mmol/L.</li>
+          <li>Nhận xét: TB (5,4) &gt; trung vị (5,2) = yếu vị, nên số liệu hơi lệch phải (do giá trị 6,0).</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 6. Nhóm tuổi (slide 25)</p>
+      <p>Tuổi của 9 người: 27, 30, 31, 35, 40, 50, 55, 60, 70. Tìm trung vị và trung bình. Nếu chia thành nhóm tuổi &lt;30; 30–40; 41–50; 51–60; &gt;60 thì biến “nhóm tuổi” là loại biến gì?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Dãy đã sắp xếp, N = 9 (lẻ), nên trung vị là số thứ 5 = <b>40</b>.</li>
+          <li>Trung bình $= 398 / 9 \approx 44{,}2$ tuổi, lớn hơn trung vị một chút do có các giá trị lớn (60, 70).</li>
+          <li>“Tuổi” là biến <b>định lượng</b>. Khi chia thành nhóm có thứ bậc thì “nhóm tuổi” trở thành biến <b>định tính thứ tự</b>: dùng được trung vị và yếu vị, không tính trung bình.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="quiz" data-title="Trắc nghiệm nhanh Bài 6-7">
+      <div class="q" data-answer="1">
+        <p class="q-text">Đại lượng ngẫu nhiên nào sau đây là <b>rời rạc</b>?</p>
+        <div class="q-options"><button>Chiều cao của sinh viên</button><button>Số bệnh nhân đến khám trong một buổi sáng</button><button>Nồng độ glucose máu</button><button>Thời gian chờ khám</button></div>
+        <div class="q-explain">Số bệnh nhân có được nhờ <b>đếm</b> (0, 1, 2, …) nên là rời rạc. Ba đại lượng còn lại có được nhờ <b>đo</b> nên là liên tục.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Bảng phân phối: X = 0; 1; 2 với P = 0,3; 0,5; p. Giá trị của p là:</p>
+        <div class="q-options"><button>0,5</button><button>0,3</button><button>0,2</button><button>0,8</button></div>
+        <div class="q-explain">Tổng xác suất bằng 1: $p = 1 - 0{,}3 - 0{,}5 = 0{,}2$.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Với bảng ở câu 2, kỳ vọng E(X) bằng:</p>
+        <div class="q-options"><button>0,9</button><button>1</button><button>1,5</button><button>0,5</button></div>
+        <div class="q-explain">$E(X) = 0(0{,}3) + 1(0{,}5) + 2(0{,}2) = 0{,}9$.</div>
+      </div>
+      <div class="q" data-answer="3">
+        <p class="q-text">Ở Ví dụ 3 (P = 2/15; 8/15; 1/3), F(1) = P(X ≤ 1) bằng:</p>
+        <div class="q-options"><button>2/15</button><button>8/15</button><button>1/3</button><button>2/3</button></div>
+        <div class="q-explain">$F(1) = P(X=0) + P(X=1) = \frac{2}{15} + \frac{8}{15} = \frac{10}{15} = \frac{2}{3}$. Dấu “≤” có tính cả X = 1.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Thu nhập của người dân một xã có vài hộ rất giàu. Để mô tả “mức thu nhập điển hình”, nên dùng:</p>
+        <div class="q-options"><button>Trung bình</button><button>Trung vị</button><button>Phương sai</button><button>Tổng thu nhập</button></div>
+        <div class="q-explain">Số liệu bị <b>lệch</b> vì vài giá trị rất lớn kéo trung bình lên. Trung vị ít bị ảnh hưởng nên phản ánh mức điển hình chính xác hơn.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Với biến <b>dân tộc</b> (Kinh, Khmer, Hoa…), số đo khuynh hướng tập trung phù hợp là:</p>
+        <div class="q-options"><button>Trung bình</button><button>Trung vị</button><button>Yếu vị</button><button>Độ lệch chuẩn</button></div>
+        <div class="q-explain">Dân tộc là biến <b>danh định</b>: không sắp xếp được, không cộng được, nên chỉ dùng <b>yếu vị</b> (nhóm đông nhất).</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Huyết áp 120, 125, 130, 135, 150 có SD ≈ 11,5 mmHg. Phương sai s² và đơn vị của nó là:</p>
+        <div class="q-options"><button>132,5 mmHg²</button><button>132,5 mmHg</button><button>11,5 mmHg²</button><button>√132,5 mmHg²</button></div>
+        <div class="q-explain">$s^2 = 530/4 = 132{,}5$, đơn vị là bình phương đơn vị gốc: <b>mmHg²</b>. Lấy căn của nó mới ra SD = 11,5 mmHg.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Với số liệu có phân phối chuẩn (hình chuông), khoảng bao nhiêu phần trăm giá trị nằm trong khoảng TB ± 2SD?</p>
+        <div class="q-options"><button>68%</button><button>95%</button><button>50%</button><button>100%</button></div>
+        <div class="q-explain">Khoảng 68% nằm trong ± 1SD, <b>khoảng 95%</b> trong ± 2SD (chính xác là ± 1,96SD) và 99,7% trong ± 3SD.</div>
+      </div>
+    </div>
+
+    <!-- ===================================================== 10 -->
+    <h2>10. Thẻ ghi nhớ</h2>
+    <div class="grid-2">
+      <div class="card memo-card">
+        <h4>🎲 ĐLNN &amp; bảng phân phối</h4>
+        <p class="small">$X: \Omega \to \mathbb{R}$. Đếm → rời rạc; đo → liên tục.</p>
+        <div class="formula">$p_i = P(X = x_i),\quad \sum p_i = 1$</div>
+      </div>
+      <div class="card memo-card">
+        <h4>📶 Hàm phân phối</h4>
+        <div class="formula">$F(x) = P(X \le x) = \sum_{x_i \le x} p_i$</div>
+        <p class="small">Bậc thang, không giảm, từ 0 lên 1; nhảy tại $x_i$ đúng bằng $p_i$.</p>
+      </div>
+      <div class="card memo-card">
+        <h4>🎯 Kỳ vọng &amp; phương sai</h4>
+        <div class="formula">$E(X) = \sum x_i p_i$</div>
+        <div class="formula">$V(X) = E(X^2) - [E(X)]^2,\ \ \sigma = \sqrt{V}$</div>
+      </div>
+      <div class="card memo-card">
+        <h4>📍 Trung tâm của số liệu</h4>
+        <p class="small"><b>Trung bình</b> $\bar x = \sum x_i / N$ · <b>Trung vị</b>: sắp xếp rồi lấy số giữa · <b>Yếu vị</b>: giá trị gặp nhiều nhất.</p>
+        <p class="small">Chuẩn → dùng TB. Lệch → dùng trung vị. Danh định → chỉ yếu vị.</p>
+      </div>
+      <div class="card memo-card">
+        <h4>📏 Độ phân tán</h4>
+        <div class="formula">$s^2 = \dfrac{\sum (x_i - \bar x)^2}{N-1},\ \ SD = \sqrt{s^2}$</div>
+        <p class="small">Phương sai có đơn vị bình phương (mmHg²); SD cùng đơn vị số liệu.</p>
+      </div>
+      <div class="card memo-card">
+        <h4>🔔 Hình chuông</h4>
+        <p class="small">TB ± 1SD ≈ 68% · TB ± 2SD ≈ 95% · TB ± 3SD ≈ 99,7%.</p>
+        <p class="small">Lệch phải: Yếu vị &lt; Trung vị &lt; TB. Lệch trái: ngược lại.</p>
+      </div>
+    </div>
+
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

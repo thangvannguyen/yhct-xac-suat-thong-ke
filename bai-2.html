@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài 2 · Phép thử & biến cố ngẫu nhiên — XSTK YHCT</title>
+<meta name="description" content="Bài 2 Xác Suất Thống Kê: phép thử ngẫu nhiên, không gian mẫu Ω, biến cố, phân loại và quan hệ giữa các biến cố — giải thích dễ hiểu, có hình minh hoạ và trò chơi.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+<script defer src="assets/js/bai-2.js"></script>
+<style>
+  /* ----- xúc xắc: .die (HTML) và .sdie (vẽ trong SVG của hình động) ----- */
+  .dice-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 8px 0; }
+  .die { display: inline-block; line-height: 0; }
+  .die svg { display: block; }
+  :is(.die, .sdie) .die-bg { fill: var(--surface); stroke: color-mix(in srgb, var(--text-muted) 38%, var(--border)); stroke-width: 2.2; }
+  .sdie .die-bg { stroke-width: 1.6; }
+  :is(.die, .sdie) .pip { fill: var(--text-muted); }
+  :is(.die, .sdie) .die-q { fill: var(--text-muted); font-weight: 800; }
+  :is(.die, .sdie).on-p .die-bg { fill: color-mix(in srgb, var(--primary) 20%, var(--surface)); stroke: var(--primary); }
+  :is(.die, .sdie).on-p .pip { fill: var(--primary); }
+  :is(.die, .sdie).on-a .die-bg { fill: color-mix(in srgb, var(--set-a) 20%, var(--surface)); stroke: var(--set-a); }
+  :is(.die, .sdie).on-a .pip { fill: var(--set-a); }
+  :is(.die, .sdie).on-b .die-bg { fill: color-mix(in srgb, var(--set-b) 24%, var(--surface)); stroke: var(--set-b); }
+  :is(.die, .sdie).on-b .pip { fill: color-mix(in srgb, var(--set-b) 80%, var(--text)); }
+  :is(.die, .sdie).on-x .die-bg { fill: color-mix(in srgb, var(--danger) 16%, var(--surface)); stroke: var(--danger); }
+  :is(.die, .sdie).on-x .pip { fill: var(--danger); }
+  :is(.die, .sdie).dim { opacity: .38; }
+
+  /* ----- hình chiếu từng bước của bài này ----- */
+  /* khung chú thích giữ nguyên chiều cao (bằng chú thích dài nhất) để nút bấm không nhảy */
+  .b2-steps .step-captions { display: grid; align-items: center; }
+  .b2-steps .step-captions > [data-caption] { display: block; grid-area: 1 / 1; margin: 0; visibility: hidden; }
+  .b2-steps .step-captions > .cap-on { visibility: visible; }
+  .b2-steps figcaption { margin-top: 12px; }
+  [data-show] { transition: opacity .45s var(--ease); }
+  .b2-motion .sdie { transition: opacity .45s var(--ease), transform .9s var(--ease); }
+  .b2-motion .sdie .die-bg, .b2-motion .sdie .pip { transition: fill .45s, stroke .45s; }
+  .chip-a { fill: var(--set-a); fill-opacity: .2; stroke: var(--set-a); stroke-width: 1.4; }
+  .chip-b { fill: var(--set-b); fill-opacity: .24; stroke: var(--set-b); stroke-width: 1.4; }
+  .svg-chip { fill: var(--text); font-size: 13px; font-weight: 800; }
+  .grid36-body svg { width: 300px; max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  @media print {
+    .b2-steps .step-captions { display: block; }
+    .b2-steps .step-captions > [data-caption] { visibility: visible; }
+    .b2-steps [data-show].step-off, .b2-steps [data-step-only].step-off { opacity: 0 !important; }
+  }
+
+  /* ----- bảng trong hộp ----- */
+  .box > .table-wrap { margin: .4em 0 0; }
+  .tbl.omega-tbl { min-width: 540px; }
+
+  /* ----- thẻ quan hệ ----- */
+  .rel-card h4 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+  .rel-card.rel-keys { display: flex; flex-direction: column; justify-content: center; background: color-mix(in srgb, var(--primary) var(--tint), var(--surface)); }
+  .rel-card.rel-keys .card-icon { align-self: flex-start; }
+  .kw { display: inline-block; font-size: .8rem; font-weight: 700; padding: 1px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+  .venn { display: flex; justify-content: center; margin: 4px 0 6px; }
+  .venn svg { width: 200px; max-width: 100%; height: auto; }
+  .rel-card .rel-def { font-size: .95rem; }
+  .rel-card .rel-ex { font-size: .92rem; margin-bottom: 2px; }
+
+  /* ----- công cụ khám phá biến cố ----- */
+  .ee-controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .ee-controls .field { flex: 1 1 260px; min-width: 0; margin: 0; }
+  .ee-controls select { flex: 1; min-width: 0; width: 100%; }
+  .ee-verdicts { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 6px; }
+  .verdict { padding: 4px 11px; border-radius: 99px; font-size: .88rem; font-weight: 600; border: 1px solid var(--border); background: var(--surface-2); }
+  .verdict.yes { background: color-mix(in srgb, var(--success) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--success) 45%, transparent); color: var(--success); }
+  .verdict.no { color: var(--text-muted); }
+  .ee-rows { display: grid; gap: 6px; }
+  .ee-row {
+    display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center;
+    padding: 6px 12px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line);
+  }
+  .ee-row .ee-name { font-weight: 800; }
+  .ee-row .ee-set { font-family: var(--mono); font-size: .9rem; }
+  .ee-row .ee-desc { display: block; font-family: var(--font); font-size: .8rem; color: var(--text-muted); }
+  .ee-row .dice-row { margin: 0; justify-content: flex-end; gap: 4px; flex-wrap: nowrap; }
+  @media (max-width: 600px) {
+    .ee-row { grid-template-columns: 60px minmax(0, 1fr); }
+    .ee-row .dice-row { grid-column: 1 / -1; justify-content: flex-start; }
+  }
+
+  /* ----- trò chơi gieo xúc xắc ----- */
+  .hunt-stage { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .hunt-die { line-height: 0; }
+  .hunt-die.rolling { animation: b2roll .6s ease-in-out; }
+  @keyframes b2roll {
+    0% { transform: rotate(0) scale(1); } 30% { transform: rotate(140deg) scale(.85); }
+    60% { transform: rotate(260deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); }
+  }
+  .game-options button.picked { border-color: var(--primary); background: var(--primary-soft); }
+  .hunt-check {
+    display: inline-block; position: relative; flex: none; width: 18px; height: 18px; vertical-align: -3px;
+    border: 2px solid var(--text-muted); border-radius: 6px; background: var(--surface);
+  }
+  .game-options button.picked .hunt-check { background: var(--primary); border-color: var(--primary); }
+  .game-options button.picked .hunt-check::after {
+    content: ""; position: absolute; left: 4px; top: 0; width: 5px; height: 10px;
+    border: solid var(--on-primary); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg);
+  }
+  .hunt-why { display: block; font-size: .85rem; color: var(--text-muted); margin-top: 2px; }
+</style>
+</head>
+<body data-page="bai-2">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <section class="lesson-hero">
+      <span class="badge">Bài 2</span>
+      <h1>Phép thử &amp; biến cố ngẫu nhiên</h1>
+      <p class="lead">Trước khi tính xác suất, bạn cần biết mình đang tính xác suất <b>của cái gì</b>. Bài này dạy bạn gọi đúng tên: phép thử, không gian mẫu, biến cố. Phần lớn chỉ là “phép toán tập hợp của Bài 1” được kể lại bằng ngôn ngữ đời thường.</p>
+      <div class="objectives">
+        <p class="objectives-title">🎯 Học xong bài này, bạn sẽ:</p>
+        <ol>
+          <li>Nói được thế nào là <b>phép thử ngẫu nhiên</b>, viết được <b>không gian mẫu Ω</b> và biết Ω thuộc loại <b>rời rạc</b> hay <b>liên tục</b>.</li>
+          <li>Hiểu <b>biến cố</b> là gì, phân biệt được <b>4 loại biến cố</b> và <b>7 quan hệ</b> giữa các biến cố (hợp, giao, đối lập, xung khắc…).</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="box core-big">
+      <p class="box-title">⚡ Tóm tắt 30 giây</p>
+      <ul>
+        <li><b>Phép thử</b> là làm một việc mà <b>không đoán trước được kết quả</b>, ví dụ gieo xúc xắc, làm xét nghiệm, khám bệnh.</li>
+        <li><b>Không gian mẫu Ω</b> là <b>danh sách tất cả</b> kết quả có thể xảy ra. Ω <b>rời rạc</b> khi đếm từng kết quả được, <b>liên tục</b> khi kết quả là một giá trị đo.</li>
+        <li><b>Biến cố</b> là một <b>tập con của Ω</b>. Biến cố xảy ra khi kết quả rơi vào tập đó.</li>
+        <li>Có <b>4 loại</b> biến cố: sơ cấp · không thể ($\varnothing$) · chắc chắn ($\Omega$) · ngẫu nhiên.</li>
+        <li>Mỗi quan hệ có một từ khoá: <b>hợp</b> là “hoặc”, <b>giao</b> là “và”, <b>đối lập</b> là “không”, <b>xung khắc</b> là “không thể cùng xảy ra”. Đối lập thì chắc chắn xung khắc, <b>nhưng xung khắc chưa chắc đã đối lập</b>.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>1. Phép thử &amp; sự kiện ngẫu nhiên</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Bạn vừa đo huyết áp cho một bệnh nhân mới. <b>Trước khi đo</b>, bạn không thể biết chắc con số sẽ là bao nhiêu. Ngược lại, nếu bạn làm rơi cái ống nghe khỏi bàn, bạn <b>biết chắc</b> nó sẽ rơi xuống đất.</p>
+      <p>Việc thứ nhất có tính <b>ngẫu nhiên</b>, việc thứ hai có tính <b>tất định</b> (đã định sẵn). Xác suất chỉ nghiên cứu loại thứ nhất.</p>
+    </div>
+
+    <figure class="fig framed b2-steps" data-anim="steps" data-step-ms="3000">
+      <svg viewBox="0 0 340 262" width="420" height="324" role="img" aria-label="Thả hòn bi 3 lần thì cả 3 lần đều rơi xuống đất; gieo xúc xắc 3 lần thì ra mặt 3, 5, 1">
+        <defs>
+          <marker id="b2-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="fill-text"/>
+          </marker>
+        </defs>
+        <rect data-step="4" x="136" y="24" width="200" height="120" rx="14" class="fill-c op-15 stroke-c"/>
+        <rect data-step="4" x="136" y="152" width="200" height="104" rx="14" class="fill-primary op-15 stroke-primary"/>
+        <text x="170" y="16" text-anchor="middle" class="svg-muted svg-bold" style="font-size:13px">Lần 1</text>
+        <text x="236" y="16" text-anchor="middle" class="svg-muted svg-bold" style="font-size:13px">Lần 2</text>
+        <text x="302" y="16" text-anchor="middle" class="svg-muted svg-bold" style="font-size:13px">Lần 3</text>
+        <rect x="4" y="30" width="106" height="66" rx="12" class="fill-soft stroke-border"/>
+        <text x="57" y="58" text-anchor="middle" class="svg-text svg-bold">Thả hòn bi</text>
+        <text x="57" y="78" text-anchor="middle" class="svg-muted" style="font-size:13px">từ trên cao</text>
+        <line x1="114" y1="63" x2="134" y2="63" class="svg-line-muted" marker-end="url(#b2-arr)"/>
+        <line x1="146" y1="96" x2="194" y2="96" class="stroke-muted sw-2"/>
+        <line x1="212" y1="96" x2="260" y2="96" class="stroke-muted sw-2"/>
+        <line x1="278" y1="96" x2="326" y2="96" class="stroke-muted sw-2"/>
+        <g data-step="1" data-anim-skip>
+          <line x1="170" y1="34" x2="170" y2="72" class="svg-line-muted svg-dash"/>
+          <circle cx="170" cy="87" r="8" class="fill-primary" data-fx="drop"/>
+          <text x="170" y="114" text-anchor="middle" class="svg-muted" style="font-size:13px" data-fx="late">chạm đất</text>
+        </g>
+        <g data-step="2" data-anim-skip>
+          <line x1="236" y1="34" x2="236" y2="72" class="svg-line-muted svg-dash"/>
+          <circle cx="236" cy="87" r="8" class="fill-primary" data-fx="drop"/>
+          <text x="236" y="114" text-anchor="middle" class="svg-muted" style="font-size:13px" data-fx="late">chạm đất</text>
+        </g>
+        <g data-step="3" data-anim-skip>
+          <line x1="302" y1="34" x2="302" y2="72" class="svg-line-muted svg-dash"/>
+          <circle cx="302" cy="87" r="8" class="fill-primary" data-fx="drop"/>
+          <text x="302" y="114" text-anchor="middle" class="svg-muted" style="font-size:13px" data-fx="late">chạm đất</text>
+        </g>
+        <text data-step="4" x="236" y="136" text-anchor="middle" class="svg-text svg-bold" style="font-size:13.5px">Giống nhau → tất định</text>
+        <rect x="4" y="158" width="106" height="66" rx="12" class="fill-soft stroke-border"/>
+        <text x="57" y="186" text-anchor="middle" class="svg-text svg-bold">Gieo 1</text>
+        <text x="57" y="206" text-anchor="middle" class="svg-text svg-bold">xúc xắc</text>
+        <line x1="114" y1="191" x2="134" y2="191" class="svg-line-muted" marker-end="url(#b2-arr)"/>
+        <rect x="152" y="166" width="36" height="36" rx="7" class="fill-none stroke-muted svg-dash"/><text x="170" y="190" text-anchor="middle" class="svg-muted svg-bold" style="font-size:18px">?</text>
+        <rect x="218" y="166" width="36" height="36" rx="7" class="fill-none stroke-muted svg-dash"/><text x="236" y="190" text-anchor="middle" class="svg-muted svg-bold" style="font-size:18px">?</text>
+        <rect x="284" y="166" width="36" height="36" rx="7" class="fill-none stroke-muted svg-dash"/><text x="302" y="190" text-anchor="middle" class="svg-muted svg-bold" style="font-size:18px">?</text>
+        <g data-step="1" data-anim-skip transform="translate(150 164)">
+          <g class="sdie on-p" data-die="3" data-s="40" data-fx="roll"></g>
+          <text x="20" y="58" text-anchor="middle" class="svg-muted" style="font-size:13px" data-fx="late">ra mặt 3</text>
+        </g>
+        <g data-step="2" data-anim-skip transform="translate(216 164)">
+          <g class="sdie on-p" data-die="5" data-s="40" data-fx="roll"></g>
+          <text x="20" y="58" text-anchor="middle" class="svg-muted" style="font-size:13px" data-fx="late">ra mặt 5</text>
+        </g>
+        <g data-step="3" data-anim-skip transform="translate(282 164)">
+          <g class="sdie on-p" data-die="1" data-s="40" data-fx="roll"></g>
+          <text x="20" y="58" text-anchor="middle" class="svg-muted" style="font-size:13px" data-fx="late">ra mặt 1</text>
+        </g>
+        <text data-step="4" x="236" y="246" text-anchor="middle" class="svg-text svg-bold" style="font-size:13.5px">Khác nhau → ngẫu nhiên</text>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Làm mỗi việc <b>3 lần</b>, lần nào cũng trong <b>cùng một điều kiện</b>. Bấm <b>Bước tiếp</b> để xem kết quả từng lần.</p>
+        <p data-caption="1">Lần 1: hòn bi rơi xuống đất. Xúc xắc lăn rồi dừng ở mặt <b>3</b>.</p>
+        <p data-caption="2">Lần 2: hòn bi <b>vẫn</b> rơi xuống đất. Xúc xắc lại ra mặt <b>5</b>, khác lần 1.</p>
+        <p data-caption="3">Lần 3: hòn bi vẫn rơi xuống đất. Xúc xắc ra mặt <b>1</b>. Trước khi gieo, không ai đoán chắc được mặt nào sẽ ra.</p>
+        <p data-caption="4"><b>Tất định:</b> 1 điều kiện → đúng 1 kết quả, biết trước nên <b>không phải</b> phép thử ngẫu nhiên. <b>Ngẫu nhiên:</b> cùng một cách gieo nhưng có thể ra <b>6 kết quả khác nhau</b>.</p>
+      </div>
+    </figure>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h4>Hiện tượng tất định (theo quy luật)</h4>
+        <p class="small">Ví dụ 1 trong slide, đều <b>không phải</b> phép thử ngẫu nhiên:</p>
+        <ul class="small">
+          <li>Thả một vật từ trên cao thì chắc chắn vật rơi xuống đất.</li>
+          <li>Mặt trời mọc ở hướng Đông, lặn ở hướng Tây.</li>
+          <li>Nước đóng băng khi nhiệt độ dưới 0°C.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎲</div>
+        <h4>Hiện tượng ngẫu nhiên</h4>
+        <p class="small">Ví dụ 2 trong slide và ví dụ y khoa, đều <b>là</b> phép thử ngẫu nhiên:</p>
+        <ul class="small">
+          <li>Gieo 1 đồng xu, hoặc 1 con xúc xắc, cân đối và đồng chất.</li>
+          <li>Rút 1 quân bài từ bộ bài.</li>
+          <li>Làm xét nghiệm nhanh cho 1 người (dương tính hay âm tính?).</li>
+          <li>Khám bệnh cho 1 người (có bệnh hay không?).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Ba khái niệm phải nhớ</p>
+      <ul>
+        <li><b>Sự kiện ngẫu nhiên</b>: dù làm trong <b>cùng một điều kiện như nhau</b>, kết quả vẫn có thể khác nhau. Đây là đối tượng nghiên cứu của lý thuyết xác suất.</li>
+        <li><b>Phép thử</b>: mỗi lần cho sự kiện ngẫu nhiên xảy ra, tức là mỗi lần làm thí nghiệm hay quan sát.</li>
+        <li><b>Biến cố</b>: điều có thể xảy ra (hoặc không) trong kết quả của phép thử.</li>
+      </ul>
+    </div>
+
+    <h3>💡 Mẹo phân biệt: hành động, kết quả, câu phát biểu</h3>
+    <div class="table-wrap">
+      <table class="tbl omega-tbl">
+        <thead><tr><th>Phép thử<br><span class="small muted">(hành động)</span></th><th>Một kết quả<br><span class="small muted">(cái thu được)</span></th><th>Một biến cố<br><span class="small muted">(câu phát biểu: đúng hay sai?)</span></th></tr></thead>
+        <tbody>
+          <tr><td>Gieo 1 xúc xắc</td><td>Ra mặt 4</td><td>“Ra mặt chẵn” → <span class="c-success">đã xảy ra</span></td></tr>
+          <tr><td>Xét nghiệm nhanh cúm</td><td>Âm tính</td><td>“Dương tính” → <span class="c-danger">không xảy ra</span></td></tr>
+          <tr><td>Rút 1 lá bài</td><td>Át Cơ</td><td>“Rút được lá Át” → <span class="c-success">đã xảy ra</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>Một hành động chỉ là <b>phép thử ngẫu nhiên</b> khi (1) lặp lại được trong cùng điều kiện và (2) <b>không biết trước</b> kết quả, dù vẫn liệt kê được mọi kết quả có thể. “Mặt trời mọc” không phải phép thử ngẫu nhiên vì kết quả đã biết trước.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>2. Không gian mẫu Ω</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Trước khi gieo, bạn không biết sẽ ra mặt nào, <b>nhưng bạn liệt kê được tất cả</b>: 1, 2, 3, 4, 5, 6. Danh sách “mọi khả năng” đó giống như <b>thực đơn</b> của phép thử. Thực đơn ấy gọi là <b>không gian mẫu</b>.</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa</p>
+      <p><b>Không gian mẫu</b> là tập hợp <b>tất cả các kết quả có thể xảy ra</b> của một phép thử. Ký hiệu là $\Omega$, đọc là “ô-mê-ga”.</p>
+    </div>
+
+    <figure class="fig framed">
+      <svg viewBox="0 0 340 132" width="420" height="163" role="img" aria-label="Không gian mẫu Ω gồm 6 mặt xúc xắc: 1, 2, 3, 4, 5, 6">
+        <rect x="4" y="12" width="332" height="114" rx="16" class="fill-none stroke-muted svg-dash sw-2"/>
+        <rect x="16" y="1" width="30" height="22" rx="6" class="fill-surface"/>
+        <text x="31" y="19" text-anchor="middle" class="svg-text svg-bold" style="font-size:17px">Ω</text>
+        <g class="sdie" data-die="1" data-xy="18,30" data-s="44"></g>
+        <g class="sdie" data-die="2" data-xy="70,30" data-s="44"></g>
+        <g class="sdie" data-die="3" data-xy="122,30" data-s="44"></g>
+        <g class="sdie" data-die="4" data-xy="174,30" data-s="44"></g>
+        <g class="sdie" data-die="5" data-xy="226,30" data-s="44"></g>
+        <g class="sdie" data-die="6" data-xy="278,30" data-s="44"></g>
+        <text x="170" y="108" text-anchor="middle" class="svg-text svg-bold" style="font-size:15px">Ω = {1, 2, 3, 4, 5, 6}</text>
+      </svg>
+      <figcaption>Gieo 1 con xúc xắc: Ω có 6 phần tử (Ví dụ 3 trong slide).</figcaption>
+    </figure>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ: viết Ω cho từng phép thử</p>
+      <div class="table-wrap">
+        <table class="tbl omega-tbl">
+          <thead><tr><th class="left">Phép thử</th><th class="left">Không gian mẫu Ω</th><th>Số phần tử</th></tr></thead>
+          <tbody>
+            <tr><td class="left">Tung 1 đồng xu</td><td class="left">$\{S, N\}$ (sấp, ngửa)</td><td>2</td></tr>
+            <tr><td class="left">Gieo 1 xúc xắc <span class="muted small">(slide, VD 3)</span></td><td class="left">$\{1, 2, 3, 4, 5, 6\}$</td><td>6</td></tr>
+            <tr><td class="left">Xét nghiệm nhanh 1 người</td><td class="left">{dương tính, âm tính}</td><td>2</td></tr>
+            <tr><td class="left">Rút 1 lá từ bộ bài tây</td><td class="left">{Át Cơ, 2 Cơ, …, K Bích}</td><td>52</td></tr>
+            <tr><td class="left">Gieo xúc xắc <b>đến khi ra mặt 6 thì dừng</b>, đếm số lần gieo <span class="muted small">(slide, VD 4)</span></td><td class="left">$\{1, 2, 3, \dots\}$</td><td>vô hạn</td></tr>
+            <tr><td class="left">Đo thời gian chờ khám của 1 bệnh nhân (phút)</td><td class="left">mọi số thực từ 0 đến 60</td><td>vô hạn, không đếm được</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="box extra">
+      <p class="box-title">➕ Một phép thử có thể có nhiều Ω</p>
+      <p>Ω phụ thuộc vào <b>điều bạn quan tâm</b>. Cũng là gieo 1 xúc xắc: nếu quan tâm số chấm thì $\Omega = \{1, 2, 3, 4, 5, 6\}$, còn nếu chỉ quan tâm chẵn hay lẻ thì $\Omega = \{\text{chẵn}, \text{lẻ}\}$. Slide cũng có ghi chú ý này.</p>
+    </div>
+
+    <h3>Hai loại không gian mẫu</h3>
+    <figure class="fig framed b2-steps" data-anim="steps" data-step-ms="3200">
+      <svg viewBox="0 0 340 330" width="420" height="408" role="img" aria-label="Gieo xúc xắc đến khi ra mặt 6: số lần gieo có thể là 1, 2, 3, … không có số lớn nhất; so sánh với thời gian chờ khám lấp kín đoạn từ 0 đến 60 phút">
+        <rect x="2" y="4" width="336" height="34" rx="12" class="fill-soft"/>
+        <text x="14" y="26" class="svg-text" style="font-size:13.5px">Luật: gieo đến khi ra</text>
+        <g class="sdie on-p" data-die="6" data-xy="158,8" data-s="26"></g>
+        <text x="190" y="26" class="svg-text" style="font-size:13.5px">thì dừng, đếm số lần</text>
+        <text x="8" y="69" class="svg-text" style="font-size:13px">Lượt 1</text>
+        <g data-step="1">
+          <g class="sdie on-p" data-die="6" data-xy="60,50" data-s="28"></g>
+          <text x="334" y="69" text-anchor="end" class="svg-text svg-bold" style="font-size:13px">dừng: 1 lần</text>
+        </g>
+        <text x="8" y="101" class="svg-text" style="font-size:13px">Lượt 2</text>
+        <g data-step="2">
+          <g class="sdie" data-die="3" data-xy="60,82" data-s="28"></g>
+          <g class="sdie on-p" data-die="6" data-xy="94,82" data-s="28"></g>
+          <text x="334" y="101" text-anchor="end" class="svg-text svg-bold" style="font-size:13px">dừng: 2 lần</text>
+        </g>
+        <text x="8" y="133" class="svg-text" style="font-size:13px">Lượt 3</text>
+        <g data-step="3">
+          <g class="sdie" data-die="2" data-xy="60,114" data-s="28"></g>
+          <g class="sdie" data-die="5" data-xy="94,114" data-s="28"></g>
+          <g class="sdie" data-die="1" data-xy="128,114" data-s="28"></g>
+          <g class="sdie on-p" data-die="6" data-xy="162,114" data-s="28"></g>
+          <text x="334" y="133" text-anchor="end" class="svg-text svg-bold" style="font-size:13px">dừng: 4 lần</text>
+        </g>
+        <text x="8" y="165" class="svg-text" style="font-size:13px">Lượt 4</text>
+        <g data-step="4">
+          <g class="sdie" data-die="1" data-xy="60,146" data-s="28"></g>
+          <g class="sdie" data-die="3" data-xy="94,146" data-s="28"></g>
+          <g class="sdie" data-die="2" data-xy="128,146" data-s="28"></g>
+          <g class="sdie" data-die="5" data-xy="162,146" data-s="28"></g>
+          <g class="sdie" data-die="4" data-xy="196,146" data-s="28"></g>
+          <text x="240" y="165" text-anchor="middle" class="svg-text svg-bold">…</text>
+          <text x="334" y="165" text-anchor="end" class="svg-text svg-bold" style="font-size:13px">chưa dừng…</text>
+        </g>
+        <g data-step="4">
+          <line x1="16" y1="204" x2="328" y2="204" class="svg-line-muted" marker-end="url(#b2-arr)"/>
+          <circle cx="34" cy="204" r="6" class="fill-primary"/><text x="34" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">1</text>
+          <circle cx="72" cy="204" r="6" class="fill-primary"/><text x="72" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">2</text>
+          <circle cx="110" cy="204" r="6" class="fill-primary"/><text x="110" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">3</text>
+          <circle cx="148" cy="204" r="6" class="fill-primary"/><text x="148" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">4</text>
+          <circle cx="186" cy="204" r="6" class="fill-primary"/><text x="186" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">5</text>
+          <circle cx="224" cy="204" r="6" class="fill-primary"/><text x="224" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">6</text>
+          <circle cx="262" cy="204" r="6" class="fill-primary"/><text x="262" y="227" text-anchor="middle" class="svg-text" style="font-size:13px">7</text>
+          <text x="300" y="209" text-anchor="middle" class="svg-text svg-bold">…</text>
+          <text x="170" y="254" text-anchor="middle" class="svg-text svg-bold" style="font-size:14px">Ω = {1, 2, 3, …}: vô hạn đếm được</text>
+        </g>
+        <g data-step="5">
+          <text x="170" y="284" text-anchor="middle" class="svg-text" style="font-size:13.5px">Thời gian chờ khám (phút): <tspan class="svg-bold">đo</tspan>, không đếm</text>
+          <line x1="34" y1="302" x2="306" y2="302" class="stroke-primary" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="90.1" cy="302" r="6" class="fill-surface stroke-text sw-2"/>
+          <text x="34" y="326" text-anchor="middle" class="svg-text" style="font-size:13px">0</text>
+          <text x="90.1" y="326" text-anchor="middle" class="svg-text svg-bold" style="font-size:13px">12,37</text>
+          <text x="306" y="326" text-anchor="middle" class="svg-text" style="font-size:13px">60</text>
+        </g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Gieo xúc xắc <b>cho tới khi ra mặt 6</b> thì dừng, rồi đếm số lần đã gieo (Ví dụ 4 trong slide). Cùng thử vài lượt.</p>
+        <p data-caption="1">Lượt 1: ra 6 ngay lần đầu, nên kết quả là <b>1</b>.</p>
+        <p data-caption="2">Lượt 2: ra 3 rồi mới ra 6, nên kết quả là <b>2</b>.</p>
+        <p data-caption="3">Lượt 3: ra 2, 5, 1 rồi mới ra 6, nên kết quả là <b>4</b>.</p>
+        <p data-caption="4">Nếu xui, có thể gieo mãi chưa ra 6. Kết quả có thể là 1, 2, 3, … mà <b>không có số lớn nhất</b>: $\Omega = \{1, 2, 3, \dots\}$ là <b>rời rạc, vô hạn đếm được</b>. Các điểm rời nhau, vẫn đếm lần lượt được.</p>
+        <p data-caption="5">So sánh: thời gian chờ khám có thể là <b>bất kỳ số nào</b> từ 0 đến 60 phút, ví dụ 12,37 phút. Các giá trị <b>lấp kín</b> cả đoạn, không đếm từng cái được, nên Ω <b>liên tục</b>.</p>
+      </div>
+    </figure>
+
+    <div class="grid-3">
+      <div class="card">
+        <h4>Rời rạc, hữu hạn</h4>
+        <svg viewBox="0 0 240 80" width="240" height="80" role="img" aria-label="Sáu điểm rời nhau trên trục số">
+          <line x1="12" y1="40" x2="228" y2="40" class="svg-line-muted"/>
+          <circle cx="30" cy="40" r="7" class="fill-primary"/><circle cx="66" cy="40" r="7" class="fill-primary"/>
+          <circle cx="102" cy="40" r="7" class="fill-primary"/><circle cx="138" cy="40" r="7" class="fill-primary"/>
+          <circle cx="174" cy="40" r="7" class="fill-primary"/><circle cx="210" cy="40" r="7" class="fill-primary"/>
+          <text x="30" y="68" text-anchor="middle" class="svg-text">1</text><text x="66" y="68" text-anchor="middle" class="svg-text">2</text>
+          <text x="102" y="68" text-anchor="middle" class="svg-text">3</text><text x="138" y="68" text-anchor="middle" class="svg-text">4</text>
+          <text x="174" y="68" text-anchor="middle" class="svg-text">5</text><text x="210" y="68" text-anchor="middle" class="svg-text">6</text>
+        </svg>
+        <p class="small">Đếm hết được, có điểm dừng. Ví dụ: gieo xúc xắc, xét nghiệm, rút 1 lá bài.</p>
+      </div>
+      <div class="card">
+        <h4>Rời rạc, vô hạn đếm được</h4>
+        <svg viewBox="0 0 240 80" width="240" height="80" role="img" aria-label="Các điểm 1, 2, 3, ... kéo dài mãi">
+          <line x1="12" y1="40" x2="222" y2="40" class="svg-line-muted" marker-end="url(#b2-arr)"/>
+          <circle cx="30" cy="40" r="7" class="fill-primary"/><circle cx="66" cy="40" r="7" class="fill-primary"/>
+          <circle cx="102" cy="40" r="7" class="fill-primary"/><circle cx="138" cy="40" r="7" class="fill-primary"/>
+          <text x="30" y="68" text-anchor="middle" class="svg-text">1</text><text x="66" y="68" text-anchor="middle" class="svg-text">2</text>
+          <text x="102" y="68" text-anchor="middle" class="svg-text">3</text><text x="138" y="68" text-anchor="middle" class="svg-text">4</text>
+          <text x="180" y="45" text-anchor="middle" class="svg-text svg-bold">…</text>
+        </svg>
+        <p class="small">Vẫn đếm 1, 2, 3… được, nhưng <b>không có điểm dừng</b>. Ví dụ: số lần gieo cho tới khi ra mặt 6.</p>
+      </div>
+      <div class="card">
+        <h4>Liên tục</h4>
+        <svg viewBox="0 0 240 80" width="240" height="80" role="img" aria-label="Một đoạn liền từ 0 đến 60 phút">
+          <line x1="12" y1="40" x2="228" y2="40" class="svg-line-muted"/>
+          <line x1="30" y1="40" x2="210" y2="40" class="stroke-primary" stroke-width="9" stroke-linecap="round"/>
+          <text x="30" y="68" text-anchor="middle" class="svg-text">0</text>
+          <text x="210" y="68" text-anchor="middle" class="svg-text">60 phút</text>
+          <text x="120" y="24" text-anchor="middle" class="svg-muted">mọi giá trị, ví dụ 12,37 phút</text>
+        </svg>
+        <p class="small">Kết quả là một <b>giá trị đo</b>, lấp đầy cả một khoảng nên không đếm từng cái được. Ví dụ: thời gian chờ khám, đường huyết, chiều cao.</p>
+      </div>
+    </div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Mẹo nhận dạng</p>
+      <p>Nếu kết quả có được nhờ <b>đếm</b> (số mặt, số lần, số người) thì Ω <b>rời rạc</b>. Nếu kết quả có được nhờ <b>đo bằng dụng cụ</b> (cân, thước, máy đo đường huyết, đồng hồ) thì Ω <b>liên tục</b>.</p>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Ở phần “Có 2 loại không gian mẫu”, slide lấy ví dụ cho Ω hữu hạn là “Ví dụ 1: những hành động này không phải là phép thử ngẫu nhiên”. Ví dụ này <b>không đúng</b>, vì hiện tượng tất định thì không có không gian mẫu. Ví dụ đúng: <b>hữu hạn</b> là gieo xúc xắc, $\Omega=\{1,\dots,6\}$; <b>vô hạn đếm được</b> là gieo tới khi ra mặt 6, $\Omega=\{1,2,3,\dots\}$.</li>
+        <li>Slide gọi Ω là “Ôm (hoặc Ohm)”. Thực ra Ω là chữ cái Hy Lạp <b>ô-mê-ga</b>. Đơn vị điện trở “Ohm” chỉ mượn ký hiệu này.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>3. Biến cố là gì?</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Bạn và bạn thân cá cược: “Mình đoán xúc xắc <b>ra số lẻ</b>”. Gieo ra 3 thì bạn thắng, ra 4 thì bạn thua. Câu “ra số lẻ” chính là một <b>biến cố</b>. Các mặt 1, 3, 5 làm bạn thắng là các <b>kết quả thuận lợi</b> cho biến cố đó.</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa</p>
+      <ul>
+        <li><b>Biến cố</b>: một sự kiện <b>có thể xảy ra hay không</b>, tùy vào kết quả của phép thử. Ký hiệu bằng chữ in hoa $A, B, C, \dots$</li>
+        <li><b>Kết quả thuận lợi</b> cho A: những kết quả làm cho A xảy ra.</li>
+        <li>Vì vậy <b>biến cố A là một tập con của Ω</b>, gồm các kết quả thuận lợi cho A.</li>
+      </ul>
+    </div>
+
+    <figure class="fig framed b2-steps" data-anim="steps" data-step-ms="3000">
+      <svg viewBox="0 0 340 236" width="420" height="292" role="img" aria-label="Các mặt 1, 3, 5 thuận lợi cho A được gom vào nhóm A bên trong Ω: A là tập con của Ω">
+        <rect x="4" y="12" width="332" height="218" rx="16" class="fill-none stroke-muted svg-dash sw-2"/>
+        <rect x="16" y="1" width="30" height="22" rx="6" class="fill-surface"/>
+        <text x="31" y="19" text-anchor="middle" class="svg-text svg-bold" style="font-size:17px">Ω</text>
+        <rect data-step="2" x="50" y="96" width="240" height="64" rx="32" class="fill-primary op-15 stroke-primary sw-2"/>
+        <text data-step="2" x="76" y="134" text-anchor="middle" class="svg-text svg-bold" style="font-size:17px">A</text>
+        <g class="sdie" data-die="1" data-s="40" data-move="0:26,32|2:104,108" data-state="1:on-p"></g>
+        <g class="sdie" data-die="2" data-xy="76,32" data-s="40" data-state="1:dim"></g>
+        <g class="sdie" data-die="3" data-s="40" data-move="0:126,32|2:164,108" data-state="1:on-p"></g>
+        <g class="sdie" data-die="4" data-xy="176,32" data-s="40" data-state="1:dim|4:"></g>
+        <g class="sdie" data-die="5" data-s="40" data-move="0:226,32|2:224,108" data-state="1:on-p"></g>
+        <g class="sdie" data-die="6" data-xy="276,32" data-s="40" data-state="1:dim"></g>
+        <text data-step="2" x="170" y="188" text-anchor="middle" class="svg-text svg-bold" style="font-size:15px">A = {1, 3, 5} ⊂ Ω</text>
+        <rect data-step-only="3" x="158" y="102" width="52" height="52" rx="12" class="fill-none stroke-c sw-3"/>
+        <text data-step-only="3" x="170" y="216" text-anchor="middle" class="svg-text" style="font-size:13.5px">Ra 3: 3 ∈ A → <tspan class="fill-success svg-bold">A xảy ra</tspan></text>
+        <rect data-step-only="4" x="170" y="26" width="52" height="52" rx="12" class="fill-none stroke-danger sw-3"/>
+        <text data-step-only="4" x="170" y="216" text-anchor="middle" class="svg-text" style="font-size:13.5px">Ra 4: 4 ∉ A → <tspan class="fill-danger svg-bold">A không xảy ra</tspan></text>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Ω gồm 6 mặt. Xét biến cố A = “ra số chấm lẻ”.</p>
+        <p data-caption="1">Mặt nào làm A đúng? Mặt <b>1, 3, 5</b>. Đó là các <b>kết quả thuận lợi</b> cho A.</p>
+        <p data-caption="2">Gom các mặt thuận lợi lại: $A = \{1, 3, 5\}$ nằm trọn trong Ω, nên <b>A là một tập con của Ω</b>.</p>
+        <p data-caption="3">Gieo thật và ra mặt <b>3</b>: vì $3 \in A$ nên <b class="c-success">A xảy ra</b>.</p>
+        <p data-caption="4">Gieo ra mặt <b>4</b>: vì $4 \notin A$ nên <b class="c-danger">A không xảy ra</b>.</p>
+      </div>
+      <figcaption>Ví dụ 6 trong slide: các mặt được tô màu là kết quả thuận lợi cho A.</figcaption>
+    </figure>
+
+    <div class="formula">
+      <span class="formula-name">Khi nào biến cố A xảy ra?</span>
+      $$A \text{ xảy ra} \iff \omega \in A$$
+      <span class="formula-note">ω là kết quả của phép thử. Gieo ra mặt 3 ∈ {1, 3, 5} → A xảy ra. Gieo ra mặt 4 ∉ {1, 3, 5} → A không xảy ra.</span>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Thêm ví dụ</p>
+      <ul>
+        <li><b>Rút 1 lá bài</b> (52 lá). Biến cố A = “rút được lá Át” có <b>4</b> kết quả thuận lợi: Át Cơ, Át Rô, Át Chuồn, Át Bích.</li>
+        <li><b>Khám 1 người</b> và đo huyết áp tâm thu. Biến cố T = “huyết áp tâm thu ≥ 140 mmHg”. Mọi kết quả đo từ 140 trở lên đều thuận lợi cho T.</li>
+        <li><b>Khám lần lượt 2 bệnh nhân</b>, ghi B (bệnh) hoặc K (không bệnh): $\Omega = \{BB, BK, KB, KK\}$. Biến cố “có đúng 1 người bệnh” $= \{BK, KB\}$.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>4. Bốn loại biến cố</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Hãy hình dung một thang đo: “<b>không bao giờ</b>” — “<b>có thể</b>” — “<b>luôn luôn</b>”. Mỗi biến cố nằm ở một nấc trên thang đó. Riêng <b>biến cố sơ cấp</b> là “viên gạch nhỏ nhất”, tức là đúng 1 kết quả.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🧩</div>
+        <h4>Biến cố sơ cấp</h4>
+        <p class="small">Không thể chia nhỏ hơn được nữa, chỉ gồm <b>đúng 1 kết quả</b>.</p>
+        <div class="dice-row" data-size="34" data-p="4" data-dimrest="1"></div>
+        <p class="small"><b>Slide, VD 7:</b> tung đồng xu thì “sấp” và “ngửa” là hai biến cố sơ cấp. Vì thế Ω còn được gọi là <b>không gian các biến cố sơ cấp</b>.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚫</div>
+        <h4>Biến cố không thể: $\varnothing$</h4>
+        <p class="small"><b>Không bao giờ</b> xảy ra, tương ứng với <b>tập rỗng</b>.</p>
+        <div class="dice-row" data-size="34" data-dimrest="1"></div>
+        <p class="small"><b>Slide, VD 8:</b> U = “xúc xắc ra mặt 7 chấm”. Không mặt nào thuận lợi, nên $U = \varnothing$.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">✅</div>
+        <h4>Biến cố chắc chắn: $\Omega$</h4>
+        <p class="small"><b>Luôn luôn</b> xảy ra, trùng với cả <b>không gian mẫu</b>.</p>
+        <div class="dice-row" data-size="34" data-p="1,2,3,4,5,6"></div>
+        <p class="small"><b>Slide, VD 9:</b> S = “số chấm nhỏ hơn hoặc bằng 6”. Mặt nào cũng thuận lợi, nên $S = \Omega$.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎲</div>
+        <h4>Biến cố ngẫu nhiên</h4>
+        <p class="small"><b>Có thể</b> xảy ra, cũng có thể không.</p>
+        <div class="dice-row" data-size="34" data-p="2,4,6" data-dimrest="1"></div>
+        <p class="small"><b>Slide, VD 10:</b> A = “ra mặt chấm chẵn” $= \{2, 4, 6\}$.</p>
+      </div>
+    </div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Nối sang Bài 3</p>
+      <p>Ở bài sau, mỗi biến cố sẽ được gán một con số: $P(\varnothing) = 0$ cho biến cố không thể, $P(\Omega) = 1$ cho biến cố chắc chắn, và biến cố ngẫu nhiên có xác suất <b>nằm giữa 0 và 1</b>.</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>“Ra mặt chẵn” là biến cố ngẫu nhiên nhưng <b>không phải biến cố sơ cấp</b>, vì nó tách được thành 3 biến cố nhỏ hơn: {2}, {4}, {6}. Biến cố sơ cấp chỉ chứa <b>đúng một</b> kết quả.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>5. Quan hệ giữa các biến cố</h2>
+
+    <div class="box tip">
+      <p class="box-title">💡 Tin vui: bạn đã học phần này rồi!</p>
+      <p>Biến cố là <b>tập hợp</b>, nên các quan hệ giữa biến cố chính là <b>các phép toán tập hợp ở Bài 1</b> (hợp, giao, trừ, tập con), chỉ được đọc bằng lời thường. Trong các hình Venn ở thẻ bên dưới, hình chữ nhật là Ω, các hình tròn là biến cố, phần <span class="c-primary">tô đậm</span> là kết quả của phép toán.</p>
+    </div>
+
+    <figure class="fig framed b2-steps" data-anim="steps" data-step-ms="3200">
+      <svg viewBox="0 0 340 162" width="420" height="200" role="img" aria-label="Gắn nhãn A cho mặt 2, 4, 6 và nhãn B cho mặt 5, 6, rồi đếm nhãn để tìm hợp, giao, hiệu, đối lập">
+        <rect x="8" y="6" width="22" height="17" rx="6" class="chip-a"/><text x="19" y="19" text-anchor="middle" class="svg-chip">A</text>
+        <text x="36" y="19" class="svg-text" style="font-size:13px">= chẵn {2, 4, 6}</text>
+        <rect x="178" y="6" width="22" height="17" rx="6" class="chip-b"/><text x="189" y="19" text-anchor="middle" class="svg-chip">B</text>
+        <text x="206" y="19" class="svg-text" style="font-size:13px">= lớn hơn 4 {5, 6}</text>
+        <g class="sdie" data-die="1" data-xy="26,36" data-s="40" data-state="3:dim|6:on-p"></g>
+        <g class="sdie" data-die="2" data-xy="76,36" data-s="40" data-state="3:on-p|4:dim|5:on-p|6:dim"></g>
+        <g class="sdie" data-die="3" data-xy="126,36" data-s="40" data-state="3:dim|6:on-p"></g>
+        <g class="sdie" data-die="4" data-xy="176,36" data-s="40" data-state="3:on-p|4:dim|5:on-p|6:dim"></g>
+        <g class="sdie" data-die="5" data-xy="226,36" data-s="40" data-state="3:on-p|4:dim|6:on-p"></g>
+        <g class="sdie" data-die="6" data-xy="276,36" data-s="40" data-state="3:on-p|5:dim"></g>
+        <g data-step="1">
+          <rect x="85" y="82" width="22" height="17" rx="6" class="chip-a"/><text x="96" y="95" text-anchor="middle" class="svg-chip">A</text>
+          <rect x="185" y="82" width="22" height="17" rx="6" class="chip-a"/><text x="196" y="95" text-anchor="middle" class="svg-chip">A</text>
+          <rect x="285" y="82" width="22" height="17" rx="6" class="chip-a"/><text x="296" y="95" text-anchor="middle" class="svg-chip">A</text>
+        </g>
+        <g data-step="2">
+          <rect x="235" y="103" width="22" height="17" rx="6" class="chip-b"/><text x="246" y="116" text-anchor="middle" class="svg-chip">B</text>
+          <rect x="285" y="103" width="22" height="17" rx="6" class="chip-b"/><text x="296" y="116" text-anchor="middle" class="svg-chip">B</text>
+        </g>
+        <text data-step-only="3" x="170" y="150" text-anchor="middle" class="svg-text svg-bold" style="font-size:16px">A ∪ B = {2, 4, 5, 6}</text>
+        <text data-step-only="4" x="170" y="150" text-anchor="middle" class="svg-text svg-bold" style="font-size:16px">A ∩ B = {6}</text>
+        <text data-step-only="5" x="170" y="150" text-anchor="middle" class="svg-text svg-bold" style="font-size:16px">A \ B = {2, 4}</text>
+        <text data-step-only="6" x="170" y="150" text-anchor="middle" class="svg-text svg-bold" style="font-size:16px">Ā = {1, 3, 5}</text>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Gieo 1 xúc xắc với hai biến cố: <b class="c-a">A</b> = “ra mặt chẵn”, <b>B</b> = “ra mặt lớn hơn 4” (màu cam). Bấm <b>Bước tiếp</b>.</p>
+        <p data-caption="1">Gắn nhãn <b class="c-a">A</b> vào các mặt thuận lợi cho A: 2, 4, 6.</p>
+        <p data-caption="2">Gắn nhãn <b>B</b> vào các mặt thuận lợi cho B: 5, 6. Từ giờ chỉ cần <b>đếm nhãn</b> dưới mỗi mặt.</p>
+        <p data-caption="3"><b>Hợp</b> $A \cup B$ (“A <b>hoặc</b> B”): lấy mặt có <b>ít nhất 1 nhãn</b>, được $\{2, 4, 5, 6\}$.</p>
+        <p data-caption="4"><b>Giao</b> $A \cap B$ (“A <b>và</b> B”): lấy mặt có <b>đủ cả 2 nhãn</b>, chỉ còn $\{6\}$.</p>
+        <p data-caption="5"><b>Hiệu</b> $A \setminus B$ (“A <b>nhưng không</b> B”): có nhãn A mà <b>không</b> có nhãn B, được $\{2, 4\}$.</p>
+        <p data-caption="6"><b>Đối lập</b> $\overline{A}$ (“<b>không</b> A”): các mặt <b>không có nhãn A</b>, được $\{1, 3, 5\}$.</p>
+      </div>
+    </figure>
+
+    <div class="grid-2">
+      <div class="card rel-card">
+        <h4>① Kéo theo <span class="kw">“nếu A thì B”</span></h4>
+        <div class="venn" data-rel="imply"></div>
+        <p class="rel-def">Khi A xảy ra thì B <b>chắc chắn</b> cũng xảy ra. Ký hiệu: $A \subset B$.</p>
+        <p class="rel-ex">🎲 A = “ra mặt 6” (xanh), B = “ra mặt chẵn” (cam). Ra 6 thì chắc chắn là chẵn.</p>
+        <div class="dice-row" data-size="32" data-a="6" data-b="2,4" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card">
+        <h4>② Tương đương <span class="kw">“giống hệt nhau”</span></h4>
+        <div class="venn" data-rel="equal"></div>
+        <p class="rel-def">$A \subset B$ <b>và</b> $B \subset A$, nghĩa là cùng các kết quả thuận lợi. Ký hiệu: $A = B$.</p>
+        <p class="rel-ex">🎲 A = “ra mặt chẵn”, B = “ra mặt chia hết cho 2”. Hai câu khác nhau nhưng cùng là {2, 4, 6}.</p>
+        <div class="dice-row" data-size="32" data-p="2,4,6" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card">
+        <h4>③ Hợp <span class="kw">“A hoặc B”</span></h4>
+        <div class="venn" data-rel="union"></div>
+        <p class="rel-def">Xảy ra khi <b>ít nhất một</b> trong hai biến cố xảy ra. Ký hiệu: $A \cup B$.</p>
+        <p class="rel-ex">🎲 A = “chẵn” {2,4,6}, B = “lớn hơn 4” {5,6}, nên $A \cup B = \{2, 4, 5, 6\}$.</p>
+        <div class="dice-row" data-size="32" data-p="2,4,5,6" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card">
+        <h4>④ Giao <span class="kw">“A và B”</span></h4>
+        <div class="venn" data-rel="inter"></div>
+        <p class="rel-def">Xảy ra khi <b>cả hai</b> cùng xảy ra. Ký hiệu: $A \cap B$, hay viết gọn là $AB$.</p>
+        <p class="rel-ex">🎲 A = “chẵn” {2,4,6}, B = “lớn hơn 4” {5,6}, nên $A \cap B = \{6\}$.</p>
+        <div class="dice-row" data-size="32" data-p="6" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card">
+        <h4>⑤ Đối lập <span class="kw">“không A”</span></h4>
+        <div class="venn" data-rel="complement"></div>
+        <p class="rel-def">$\overline{A}$ xảy ra <b>khi và chỉ khi A không xảy ra</b>. Nó là phần còn lại của Ω.</p>
+        <p class="rel-ex">🎲 A = “chẵn” {2,4,6}, nên $\overline{A}$ = “lẻ” = {1, 3, 5}.</p>
+        <div class="dice-row" data-size="32" data-p="1,3,5" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card">
+        <h4>⑥ Xung khắc <span class="kw">“không thể cùng lúc”</span></h4>
+        <div class="venn" data-rel="disjoint"></div>
+        <p class="rel-def">A và B <b>không bao giờ cùng xảy ra</b> trong một phép thử, tức là không có phần chung: $AB = \varnothing$.</p>
+        <p class="rel-ex">🎲 A = “ra mặt 1” (xanh), B = “ra mặt 6” (cam). Không thể vừa ra 1 vừa ra 6.</p>
+        <div class="dice-row" data-size="32" data-a="1" data-b="6" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card">
+        <h4>⑦ Hiệu <span class="kw">“A nhưng không B”</span></h4>
+        <div class="venn" data-rel="diff"></div>
+        <p class="rel-def">Xảy ra khi A xảy ra <b>nhưng</b> B không xảy ra. Ký hiệu: $A \setminus B$.</p>
+        <p class="rel-ex">🎲 A = “chẵn” {2,4,6}, B = “lớn hơn 4” {5,6}, nên $A \setminus B = \{2, 4\}$.</p>
+        <div class="dice-row" data-size="32" data-p="2,4" data-dimrest="1"></div>
+      </div>
+      <div class="card rel-card rel-keys">
+        <div class="card-icon">🔑</div>
+        <h4>Cách nhớ nhanh</h4>
+        <ul class="small">
+          <li><b>hoặc</b> ↔ hợp $\cup$</li>
+          <li><b>và</b> ↔ giao $\cap$</li>
+          <li><b>không</b> ↔ đối lập $\overline{A}$</li>
+          <li><b>nhưng không</b> ↔ hiệu $\setminus$</li>
+          <li><b>nếu… thì…</b> ↔ kéo theo $\subset$</li>
+          <li><b>không cùng lúc</b> ↔ xung khắc $AB = \varnothing$</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Bảng đối chiếu: ngôn ngữ tập hợp ↔ ngôn ngữ biến cố</h3>
+    <div class="table-wrap">
+      <table class="tbl wide">
+        <thead><tr><th>Ký hiệu</th><th class="left">Ngôn ngữ tập hợp (Bài 1)</th><th class="left">Ngôn ngữ biến cố (Bài 2)</th><th>Từ khoá</th></tr></thead>
+        <tbody>
+          <tr><td>$\Omega$</td><td class="left">Tập toàn thể</td><td class="left">Biến cố chắc chắn</td><td>luôn luôn</td></tr>
+          <tr><td>$\varnothing$</td><td class="left">Tập rỗng</td><td class="left">Biến cố không thể</td><td>không bao giờ</td></tr>
+          <tr><td>$\omega \in A$</td><td class="left">Phần tử ω thuộc A</td><td class="left">Kết quả ω thuận lợi cho A</td><td>—</td></tr>
+          <tr><td>$A \subset B$</td><td class="left">A là tập con của B</td><td class="left">A kéo theo B</td><td>nếu… thì…</td></tr>
+          <tr><td>$A = B$</td><td class="left">Hai tập bằng nhau</td><td class="left">A tương đương B</td><td>giống hệt</td></tr>
+          <tr><td>$A \cup B$</td><td class="left">Hợp của A và B</td><td class="left">Ít nhất một trong hai xảy ra</td><td>hoặc</td></tr>
+          <tr><td>$A \cap B$ ($AB$)</td><td class="left">Giao của A và B</td><td class="left">Cả hai cùng xảy ra</td><td>và</td></tr>
+          <tr><td>$\overline{A} = \Omega \setminus A$</td><td class="left">Phần bù của A</td><td class="left">Biến cố đối lập của A</td><td>không</td></tr>
+          <tr><td>$AB = \varnothing$</td><td class="left">A, B rời nhau</td><td class="left">A, B xung khắc</td><td>không cùng lúc</td></tr>
+          <tr><td>$A \setminus B$</td><td class="left">Hiệu A trừ B</td><td class="left">A xảy ra mà B không xảy ra</td><td>nhưng không</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Đối lập và xung khắc: chỗ dễ nhầm nhất</h3>
+    <figure class="fig framed b2-steps" data-anim="steps" data-step-ms="3800">
+      <svg viewBox="0 0 340 250" width="420" height="309" role="img" aria-label="So sánh: A = mặt 1 và B = mặt 6 xung khắc nhưng không đối lập; A = chẵn và Ā = lẻ vừa xung khắc vừa phủ kín Ω nên đối lập">
+        <text data-show="0-0" x="170" y="20" text-anchor="middle" class="svg-text svg-bold">Gieo 1 xúc xắc: Ω = {1, 2, 3, 4, 5, 6}</text>
+        <text data-show="1-2" x="170" y="20" text-anchor="middle" class="svg-text svg-bold">Trường hợp 1: A = {1}, B = {6}</text>
+        <text data-show="3-5" x="170" y="20" text-anchor="middle" class="svg-text svg-bold">Trường hợp 2: A = chẵn, Ā = lẻ</text>
+        <g class="sdie" data-die="1" data-xy="26,32" data-s="40" data-state="1:on-a|3:on-b"></g>
+        <g class="sdie" data-die="2" data-xy="76,32" data-s="40" data-state="1:dim|2:on-x|3:on-a"></g>
+        <g class="sdie" data-die="3" data-xy="126,32" data-s="40" data-state="1:dim|2:on-x|3:on-b"></g>
+        <g class="sdie" data-die="4" data-xy="176,32" data-s="40" data-state="1:dim|2:on-x|3:on-a"></g>
+        <g class="sdie" data-die="5" data-xy="226,32" data-s="40" data-state="1:dim|2:on-x|3:on-b"></g>
+        <g class="sdie" data-die="6" data-xy="276,32" data-s="40" data-state="1:on-b|3:on-a"></g>
+        <g data-show="1-2">
+          <rect x="35" y="78" width="22" height="17" rx="6" class="chip-a"/><text x="46" y="91" text-anchor="middle" class="svg-chip">A</text>
+          <rect x="285" y="78" width="22" height="17" rx="6" class="chip-b"/><text x="296" y="91" text-anchor="middle" class="svg-chip">B</text>
+        </g>
+        <g data-show="3-5">
+          <rect x="35" y="78" width="22" height="17" rx="6" class="chip-b"/><text x="46" y="91" text-anchor="middle" class="svg-chip">Ā</text>
+          <rect x="85" y="78" width="22" height="17" rx="6" class="chip-a"/><text x="96" y="91" text-anchor="middle" class="svg-chip">A</text>
+          <rect x="135" y="78" width="22" height="17" rx="6" class="chip-b"/><text x="146" y="91" text-anchor="middle" class="svg-chip">Ā</text>
+          <rect x="185" y="78" width="22" height="17" rx="6" class="chip-a"/><text x="196" y="91" text-anchor="middle" class="svg-chip">A</text>
+          <rect x="235" y="78" width="22" height="17" rx="6" class="chip-b"/><text x="246" y="91" text-anchor="middle" class="svg-chip">Ā</text>
+          <rect x="285" y="78" width="22" height="17" rx="6" class="chip-a"/><text x="296" y="91" text-anchor="middle" class="svg-chip">A</text>
+        </g>
+        <g data-show="2-2">
+          <path d="M78 100v6H264v-6M171 106v6" class="fill-none stroke-danger sw-2"/>
+          <text x="171" y="128" text-anchor="middle" class="svg-text" style="font-size:13px">không thuộc A, cũng không thuộc B</text>
+        </g>
+        <g data-show="4-5">
+          <path d="M28 100v6H314v-6M171 106v6" class="fill-none stroke-c sw-2"/>
+          <text x="171" y="128" text-anchor="middle" class="svg-text" style="font-size:13px">mặt nào cũng có đúng 1 nhãn: phủ kín Ω</text>
+        </g>
+        <text data-show="1-2" x="170" y="150" text-anchor="middle" class="svg-text" style="font-size:14px">A ∩ B = ∅ → <tspan class="fill-success svg-bold">xung khắc</tspan></text>
+        <text data-show="3-5" x="170" y="150" text-anchor="middle" class="svg-text" style="font-size:14px">A ∩ Ā = ∅ → <tspan class="fill-success svg-bold">xung khắc</tspan></text>
+        <text data-show="2-2" x="170" y="172" text-anchor="middle" class="svg-text" style="font-size:14px">A ∪ B ≠ Ω → <tspan class="fill-danger svg-bold">KHÔNG đối lập</tspan></text>
+        <text data-show="4-5" x="170" y="172" text-anchor="middle" class="svg-text" style="font-size:14px">A ∪ Ā = Ω → <tspan class="fill-success svg-bold">đối lập</tspan></text>
+        <g data-step="5">
+          <ellipse cx="170" cy="213" rx="164" ry="34" class="fill-c op-15 stroke-c sw-2"/>
+          <text x="66" y="218" text-anchor="middle" class="svg-text svg-bold" style="font-size:14px">Xung khắc</text>
+          <ellipse cx="226" cy="213" rx="72" ry="21" class="fill-primary op-25 stroke-primary sw-2"/>
+          <text x="226" y="218" text-anchor="middle" class="svg-text svg-bold" style="font-size:14px">Đối lập</text>
+        </g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">So sánh hai cặp biến cố khi gieo 1 xúc xắc. Với mỗi cặp, hỏi 2 câu: có <b>xung khắc</b> không? Có <b>đối lập</b> không?</p>
+        <p data-caption="1">Trường hợp 1: <b class="c-a">A</b> = “ra mặt 1”, <b>B</b> = “ra mặt 6” (màu cam). Không có mặt chung, $AB = \varnothing$, nên A, B <b>xung khắc</b>.</p>
+        <p data-caption="2">Nhưng các mặt 2, 3, 4, 5 (tô đỏ) không thuộc cái nào. Ra mặt 3 thì <b>cả A lẫn B đều không xảy ra</b>, nên A, B <b>KHÔNG đối lập</b>.</p>
+        <p data-caption="3">Trường hợp 2: <b class="c-a">A</b> = “chẵn”, $\overline{A}$ = “lẻ” (màu cam). Cũng không có mặt chung, nên <b>xung khắc</b>.</p>
+        <p data-caption="4">Thêm nữa, A và $\overline{A}$ <b>phủ kín Ω</b>: lần gieo nào cũng có <b>đúng một</b> trong hai xảy ra. Đủ cả 2 điều kiện, nên đây là <b>đối lập</b>.</p>
+        <p data-caption="5">Kết luận: đối lập là một trường hợp riêng của xung khắc. <b>Đối lập ⇒ xung khắc</b>, nhưng <b>xung khắc chưa chắc đã đối lập</b>.</p>
+      </div>
+    </figure>
+
+    <div class="formula">
+      <span class="formula-name">A và Ā là đối lập khi đủ cả 2 điều kiện</span>
+      $$\begin{aligned} A \cap \overline{A} &= \varnothing &&\text{(xung khắc)}\\ A \cup \overline{A} &= \Omega &&\text{(phủ kín)} \end{aligned}$$
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li><b>Đối lập thì chắc chắn xung khắc</b> ✅, vì A và Ā không bao giờ cùng xảy ra.</li>
+        <li><b>Xung khắc chưa chắc đã đối lập</b> ❌. Phải có thêm điều kiện “hợp lại bằng Ω”, tức là lần nào cũng có một trong hai xảy ra.</li>
+        <li>Mẹo kiểm tra: tìm xem có kết quả nào mà <b>cả hai đều không xảy ra</b> không. Nếu có thì đó không phải đối lập.</li>
+      </ul>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Ở định nghĩa xung khắc, slide ghi “Kí hiệu AB ∅”, bị thiếu dấu bằng. Đúng phải là $AB = \varnothing$ (hay $A \cap B = \varnothing$), nghĩa là “giao của A và B là tập rỗng”.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>6. 🧪 Công cụ: khám phá biến cố với xúc xắc</h2>
+
+    <div class="widget" id="ee">
+      <p class="widget-title">Chọn 2 biến cố, xem ngay hợp, giao, đối lập…</p>
+      <p class="widget-desc">Chọn biến cố A và B. Công cụ sẽ tô các mặt xúc xắc thuận lợi cho từng phép toán và cho biết A, B có xung khắc, đối lập hay kéo theo nhau không. Thử chọn “chẵn” và “lẻ”, rồi “ra mặt 6” và “chẵn”.</p>
+      <div class="ee-controls">
+        <label class="field">A: <select id="ee-a" aria-label="Chọn biến cố A"></select></label>
+        <label class="field">B: <select id="ee-b" aria-label="Chọn biến cố B"></select></label>
+      </div>
+      <div class="ee-verdicts" id="ee-verdicts"></div>
+      <div class="ee-rows" id="ee-rows"></div>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>7. 🎮 Chơi mà học</h2>
+    <p>Hai trò chơi nhỏ giúp bạn luyện phản xạ. Điểm cao nhất được lưu lại trên trình duyệt của bạn.</p>
+    <div id="game-xung-khac"></div>
+    <div id="game-san-bien-co"></div>
+
+    <!-- ===================================================== -->
+    <h2>8. Bài tập tự luyện</h2>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài tập 1 (trong slide)</p>
+      <p>Trong một giỏ hàng có hai loại sản phẩm: loại 1 và loại 2. Lấy ngẫu nhiên 1 sản phẩm. Gọi A = “nhận được sản phẩm loại 1”, B = “nhận được sản phẩm loại 2”. A và B có quan hệ gì?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Viết Ω: chỉ lấy 1 sản phẩm, và chỉ có 2 loại, nên $\Omega = \{\text{loại 1}, \text{loại 2}\}$, $A = \{\text{loại 1}\}$, $B = \{\text{loại 2}\}$.</li>
+          <li>Một sản phẩm không thể vừa là loại 1 vừa là loại 2, nên $AB = \varnothing$. Vậy <b>A và B xung khắc</b>, đúng như kết luận của slide.</li>
+          <li>Đào sâu thêm: vì giỏ <b>chỉ có 2 loại</b>, lấy ra cái gì thì cũng là loại 1 hoặc loại 2, nên $A \cup B = \Omega$. Vậy A và B còn là <b>đối lập</b>: $B = \overline{A}$.</li>
+          <li>Nếu giỏ có thêm sản phẩm loại 3 thì A, B <b>vẫn xung khắc nhưng không còn đối lập</b>.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài tập 2 (trong slide)</p>
+      <p>Gieo đồng thời hai con xúc xắc. C = “con thứ nhất ra mặt 6”, D = “con thứ hai ra mặt 6”. C và D có xung khắc không?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Mỗi kết quả là một cặp (số chấm con 1, số chấm con 2), nên Ω có $6 \times 6 = 36$ kết quả (nhớ lại chỉnh hợp lặp $6^2$ ở Bài 1).</li>
+          <li>C là cả hàng “con 1 = 6” (6 kết quả, màu xanh). D là cả cột “con 2 = 6” (6 kết quả, màu cam).</li>
+          <li>Hai biến cố có chung ô <b>(6, 6)</b>, tức là cả hai con cùng ra 6. Vậy $CD = \{(6,6)\} \neq \varnothing$, nên <b>C và D không xung khắc</b>.</li>
+        </ol>
+        <figure class="fig framed b2-steps" data-anim="steps" data-step-ms="3000">
+          <div class="fig-body grid36-body" id="grid36"></div>
+          <div class="step-captions">
+            <p data-caption="0">36 ô là 36 kết quả. <b>Hàng</b> = số chấm con thứ nhất, <b>cột</b> = số chấm con thứ hai.</p>
+            <p data-caption="1">C = “con thứ nhất ra 6”: cả <b>hàng 6</b>, gồm 6 ô (màu xanh).</p>
+            <p data-caption="2">D = “con thứ hai ra 6”: cả <b>cột 6</b>, gồm 6 ô (màu cam).</p>
+            <p data-caption="3">Hàng 6 và cột 6 <b>gặp nhau</b> ở ô (6, 6): hai con cùng ra 6. Vậy $CD = \{(6,6)\} \neq \varnothing$, nên C và D <b>không xung khắc</b>.</p>
+          </div>
+          <figcaption>Hàng = con thứ nhất, cột = con thứ hai. Ô được khoanh tròn là (6, 6), nơi C và D cùng xảy ra.</figcaption>
+        </figure>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 3.</p>
+      <p>Tung 1 đồng xu 2 lần liên tiếp. (a) Viết không gian mẫu. (b) Viết biến cố A = “có ít nhất 1 lần sấp”. (c) Biến cố đối lập $\overline{A}$ là gì?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Mỗi lần có 2 khả năng S, N, nên có $2 \times 2 = 4$ kết quả: $\Omega = \{SS, SN, NS, NN\}$.</li>
+          <li>(b) “Ít nhất 1 lần sấp” nghĩa là có 1 hoặc 2 lần sấp: $A = \{SS, SN, NS\}$.</li>
+          <li>(c) $\overline{A} = \Omega \setminus A = \{NN\}$, tức là “<b>cả hai lần đều ngửa</b>”. Mẹo: đối lập của “ít nhất 1 lần” là “<b>không lần nào</b>”.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 4.</p>
+      <p>Gieo 1 xúc xắc. A = “ra mặt 6”, B = “ra mặt chẵn”. Tìm quan hệ giữa A và B, rồi tính $A \cup B$, $A \cap B$, $B \setminus A$.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>$A = \{6\}$, $B = \{2, 4, 6\}$. Mọi phần tử của A đều nằm trong B, nên $A \subset B$: <b>A kéo theo B</b> (ra 6 thì chắc chắn chẵn).</li>
+          <li>Khi $A \subset B$: $A \cup B = B = \{2, 4, 6\}$ và $A \cap B = A = \{6\}$.</li>
+          <li>$B \setminus A = \{2, 4\}$, tức là “ra mặt chẵn nhưng không phải mặt 6”.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 5 (y khoa).</p>
+      <p>Đo đường huyết lúc đói cho 1 bệnh nhân và xếp vào một trong ba nhóm: A = “đường huyết cao”, B = “bình thường”, C = “đường huyết thấp”. (a) A và B có xung khắc không? Có đối lập không? (b) Biến cố đối lập của B là gì?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>Một người chỉ thuộc đúng một nhóm, nên A và B không thể cùng xảy ra: <b>A, B xung khắc</b>.</li>
+          <li>Nhưng có thể bệnh nhân thuộc nhóm C, khi đó cả A lẫn B đều không xảy ra. Vậy $A \cup B \neq \Omega$, nên <b>A, B không đối lập</b>.</li>
+          <li>(b) “Không bình thường” nghĩa là cao hoặc thấp: $\overline{B} = A \cup C$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 6 (nối với Bài 1).</p>
+      <p>Khám cho 3 người, mỗi người ghi B (có bệnh) hoặc K (không bệnh). (a) Ω có bao nhiêu kết quả? (b) Viết biến cố E = “có đúng 1 người bệnh”. (c) Biến cố F = “không ai bệnh” và E có xung khắc không?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Mỗi người có 2 khả năng và có thứ tự (người 1, 2, 3), nên đây là chỉnh hợp lặp: $2^3 = 8$ kết quả: BBB, BBK, BKB, KBB, BKK, KBK, KKB, KKK.</li>
+          <li>(b) $E = \{BKK, KBK, KKB\}$.</li>
+          <li>(c) $F = \{KKK\}$. E và F không có kết quả chung nên <b>xung khắc</b>, nhưng <b>không đối lập</b> (ví dụ kết quả BBK không thuộc E cũng không thuộc F).</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 7.</p>
+      <p>Gieo 1 xúc xắc. Xếp mỗi biến cố sau vào đúng loại (sơ cấp, không thể, chắc chắn, ngẫu nhiên): (a) “ra mặt 0 chấm”; (b) “ra mặt có ít nhất 1 chấm”; (c) “ra mặt 5”; (d) “ra mặt lớn hơn 3”.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Không mặt nào có 0 chấm, nên đây là <b>biến cố không thể</b> ($\varnothing$).</li>
+          <li>(b) Mặt nào cũng có ít nhất 1 chấm, nên đây là <b>biến cố chắc chắn</b> ($\Omega$).</li>
+          <li>(c) Chỉ đúng 1 kết quả {5}, nên đây là <b>biến cố sơ cấp</b> (và cũng là một biến cố ngẫu nhiên).</li>
+          <li>(d) {4, 5, 6} có thể xảy ra hoặc không, nên đây là <b>biến cố ngẫu nhiên</b> (không sơ cấp vì có 3 kết quả).</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="quiz" data-title="Kiểm tra nhanh Bài 2">
+      <div class="q" data-answer="2">
+        <p class="q-text">Hành động nào dưới đây <b>không phải</b> phép thử ngẫu nhiên?</p>
+        <div class="q-options">
+          <button>Gieo 1 con xúc xắc</button>
+          <button>Rút 1 lá bài từ bộ bài</button>
+          <button>Đun nước tinh khiết ở áp suất thường đến 100°C và quan sát xem nước có sôi không</button>
+          <button>Làm xét nghiệm nhanh cho 1 người</button>
+        </div>
+        <div class="q-explain">Nước tinh khiết đun đến 100°C ở áp suất thường <b>luôn</b> sôi. Kết quả biết trước nên đây là hiện tượng tất định.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Gieo xúc xắc cho tới khi ra mặt 6 thì dừng, đếm số lần gieo. Không gian mẫu thuộc loại nào?</p>
+        <div class="q-options">
+          <button>Rời rạc, hữu hạn</button>
+          <button>Rời rạc, vô hạn đếm được</button>
+          <button>Liên tục</button>
+        </div>
+        <div class="q-explain">$\Omega = \{1, 2, 3, \dots\}$: vẫn đếm được từng số nhưng không có số lớn nhất, nên là <b>vô hạn đếm được</b> (Ví dụ 4 trong slide).</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">“Đo nồng độ đường huyết (mmol/L) của 1 bệnh nhân” có không gian mẫu loại gì?</p>
+        <div class="q-options">
+          <button>Rời rạc, hữu hạn</button>
+          <button>Rời rạc, vô hạn đếm được</button>
+          <button>Liên tục</button>
+        </div>
+        <div class="q-explain">Đây là một <b>giá trị đo</b>, có thể là bất kỳ số nào trong một khoảng (ví dụ 5,63…), nên Ω <b>liên tục</b>.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Gieo 1 xúc xắc. Biến cố “ra mặt 7 chấm” là:</p>
+        <div class="q-options">
+          <button>Biến cố không thể</button>
+          <button>Biến cố sơ cấp</button>
+          <button>Biến cố chắc chắn</button>
+          <button>Biến cố ngẫu nhiên</button>
+        </div>
+        <div class="q-explain">Không có mặt 7 chấm, nên biến cố này không bao giờ xảy ra và bằng $\varnothing$ (Ví dụ 8 trong slide).</div>
+      </div>
+      <div class="q" data-answer="3">
+        <p class="q-text">A = “ra mặt chẵn”, B = “ra mặt 2”. Phát biểu nào <b>đúng</b>?</p>
+        <div class="q-options">
+          <button>A kéo theo B</button>
+          <button>A và B xung khắc</button>
+          <button>A và B đối lập</button>
+          <button>B kéo theo A</button>
+        </div>
+        <div class="q-explain">$B = \{2\} \subset A = \{2, 4, 6\}$: ra mặt 2 thì chắc chắn chẵn, nên <b>B kéo theo A</b>. Chiều ngược lại sai, vì ra 4 là chẵn nhưng không phải mặt 2.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Phát biểu nào <b>đúng</b>?</p>
+        <div class="q-options">
+          <button>Hai biến cố xung khắc thì luôn đối lập</button>
+          <button>Hai biến cố đối lập thì luôn xung khắc</button>
+          <button>Xung khắc và đối lập là một</button>
+          <button>Đối lập nghĩa là có thể cùng xảy ra</button>
+        </div>
+        <div class="q-explain">Đối lập gồm 2 điều kiện: xung khắc <b>và</b> hợp lại bằng Ω. Vì vậy đối lập ⇒ xung khắc, còn chiều ngược lại thì không chắc đúng.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">“Bệnh nhân bị tăng huyết áp <b>hoặc</b> tiểu đường” ứng với phép toán nào giữa A = “tăng huyết áp” và B = “tiểu đường”?</p>
+        <div class="q-options">
+          <button>$A \cap B$</button>
+          <button>$A \setminus B$</button>
+          <button>$A \cup B$</button>
+          <button>$\overline{A}$</button>
+        </div>
+        <div class="q-explain">“Hoặc” ứng với <b>hợp</b>: chỉ cần ít nhất 1 trong 2 bệnh. Nếu đề viết “bị <b>cả</b> tăng huyết áp <b>và</b> tiểu đường” thì là $A \cap B$.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Tung 1 đồng xu 2 lần. Biến cố đối lập của “có ít nhất 1 lần ngửa” là:</p>
+        <div class="q-options">
+          <button>Cả hai lần đều sấp</button>
+          <button>Có đúng 1 lần sấp</button>
+          <button>Cả hai lần đều ngửa</button>
+          <button>Có ít nhất 1 lần sấp</button>
+        </div>
+        <div class="q-explain">Đối lập của “ít nhất 1 lần ngửa” là “<b>không lần nào ngửa</b>”, tức là cả hai lần đều sấp: {SS}.</div>
+      </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2>9. Thẻ ghi nhớ</h2>
+    <div class="grid-3">
+      <div class="card"><div class="card-icon">🎲</div><h4>Phép thử</h4><p class="small">Làm 1 việc, <b>không đoán trước</b> được kết quả nhưng liệt kê được các khả năng.</p></div>
+      <div class="card"><div class="card-icon">📋</div><h4>Không gian mẫu Ω</h4><p class="small">Tập <b>tất cả</b> kết quả. Loại rời rạc (hữu hạn / vô hạn đếm được) hoặc liên tục.</p></div>
+      <div class="card"><div class="card-icon">🎯</div><h4>Biến cố</h4><p class="small">Là <b>tập con của Ω</b>. Xảy ra khi kết quả thuộc tập đó.</p></div>
+      <div class="card"><div class="card-icon">🧩</div><h4>4 loại biến cố</h4><p class="small">Sơ cấp (1 kết quả) · không thể $\varnothing$ · chắc chắn $\Omega$ · ngẫu nhiên.</p></div>
+      <div class="card"><div class="card-icon">🔗</div><h4>Hợp · giao · hiệu</h4><p class="small">$A \cup B$ là “hoặc”, $A \cap B$ là “và”, $A \setminus B$ là “A nhưng không B”.</p></div>
+      <div class="card"><div class="card-icon">⚔️</div><h4>Đối lập vs xung khắc</h4><p class="small">Xung khắc: $AB = \varnothing$. Đối lập: thêm điều kiện $A \cup \overline{A} = \Omega$. Đối lập ⇒ xung khắc, chiều ngược lại không đúng.</p></div>
+    </div>
+
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Học Xác Suất Thống Kê — YHCT 2026</title>
+<meta name="description" content="Học Xác Suất Thống Kê: giải thích đơn giản, ví dụ y khoa, hình minh hoạ, trò chơi tương tác và đề thi thử. Dành cho lớp YHCT 2026.">
+<meta property="og:title" content="Học Xác Suất Thống Kê — YHCT 2026">
+<meta property="og:description" content="Giải thích đơn giản, ví dụ y khoa, hình minh hoạ, trò chơi tương tác và đề thi thử.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/home.js"></script>
+<style>
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .big-btn { min-height: 52px; padding: 12px 22px; font-size: 1rem; border-radius: 15px; }
+  .hero-progress { margin-top: 20px; max-width: 380px; font-size: .92rem; color: var(--text-muted); }
+  .hero-progress b { color: var(--text); }
+
+  .hero-art { position: relative; width: 100%; max-width: 360px; aspect-ratio: 1; margin: 0 auto; }
+  .art-ring { position: absolute; inset: 9%; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--primary) 30%, transparent); animation: xs-spin 40s linear infinite; }
+  .art-mascot { position: absolute; inset: 22%; display: grid; place-items: center; border-radius: 34%;
+    background: var(--surface); box-shadow: var(--shadow-lg); animation: xs-bob 3.2s ease-in-out infinite; }
+  .art-mascot .ic { width: 78%; height: 78%; vertical-align: 0; }
+  .art-tile { position: absolute; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center;
+    background: var(--surface); box-shadow: var(--shadow); font-size: 1.7rem; animation: xs-bob 3.4s ease-in-out infinite; }
+  .art-tile .ic { width: 1.1em; height: 1.1em; vertical-align: 0; }
+  .art-tile.t1 { top: 2%; left: 14%; color: var(--set-a); animation-delay: -.4s; }
+  .art-tile.t2 { top: 6%; right: 6%; color: var(--set-c); animation-delay: -1.2s; }
+  .art-tile.t3 { bottom: 10%; right: 2%; color: var(--set-d); animation-delay: -2s; }
+  .art-tile.t4 { bottom: 2%; left: 18%; color: var(--accent); animation-delay: -.8s; }
+  .art-tile.t5 { top: 42%; left: -2%; color: var(--success); animation-delay: -1.6s; }
+  .art-chip { position: absolute; padding: 6px 12px; border-radius: 99px; background: var(--grad-brand); color: #fff; font-weight: 800; font-size: .85rem;
+    box-shadow: var(--shadow-primary); animation: xs-bob 4s ease-in-out infinite; white-space: nowrap; }
+  .art-chip.c1 { top: 30%; right: -4%; animation-delay: -1s; }
+  .art-chip.c2 { bottom: 26%; left: 2%; background: var(--grad-cool); animation-delay: -2.4s; }
+  @media (max-width: 760px) { .hero-art { max-width: 280px; order: -1; } }
+
+  .feature-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 8px; }
+  @media (max-width: 860px) { .feature-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .feat { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: var(--surface-2); border: var(--line); }
+  .feat-ic { flex: none; width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; background: var(--surface); color: var(--primary); font-size: 1.3rem; border: 1.5px solid color-mix(in srgb, currentColor 35%, transparent); }
+  .feat-ic .ic { width: 1.1em; height: 1.1em; vertical-align: 0; }
+  .feat b { display: block; font-size: .95rem; line-height: 1.3; }
+  .feat div > span { display: block; font-size: .82rem; color: var(--text-muted); line-height: 1.35; }
+  .feat:nth-child(2) .feat-ic { color: var(--set-d); } .feat:nth-child(3) .feat-ic { color: var(--accent); } .feat:nth-child(4) .feat-ic { color: var(--set-c); }
+
+  .roadmap { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 1.2em 0; }
+  .rm-step {
+    flex: 1 1 96px; min-width: 96px; padding: 14px; border-radius: 18px; text-decoration: none; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 3px; box-shadow: var(--shadow-sm);
+    transition: transform .25s var(--ease), border-color .25s;
+  }
+  a.rm-step:hover { border-color: var(--primary); color: var(--text); transform: translateY(-3px); }
+  .rm-step .rm-num { font-size: .72rem; font-weight: 800; letter-spacing: .06em; color: var(--primary); }
+  .rm-step .rm-ttl { font-weight: 800; line-height: 1.3; }
+  .rm-step .rm-q { font-size: .82rem; color: var(--text-muted); line-height: 1.4; }
+  .rm-step.soon { border-style: dashed; opacity: .6; box-shadow: none; }
+  .rm-arrow { align-self: center; color: var(--primary); font-weight: 800; opacity: .6; }
+  @media (max-width: 760px) { .rm-arrow { display: none; } .rm-step { flex-basis: 45%; } }
+  .rm-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 560px) { .rm-groups { grid-template-columns: 1fr; } }
+  .rm-group { padding: 14px 18px; border-radius: 18px; font-size: .94rem; }
+  .rm-group.prob { background: color-mix(in srgb, var(--info) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--info) var(--tint-border), var(--border)); }
+  .rm-group.stat { background: color-mix(in srgb, var(--success) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--success) var(--tint-border), var(--border)); }
+
+  .how-steps { counter-reset: how; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 1.4em 0; }
+  @media (max-width: 860px) { .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .how-steps { grid-template-columns: 1fr; } }
+  .how-steps .card { position: relative; padding-top: 26px; }
+  .how-steps .card::before {
+    counter-increment: how; content: counter(how); position: absolute; top: -14px; left: 18px;
+    width: 30px; height: 30px; border-radius: 10px; background: var(--grad); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: .9rem; box-shadow: var(--shadow-primary);
+  }
+  .legend-grid .box { margin: 0; }
+  @media (max-width: 560px) {
+    .feat { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; }
+    .lesson-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .lesson-card { padding: 14px; border-radius: 18px; }
+    .lesson-card .lc-icon { width: 44px; height: 44px; border-radius: 14px; font-size: 1.4rem; }
+    .lesson-card .lc-title { font-size: 1rem; }
+    .lesson-card .lc-desc { font-size: .8rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .lesson-card .lc-done { top: 10px; right: 10px; }
+  }
+</style>
+</head>
+<body data-page="home">
+<header id="topbar"></header>
+<div class="layout no-toc">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <section class="home-hero">
+      <div class="hero-text">
+        <span class="badge">Lớp YHCT 2026</span>
+        <h1>Học <span class="grad-text">Xác Suất Thống Kê</span></h1>
+        <p class="lead">Slide bài giảng được viết lại bằng lời đơn giản, kèm <b>ví dụ gần gũi y khoa và YHCT</b>, <b>hình minh hoạ chuyển động</b>, <b>trò chơi tương tác</b> và <b>bài tập có lời giải từng bước</b>.</p>
+        <div class="hero-actions">
+          <a class="btn primary big-btn" id="start-btn" href="bai-1.html">🚀 Bắt đầu từ Bài 1</a>
+          <a class="btn big-btn" href="on-tap.html">🏆 Ôn tập &amp; thi thử</a>
+        </div>
+        <div class="hero-progress" id="hero-progress"></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-ring"></div>
+        <div class="art-mascot"><i class="ic-slot" data-ic="mascot"></i></div>
+        <span class="art-tile t1"><i class="ic-slot" data-ic="dice"></i></span>
+        <span class="art-tile t2"><i class="ic-slot" data-ic="chart"></i></span>
+        <span class="art-tile t3"><i class="ic-slot" data-ic="pill"></i></span>
+        <span class="art-tile t4"><i class="ic-slot" data-ic="target"></i></span>
+        <span class="art-tile t5"><i class="ic-slot" data-ic="leaf"></i></span>
+        <span class="art-chip c1">P(A) = k/n</span>
+        <span class="art-chip c2">C<sub>n</sub><sup>k</sup></span>
+      </div>
+    </section>
+
+    <div class="feature-strip">
+      <div class="feat"><span class="feat-ic">🧠</span><div><b>Tóm tắt cốt lõi</b><span>Nắm ý chính trong 30 giây</span></div></div>
+      <div class="feat"><span class="feat-ic">🖼️</span><div><b>Hình chuyển động</b><span>Xem từng bước diễn ra</span></div></div>
+      <div class="feat"><span class="feat-ic">🎮</span><div><b>Chơi mà học</b><span>11 trò chơi có điểm số</span></div></div>
+      <div class="feat"><span class="feat-ic">📱</span><div><b>Học mọi nơi</b><span>Mượt trên điện thoại</span></div></div>
+    </div>
+
+    <h2>Lộ trình bài học</h2>
+    <p class="muted">Bấm vào một bài để học. Bài có dấu ✓ là bài bạn đã đánh dấu "học xong" (lưu ngay trên trình duyệt của bạn).</p>
+    <div class="lesson-cards" id="lesson-cards"></div>
+
+    <h2>Bản đồ kiến thức</h2>
+    <p>Các bài nối tiếp nhau như những bậc thang. Mỗi bài trả lời một câu hỏi:</p>
+    <div class="roadmap">
+      <a class="rm-step" href="bai-1.html"><span class="rm-num">BÀI 1</span><span class="rm-ttl">Đếm</span><span class="rm-q">Có bao nhiêu cách?</span></a>
+      <span class="rm-arrow">→</span>
+      <a class="rm-step" href="bai-2.html"><span class="rm-num">BÀI 2</span><span class="rm-ttl">Biến cố</span><span class="rm-q">Điều gì có thể xảy ra?</span></a>
+      <span class="rm-arrow">→</span>
+      <a class="rm-step" href="bai-3.html"><span class="rm-num">BÀI 3</span><span class="rm-ttl">Xác suất</span><span class="rm-q">Khả năng xảy ra là bao nhiêu?</span></a>
+      <span class="rm-arrow">→</span>
+      <span class="rm-step soon"><span class="rm-num">BÀI 4–5</span><span class="rm-ttl">Đang cập nhật</span><span class="rm-q">Chờ tài liệu</span></span>
+      <span class="rm-arrow">→</span>
+      <a class="rm-step" href="bai-6-7.html"><span class="rm-num">BÀI 6-7</span><span class="rm-ttl">Đại lượng ngẫu nhiên</span><span class="rm-q">Trung bình, dao động bao nhiêu?</span></a>
+      <span class="rm-arrow">→</span>
+      <a class="rm-step" href="bai-8.html"><span class="rm-num">BÀI 8</span><span class="rm-ttl">Mẫu &amp; thống kê mô tả</span><span class="rm-q">Thu thập và trình bày số liệu thế nào?</span></a>
+    </div>
+    <div class="rm-groups">
+      <div class="rm-group prob"><b>🎲 Xác suất</b> (Bài 1 → 5): làm việc với <b>khả năng</b>. Biết trước luật chơi, ta tính xem chuyện gì dễ xảy ra.</div>
+      <div class="rm-group stat"><b>📊 Thống kê</b> (Bài 6 → 8): làm việc với <b>số liệu thật</b>. Từ dữ liệu thu thập được, ta tóm tắt và rút ra nhận xét.</div>
+    </div>
+
+    <h2>Cách học hiệu quả với trang này</h2>
+    <div class="how-steps">
+      <div class="card"><h4>⚡ Đọc tóm tắt 30 giây</h4><p class="small muted">Mỗi bài mở đầu bằng vài ý cốt lõi. Nắm được chúng là đã hiểu bài hơn một nửa.</p></div>
+      <div class="card"><h4>🖼️ Xem hình và ví dụ</h4><p class="small muted">Mỗi khái niệm đều có một ví dụ đời thường trước, rồi mới đến định nghĩa và công thức.</p></div>
+      <div class="card"><h4>🎮 Chơi trò chơi</h4><p class="small muted">Tự bấm, kéo, gieo xúc xắc… Tận tay làm thì nhớ lâu hơn nhiều so với chỉ đọc.</p></div>
+      <div class="card"><h4>📝 Tự kiểm tra</h4><p class="small muted">Làm bài tập, xem lời giải từng bước, làm trắc nghiệm, rồi đánh dấu "Đã học xong".</p></div>
+    </div>
+
+    <h2>Ý nghĩa các khung màu</h2>
+    <div class="grid-2 legend-grid">
+      <div class="box core-big"><p class="box-title">⚡ Tóm tắt / 📌 Cốt lõi</p><p>Phần <b>bắt buộc phải nhớ</b>, hay ra thi.</p></div>
+      <div class="box life"><p class="box-title">🏠 Nói đơn giản</p><p>Ví dụ đời thường giúp hiểu bản chất.</p></div>
+      <div class="box example"><p class="box-title">🩺 Ví dụ</p><p>Ví dụ trong slide và ví dụ y khoa, có lời giải.</p></div>
+      <div class="box tip"><p class="box-title">💡 Mẹo nhớ</p><p>Cách nhớ nhanh, làm bài nhanh.</p></div>
+      <div class="box trap"><p class="box-title">⚠️ Bẫy hay nhầm</p><p>Những chỗ sinh viên hay sai.</p></div>
+      <div class="box fix"><p class="box-title">📝 Ghi chú sửa slide</p><p>Chỗ slide gốc in sai và cách hiểu đúng.</p></div>
+      <div class="box extra"><p class="box-title">➕ Bổ sung</p><p>Kiến thức mục tiêu bài học có nêu nhưng slide chưa trình bày.</p></div>
+    </div>
+
+    <h2>Câu hỏi thường gặp</h2>
+    <details class="solution"><summary>Có cần đăng nhập hay cài đặt gì không?</summary><div class="sol-body"><p>Không cần. Chỉ cần mở trang bằng trình duyệt trên điện thoại hoặc máy tính.</p></div></details>
+    <details class="solution"><summary>Tiến độ học và điểm trò chơi được lưu ở đâu?</summary><div class="sol-body"><p>Lưu ngay trong trình duyệt của bạn (không gửi đi đâu cả). Nếu đổi máy, dùng tab ẩn danh hoặc xoá dữ liệu trình duyệt thì tiến độ sẽ bắt đầu lại từ đầu.</p></div></details>
+    <details class="solution"><summary>Nội dung có giống slide của thầy cô không?</summary><div class="sol-body"><p>Nội dung bám theo slide bài giảng, nhưng được giải thích lại cho dễ hiểu và có thêm ví dụ. Những chỗ slide in sai được ghi chú rõ trong khung <b>📝 Ghi chú sửa slide</b>. Mỗi bài đều có nút tải slide gốc ở cuối trang. Khi có chỗ khác nhau, hãy theo bài giảng của thầy cô.</p></div></details>
+    <details class="solution"><summary>Sao chưa có Bài 4 và Bài 5?</summary><div class="sol-body"><p>Hiện chưa có tài liệu của hai bài này. Khi có tài liệu, trang sẽ được cập nhật thêm.</p></div></details>
+    <details class="solution"><summary>Có học được khi mạng yếu không?</summary><div class="sol-body"><p>Được. Trang rất nhẹ. Chỉ phần hiển thị công thức toán (KaTeX) và font chữ cần tải từ mạng ở lần đầu; nếu mạng lỗi, công thức sẽ hiện ở dạng chữ thô nhưng vẫn đọc được.</p></div></details>
+
+  </main>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

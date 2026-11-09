@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài 1 · Giải tích tổ hợp — XSTK YHCT</title>
+<meta name="description" content="Bài 1 Xác suất thống kê: tập hợp, phép giao – hợp – trừ, chỉnh hợp lặp, chỉnh hợp không lặp, hoán vị, tổ hợp. Giải thích dễ hiểu, ví dụ YHCT, công cụ và trò chơi tương tác.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+<script defer src="assets/js/bai-1.js"></script>
+<style>
+  /* =========================================================
+     Bài 1 — style riêng. Chỉ dùng token của style.css (màu, bo góc, bóng)
+     để tự đổi theo chế độ sáng/tối.
+     ========================================================= */
+
+  /* ----- chữ trong SVG: cỡ lớn/nhỏ hơn mặc định (.svg-text = 14px) ----- */
+  .content svg .t-lg { font-size: 16px; }
+  .content svg .t-sm { font-size: 13px; }
+
+  /* ----- chú thích của hình chạy từng bước: mọi chú thích xếp chồng vào cùng một ô
+     → khung cao bằng chú thích dài nhất, các nút ‹ › không nhảy lên xuống khi bấm ----- */
+  .content .step-captions { display: grid; }
+  .content .step-captions > [data-caption] { display: block; grid-area: 1 / 1; margin: 0; visibility: hidden; }
+  .content .step-captions > [data-caption].cap-on { visibility: visible; }
+  @media print {
+    .content .step-captions { display: block; }
+    .content .step-captions > [data-caption] { visibility: visible; margin: .3em 0; }
+    /* khi in: bỏ các lớp "chỉ hiện ở 1 bước" để hình in ra ở trạng thái cuối, không bị chồng lên nhau */
+    .content [data-step-only] { display: none !important; }
+  }
+
+  /* ----- hình minh hoạ nằm trong hộp ví dụ: một "tấm" gọn, không viền dày ----- */
+  .fig.panel { margin: 1em 0 .3em; padding: 16px 12px 12px; border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow-sm); }
+  .box.example .fig.panel { background: var(--surface); border: var(--line); box-shadow: none; }
+  .fig.panel .step-captions { background: var(--surface); }
+  .box.example .fig.panel .step-captions { background: var(--surface); }
+  @media (max-width: 480px) { .box > .fig.panel { margin-left: -12px; margin-right: -12px; padding-left: 8px; padding-right: 8px; } }
+
+  /* ----- sơ đồ chọn công thức (có tô đường đi theo từng bước) ----- */
+  .flow { text-align: center; }
+  .flow-node { display: inline-block; max-width: 100%; padding: 10px 16px; border-radius: var(--radius-sm); background: var(--surface-2); font-weight: 650; line-height: 1.45; }
+  .flow-node.start { background: var(--grad); color: var(--on-primary); box-shadow: var(--shadow-primary); }
+  .flow-node.q { background: var(--surface); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .flow-arrow { font-size: 1.2rem; line-height: 1.7; color: var(--text-muted); }
+  .flow-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .flow-branch { padding: 12px 10px; border-radius: var(--radius); background: var(--surface-2); transition: opacity .45s var(--ease), background .45s, box-shadow .45s; }
+  .flow-label { display: inline-block; font-weight: 800; font-size: .8rem; letter-spacing: .04em; padding: 2px 12px; border-radius: 99px; margin-bottom: 8px; }
+  .flow-label.yes { background: var(--success-soft); color: var(--success); }
+  .flow-label.no { background: var(--danger-soft); color: var(--danger); }
+  .flow-leaves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .flow-leaf {
+    padding: 10px 6px; border-radius: var(--radius-sm); background: var(--surface); font-size: .92rem; line-height: 1.4;
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
+    transition: opacity .45s var(--ease), box-shadow .45s var(--ease), transform .45s var(--ease);
+  }
+  .flow-leaf.extra { box-shadow: var(--shadow-sm), inset 0 0 0 1px color-mix(in srgb, var(--extra) 30%, transparent); }
+  .flow-leaf .tag { display: block; font-size: .74rem; font-weight: 700; color: var(--text-muted); }
+  .flow-leaf .eg { display: block; margin-top: 4px; font-size: .78rem; color: var(--text-muted); }
+  .flow-leaf b { display: block; color: var(--primary); margin: 2px 0; }
+  .flow-leaf.extra b { color: var(--extra); }
+  .flow .is-dim { opacity: .3; }
+  .flow-branch.is-path { background: var(--primary-soft); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); }
+  .flow-leaf.is-path { transform: translateY(-3px); box-shadow: 0 0 0 3px var(--primary), var(--shadow-primary); }
+  /* ô đầu sơ đồ: các câu ví dụ xếp chồng một chỗ → ô không đổi kích thước khi đổi ví dụ */
+  .flow-node.start { display: inline-grid; }
+  .flow-node.start > .flow-ex { grid-area: 1 / 1; }
+  .flow-fig:not([data-cur]) .flow-ex:not([data-show="0"]), .flow-fig[data-cur] .flow-ex:not(.is-show) { visibility: hidden; }
+  .flow-fig .step-captions { margin-top: 16px; }
+  @media (max-width: 680px) { .flow-split { grid-template-columns: minmax(0, 1fr); } }
+
+  /* ----- phương pháp ô trống ----- */
+  .slots { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 6px 8px; margin: 1em 0; }
+  .slot { display: flex; flex-direction: column; align-items: center; width: 70px; }
+  .slot-box {
+    width: 54px; height: 54px; display: grid; place-items: center; border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--primary-strong); font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+  .slot-cap { font-size: .74rem; color: var(--text-muted); text-align: center; margin-top: 4px; line-height: 1.3; }
+  .slot-op, .slot-res { line-height: 54px; font-size: 1.35rem; font-weight: 800; color: var(--text-muted); }
+  .slot-res { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
+  /* ô trống được điền dần (hình chạy từng bước) */
+  .slot-box.empty { background: var(--surface); color: var(--text-muted); box-shadow: none; border: 2px dashed color-mix(in srgb, var(--primary) 40%, transparent); }
+  .slot-box.empty > * { grid-area: 1 / 1; }
+  .slot-box.empty .n {
+    align-self: stretch; justify-self: stretch; margin: -2px; display: grid; place-items: center; border-radius: inherit;
+    background: var(--grad); color: var(--on-primary); box-shadow: var(--shadow-primary);
+  }
+  .slot-ex { display: grid; justify-items: center; margin-top: 6px; min-height: 26px; }
+  .slot-ex > * { grid-area: 1 / 1; padding: 1px 10px; border-radius: 99px; background: var(--surface-2); font-weight: 750; font-size: .86rem; white-space: nowrap; }
+  .slot-ex > .swap { background: var(--accent-soft); color: var(--accent); }
+  .box.example .slot-ex > * { background: var(--surface); }
+  /* "kho" lựa chọn phía trên các ô: chữ số 0–9 hoặc 30 bạn trong lớp */
+  .bank-stack { display: grid; justify-items: center; margin: 2px 0 4px; }
+  .bank-stack > * { grid-area: 1 / 1; }
+  .bank { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bank-label { font-size: .8rem; font-weight: 700; color: var(--text-muted); line-height: 1.3; }
+  .bank-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 300px; }
+  .bank .d {
+    width: 24px; height: 28px; display: grid; place-items: center; border-radius: 8px;
+    background: var(--surface-2); font-weight: 750; font-size: .95rem; font-variant-numeric: tabular-nums;
+  }
+  .box.example .bank .d:not(.pick):not(.off) { background: var(--surface); }
+  .bank.people .bank-items { max-width: 250px; gap: 5px; }
+  .bank .p {
+    width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%;
+    background: color-mix(in srgb, var(--set-a) 28%, transparent); color: var(--on-primary); font-size: .66rem; font-weight: 800; line-height: 1;
+  }
+  .bank .pick { background: var(--grad); color: var(--on-primary); box-shadow: var(--shadow-primary); }
+  .bank .off { background: transparent; color: var(--danger); text-decoration: line-through 2px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--danger) 45%, transparent); }
+  .bank .p.off { background: var(--surface-3); color: var(--text-muted); text-decoration: none; }
+
+  /* ----- máy tính ----- */
+  .calc-inputs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .calc-card { padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface-2); border: var(--line); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .calc-name { font-weight: 800; font-size: .92rem; }
+  .calc-tag { font-size: .75rem; color: var(--text-muted); font-weight: 600; }
+  .calc-tex { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+  .calc-val { font-size: 1.3rem; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; word-break: break-all; }
+  .calc-note { font-size: .8rem; color: var(--danger); }
+  .calc-check { margin: 10px 0 0; padding: 10px 14px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--success) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--success) var(--tint-border), var(--border)); font-size: .93rem; }
+  .enum-intro { margin: 0 0 6px; }
+  .enum-group { margin: 12px 0; }
+  .enum-title { margin: 0; font-weight: 700; font-size: .95rem; }
+  .enum-count { display: inline-block; margin-left: 6px; padding: 0 9px; border-radius: 99px; background: var(--grad); color: var(--on-primary); font-size: .78rem; }
+  .enum-note { margin: 2px 0 0; font-size: .84rem; color: var(--text-muted); }
+  .enum-C .chip { cursor: pointer; }
+  .enum-C .chip:hover { border-color: var(--accent); }
+  .chip.hit { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .enum-hint { min-height: 1.2em; color: var(--accent); font-weight: 600; }
+
+  /* ----- trò chơi Venn ----- */
+  .game-count { margin: 0 0 6px; }
+  .game-actions.centered { justify-content: center; }
+  .venn-wrap { max-width: 460px; margin: 0 auto; }
+  .venn-svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
+  .venn-svg .region { cursor: pointer; transition: fill .15s, fill-opacity .15s; -webkit-tap-highlight-color: transparent; }
+  .venn-svg .region:hover { fill: var(--primary-soft); }
+  .venn-svg .region:focus { outline: none; }
+  .venn-svg .region:focus-visible { stroke: var(--primary); stroke-width: 3; }
+  .venn-svg .region.sel { fill: var(--primary); fill-opacity: .55; }
+  .venn-svg .region.ok { fill: var(--success); fill-opacity: .5; cursor: default; }
+  .venn-svg .region.bad { fill: var(--danger); fill-opacity: .5; cursor: default; }
+  .venn-svg .deco { pointer-events: none; }
+
+  /* ----- linh tinh ----- */
+  .chip-list.centered { justify-content: center; }
+  .stars { font-family: var(--mono); font-size: 1.15rem; letter-spacing: .12em; }
+  .fact-tbl td, .fact-tbl th { padding: 6px 8px; }
+  .memo-card .formula { margin: .5em 0; font-size: 1rem; padding: 8px; }
+  .eg-line { margin-top: .4em; }
+</style>
+</head>
+<body data-page="bai-1">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <section class="lesson-hero">
+      <span class="badge">Bài 1</span>
+      <h1>Giải tích tổ hợp</h1>
+      <p class="lead">Học cách “nói chuyện” bằng tập hợp và cách <b>đếm số khả năng</b> thật nhanh. Đây là nền móng cho mọi bài xác suất phía sau.</p>
+      <div class="objectives">
+        <p class="objectives-title">🎯 Học xong bài này, bạn sẽ:</p>
+        <ol>
+          <li>Làm được 3 phép toán tập hợp: <b>giao</b> ($\cap$), <b>hợp</b> ($\cup$), <b>trừ</b> ($\setminus$).</li>
+          <li>Biết chọn đúng và tính được số <b>chỉnh hợp lặp</b>, <b>chỉnh hợp không lặp</b>, <b>hoán vị</b>, <b>tổ hợp</b> (và tổ hợp lặp).</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="box core-big">
+      <p class="box-title">⚡ Tóm tắt 30 giây</p>
+      <ul>
+        <li><b>Tập hợp</b> là một nhóm đối tượng xác định rõ. Giao $A\cap B$: <i>vừa… vừa…</i>; Hợp $A\cup B$: <i>ít nhất một</i>; Hiệu $A\setminus B$: <i>thuộc A mà không thuộc B</i>.</li>
+        <li>Bài toán đếm chỉ cần hỏi <b>2 câu</b>: ❶ Có được <b>lặp</b> không? ❷ <b>Đổi chỗ</b> có ra cách mới không (có thứ tự)?</li>
+        <li>Lặp + thứ tự → $n^k$ · Không lặp + thứ tự → $A_n^k=\frac{n!}{(n-k)!}$ · Xếp hết $k$ phần tử → $k!$ · Không lặp + không thứ tự → $C_n^k=\frac{n!}{k!(n-k)!}$.</li>
+        <li>Mẹo nhớ: <b>tổ hợp = chỉnh hợp “bỏ thứ tự”</b>, nên $C_n^k = A_n^k : k!$.</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="tap-hop">1. Tập hợp là gì?</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Nói đơn giản</p>
+      <p>Tủ thuốc ở khoa YHCT có nhiều ngăn: ngăn vị thuốc bổ khí, ngăn vị thuốc bổ huyết… Mỗi <b>ngăn</b> là một <b>tập hợp</b>, mỗi <b>vị thuốc</b> trong ngăn là một <b>phần tử</b>. Chỉ cần nhìn là biết chắc một vị thuốc <i>có</i> hay <i>không</i> nằm trong ngăn đó.</p>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Cần nhớ</p>
+      <p>Tập hợp được ký hiệu bằng chữ in hoa $A, B, C,\dots$; phần tử bằng chữ thường $x, y, z,\dots$ Tập hợp là khái niệm “không định nghĩa”, nên ta hiểu nó qua <b>cách cho</b> tập hợp.</p>
+    </div>
+
+    <h3>Hai cách cho một tập hợp</h3>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">📝</div>
+        <h4>Cách 1 — Liệt kê phần tử</h4>
+        <p>Viết hết các phần tử trong dấu ngoặc nhọn $\{\ \}$.</p>
+        <p class="small">• Tứ quân tử thang = {Nhân sâm, Bạch truật, Phục linh, Cam thảo}<br>• $A_1$ = {danh sách các bạn tổ 1}<br>• $D = \{2;\,4;\,6\}$</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h4>Cách 2 — Nêu tính chất đặc trưng</h4>
+        <p>Nêu điều kiện để biết một đối tượng có thuộc tập hay không.</p>
+        <p class="small">• $B$ = {bệnh nhân trên 60 tuổi của khoa Nội}<br>• $A_2$ = {sinh viên lớp YHCT-PHCN}<br>• $D$ = {$x$ là số chấm chẵn của con xúc xắc}</p>
+      </div>
+    </div>
+
+    <h3>Thuộc ($\in$) và không thuộc ($\notin$)</h3>
+    <p>Viết $x \in A$, đọc là “$x$ thuộc $A$”; viết $x \notin A$, đọc là “$x$ không thuộc $A$”.</p>
+    <p class="eg-line">🌿 <b>Ví dụ:</b> Cam thảo $\in$ Tứ quân tử thang &nbsp;·&nbsp; Đương quy $\notin$ Tứ quân tử thang &nbsp;·&nbsp; $4 \in D$ &nbsp;·&nbsp; $5 \notin D$.</p>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <p>Slide viết “Phần tử $x$ thuộc $A$ viết là <s>$A \in x$</s>” — đúng phải là <b>$x \in A$</b> (phần tử đứng trước, tập hợp đứng sau). Dòng “$x$ không thuộc $B$ viết là $x \notin$” bị thiếu chữ, đầy đủ là <b>$x \notin B$</b>.</p>
+    </div>
+
+    <h3>Tập rỗng $\varnothing$</h3>
+    <p><b>Tập rỗng</b> là tập không có phần tử nào, ký hiệu $\varnothing$. Ví dụ trong slide:</p>
+    <ul>
+      <li>$\{x \in \mathbb{R} : x^2 + 1 = 0\}$ ($x$ là số thực) — vì $x^2 + 1 \ge 1$ nên không có số thực nào thoả.</li>
+      <li>{Bác sĩ chuyên mổ tim ở bệnh viện huyện} — bệnh viện huyện không có chuyên khoa này.</li>
+      <li>{Bệnh nhân “Đao” trên 50 tuổi} — trong nhóm đang xét không có ai.</li>
+    </ul>
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>$\{0\}$ <b>không phải</b> tập rỗng: nó có đúng 1 phần tử là số 0. Tập rỗng viết là $\varnothing$ hoặc $\{\ \}$.</p>
+    </div>
+
+    <h3>Tập con $\subseteq$</h3>
+    <p>$A$ là <b>tập con</b> của $B$ (viết $A \subseteq B$, đọc “$A$ bao hàm trong $B$”, hay $B \supseteq A$: “$B$ chứa $A$”) nếu <b>mọi</b> phần tử của $A$ đều thuộc $B$.</p>
+    <!-- Hình chạy từng bước: vẽ Tổ trước rồi "nở" ra Lớp, Khối -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3000">
+      <svg viewBox="0 0 380 230" width="380" height="230" role="img" aria-label="Tổ nằm trong Lớp, Lớp nằm trong Khối; mỗi chấm là một sinh viên">
+        <g data-step="3">
+          <ellipse cx="190" cy="118" rx="178" ry="106" class="fill-a op-15 stroke-a sw-2"/>
+          <text x="58" y="124" class="svg-text svg-bold t-lg" text-anchor="middle">Khối</text>
+          <circle cx="70" cy="170" r="5" class="fill-text"/><circle cx="95" cy="60" r="5" class="fill-text"/><circle cx="330" cy="170" r="5" class="fill-text"/>
+        </g>
+        <g data-step="2">
+          <ellipse cx="212" cy="128" rx="122" ry="74" class="fill-b op-25 stroke-b sw-2"/>
+          <text x="138" y="124" class="svg-text svg-bold t-lg" text-anchor="middle">Lớp</text>
+          <circle cx="150" cy="160" r="5" class="fill-text"/><circle cx="300" cy="100" r="5" class="fill-text"/><circle cx="180" cy="90" r="5" class="fill-text"/>
+        </g>
+        <g data-step="1">
+          <ellipse cx="240" cy="138" rx="58" ry="36" class="fill-c op-35 stroke-c sw-2"/>
+          <text x="240" y="145" class="svg-text svg-bold t-lg" text-anchor="middle">Tổ</text>
+          <circle cx="210" cy="130" r="5" class="fill-text"/><circle cx="270" cy="134" r="5" class="fill-text"/><circle cx="240" cy="160" r="5" class="fill-text"/>
+        </g>
+        <g data-step-only="4">
+          <circle cx="270" cy="134" r="11" class="fill-none stroke-primary sw-3"/>
+          <circle cx="70" cy="170" r="11" class="fill-none stroke-danger sw-3"/>
+        </g>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="1">Bắt đầu với <b>Tổ</b>: 3 sinh viên (mỗi chấm là một bạn).</p>
+        <p data-caption="2">Vẽ <b>Lớp</b> bao quanh: cả 3 bạn của Tổ đều nằm trong Lớp, Lớp còn có thêm bạn khác ⇒ Tổ $\subseteq$ Lớp.</p>
+        <p data-caption="3">Vẽ <b>Khối</b> bao quanh Lớp ⇒ Lớp $\subseteq$ Khối, nên cũng có Tổ $\subseteq$ Lớp $\subseteq$ Khối.</p>
+        <p data-caption="4">Bạn <b class="c-primary">vòng tím</b> thuộc Tổ ⇒ chắc chắn thuộc Lớp và Khối. Nhưng bạn <b class="c-danger">vòng đỏ</b> thuộc Khối mà <b>không</b> thuộc Lớp ⇒ chiều ngược lại sai: Khối $\not\subseteq$ Lớp.</p>
+      </div>
+    </figure>
+    <p>Ví dụ khác: tập bệnh nhân của <b>một khoa</b> $\subseteq$ tập bệnh nhân <b>toàn viện</b>.</p>
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>$\in$ dùng giữa <b>phần tử</b> và tập hợp (Cam thảo $\in$ Tứ quân tử thang); $\subseteq$ dùng giữa <b>tập hợp</b> và tập hợp ({Cam thảo, Nhân sâm} $\subseteq$ Tứ quân tử thang).</p>
+    </div>
+
+    <h3>Hai tập hợp bằng nhau</h3>
+    <p>$A = B$ khi mọi phần tử của $A$ thuộc $B$ <b>và</b> mọi phần tử của $B$ thuộc $A$. Muốn chứng minh, ta chỉ ra cả hai chiều: $A \subseteq B$ và $B \subseteq A$.</p>
+    <div class="box tip">
+      <p class="box-title">💡 Mẹo nhớ</p>
+      <p>Tập hợp <b>không quan tâm thứ tự</b> và <b>không đếm trùng</b>: $\{1;2;3\} = \{3;1;2\} = \{1;1;2;3\}$. Còn $D$ = {số chấm chẵn của xúc xắc} $= \{2;4;6\}$ — hai cách cho, cùng một tập.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="phep-toan">2. Ba phép toán: giao, hợp, trừ</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Câu chuyện ở khoa Nội</p>
+      <p>Khoa Nội có 9 bệnh nhân (tập toàn thể $\Omega$). Gọi <span class="c-a">$A$ = bệnh nhân tăng huyết áp (THA)</span>, <span class="c-b">$B$ = bệnh nhân tiểu đường (ĐTĐ)</span>. Có người chỉ bị một bệnh, có người bị cả hai, có người không bị bệnh nào.</p>
+    </div>
+
+    <!-- Hình chạy từng bước: tô lần lượt A, B, giao, hợp, hiệu, phần ngoài -->
+    <figure class="fig framed" data-anim="steps" data-step-ms="3600">
+      <svg viewBox="0 0 350 272" width="440" height="342" role="img" aria-label="Biểu đồ Venn 9 bệnh nhân khoa Nội: A là tăng huyết áp, B là tiểu đường; tô lần lượt A, B, giao, hợp, hiệu và phần bên ngoài">
+        <rect x="10" y="35" width="330" height="210" rx="12" class="fill-soft stroke-border"/>
+        <circle cx="130" cy="140" r="75" class="fill-a op-15"/>
+        <circle cx="220" cy="140" r="75" class="fill-b op-15"/>
+        <!-- vùng được tô ở từng bước -->
+        <circle data-step-only="1" cx="130" cy="140" r="75" class="fill-a op-50"/>
+        <circle data-step-only="2" cx="220" cy="140" r="75" class="fill-b op-50"/>
+        <path data-step-only="3" d="M175,80 A75,75 0 0 1 175,200 A75,75 0 0 1 175,80 Z" class="fill-primary op-50"/>
+        <path data-step-only="4" d="M175,80 A75,75 0 1 0 175,200 A75,75 0 1 0 175,80 Z" class="fill-primary op-50"/>
+        <path data-step-only="5" d="M175,80 A75,75 0 1 0 175,200 A75,75 0 0 1 175,80 Z" class="fill-primary op-50"/>
+        <path data-step-only="6" d="M175,80 A75,75 0 1 1 175,200 A75,75 0 0 0 175,80 Z" class="fill-primary op-50"/>
+        <path data-step-only="7" fill-rule="evenodd" d="M22,35 H328 A12,12 0 0 1 340,47 V233 A12,12 0 0 1 328,245 H22 A12,12 0 0 1 10,233 V47 A12,12 0 0 1 22,35 Z M175,80 A75,75 0 1 0 175,200 A75,75 0 1 0 175,80 Z" class="fill-primary op-35"/>
+        <circle cx="130" cy="140" r="75" class="fill-none stroke-a sw-2"/>
+        <circle cx="220" cy="140" r="75" class="fill-none stroke-b sw-2"/>
+        <text x="20" y="57" class="svg-text svg-bold t-sm">A · Tăng huyết áp</text>
+        <text x="330" y="57" class="svg-text svg-bold t-sm" text-anchor="end">B · Tiểu đường</text>
+        <text x="92" y="127" class="svg-text" text-anchor="middle">An</text>
+        <text x="88" y="152" class="svg-text" text-anchor="middle">Bình</text>
+        <text x="100" y="177" class="svg-text" text-anchor="middle">Cường</text>
+        <text x="175" y="132" class="svg-text svg-bold" text-anchor="middle">Dung</text>
+        <text x="175" y="159" class="svg-text svg-bold" text-anchor="middle">Hải</text>
+        <text x="258" y="132" class="svg-text" text-anchor="middle">Lan</text>
+        <text x="262" y="159" class="svg-text" text-anchor="middle">Minh</text>
+        <text x="40" y="233" class="svg-text" text-anchor="middle">Nam</text>
+        <text x="310" y="233" class="svg-text" text-anchor="middle">Oanh</text>
+        <text x="175" y="264" class="svg-muted t-sm" text-anchor="middle">Ω = 9 bệnh nhân khoa Nội</text>
+        <!-- kết quả đếm của từng bước -->
+        <text data-step-only="1" x="175" y="23" class="svg-text svg-bold t-lg fill-a" text-anchor="middle">A: 5 người</text>
+        <text data-step-only="2" x="175" y="23" class="svg-text svg-bold t-lg fill-b" text-anchor="middle">B: 4 người</text>
+        <text data-step-only="3" x="175" y="23" class="svg-text svg-bold t-lg fill-primary" text-anchor="middle">A ∩ B: 2 người</text>
+        <text data-step-only="4" x="175" y="23" class="svg-text svg-bold t-lg fill-primary" text-anchor="middle">A ∪ B: 5 + 4 − 2 = 7 người</text>
+        <text data-step-only="5" x="175" y="23" class="svg-text svg-bold t-lg fill-primary" text-anchor="middle">A \ B: 3 người</text>
+        <text data-step-only="6" x="175" y="23" class="svg-text svg-bold t-lg fill-primary" text-anchor="middle">B \ A: 2 người</text>
+        <text data-step-only="7" x="175" y="23" class="svg-text svg-bold t-lg fill-primary" text-anchor="middle">Ngoài A ∪ B: 2 người</text>
+      </svg>
+      <div class="step-captions">
+        <p data-caption="0">Khoa Nội có 9 bệnh nhân (tập toàn thể $\Omega$). Vòng <b class="c-a">A</b>: tăng huyết áp, vòng <b class="c-b">B</b>: tiểu đường. Dung, Hải bị <b>cả hai</b> bệnh nên nằm ở phần chồng nhau; Nam, Oanh không bị bệnh nào nên ở ngoài.</p>
+        <p data-caption="1">Tập <b class="c-a">A</b> (tăng huyết áp) = {An, Bình, Cường, Dung, Hải}: tô <b>cả vòng A</b>, kể cả phần chung.</p>
+        <p data-caption="2">Tập <b class="c-b">B</b> (tiểu đường) = {Dung, Hải, Lan, Minh}: tô cả vòng B.</p>
+        <p data-caption="3"><b>Giao</b> $A \cap B$ (hay $AB$): <b>vừa</b> thuộc A <b>vừa</b> thuộc B — chỉ phần chồng nhau = {Dung, Hải}.</p>
+        <p data-caption="4"><b>Hợp</b> $A \cup B$: thuộc <b>ít nhất một</b> trong hai tập = {An, Bình, Cường, Dung, Hải, Lan, Minh}. Đếm $5 + 4 - 2 = 7$ vì Dung, Hải nằm trong cả hai vòng, chỉ tính 1 lần.</p>
+        <p data-caption="5"><b>Hiệu</b> $A \setminus B$: <b>chỉ</b> thuộc A, <b>không</b> thuộc B — lấy vòng A rồi bỏ phần chung = {An, Bình, Cường}.</p>
+        <p data-caption="6"><b>Hiệu</b> $B \setminus A$: <b>chỉ</b> thuộc B, <b>không</b> thuộc A = {Lan, Minh}. So với bước trước: $A \setminus B \ne B \setminus A$.</p>
+        <p data-caption="7">Phần còn lại $\Omega \setminus (A \cup B)$ = {Nam, Oanh}: không bị bệnh nào. Kiểm tra: $7 + 2 = 9$ bệnh nhân.</p>
+      </div>
+    </figure>
+
+    <div class="table-wrap"><table class="tbl wide">
+      <thead><tr><th>Phép toán</th><th>Ký hiệu</th><th>Từ khoá khi đọc đề</th><th>Ví dụ khoa Nội</th></tr></thead>
+      <tbody>
+        <tr><td class="left"><b>Giao</b></td><td>$A \cap B$ (hay $AB$)</td><td class="left">“vừa… vừa…”, “và”, “cả hai”</td><td class="left">Bị cả THA và ĐTĐ: Dung, Hải</td></tr>
+        <tr><td class="left"><b>Hợp</b></td><td>$A \cup B$</td><td class="left">“hoặc”, “ít nhất một”</td><td class="left">Bị ít nhất 1 bệnh: 7 người</td></tr>
+        <tr><td class="left"><b>Trừ (hiệu)</b></td><td>$A \setminus B$</td><td class="left">“thuộc A nhưng không thuộc B”, “chỉ”</td><td class="left">Chỉ bị THA: An, Bình, Cường<br><span class="small muted">($B \setminus A$ — chỉ bị ĐTĐ: Lan, Minh)</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa (theo slide)</p>
+      <ul>
+        <li><b>Giao</b> $A \cap B = D$: $D$ gồm các phần tử <b>vừa thuộc A vừa thuộc B</b>. Mở rộng cho nhiều tập: $A \cap B \cap C$ gồm phần tử thuộc cả ba tập.</li>
+        <li><b>Hợp</b> $A \cup B = E$: $E$ gồm các phần tử thuộc <b>ít nhất một</b> trong hai tập. $A \cup B \cup C$: thuộc ít nhất một trong ba tập.</li>
+        <li><b>Hiệu</b> $A \setminus B = C$: $C$ gồm các phần tử <b>chỉ thuộc A mà không thuộc B</b>.</li>
+      </ul>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <ul>
+        <li>“Hoặc” trong toán <b>bao gồm cả trường hợp cả hai</b>: Dung, Hải vẫn thuộc $A \cup B$.</li>
+        <li>$A \setminus B$ <b>khác</b> $B \setminus A$ (phép trừ không đổi chỗ được), còn $A\cap B = B\cap A$ và $A \cup B = B \cup A$.</li>
+        <li>Đếm số người của $A \cup B$ <b>không</b> được cộng thẳng $|A| + |B| = 5 + 4 = 9$ vì Dung, Hải bị đếm 2 lần. Đúng là $5 + 4 - 2 = 7$.</li>
+      </ul>
+    </div>
+
+    <h3>Tích Đề-các $A \times B$</h3>
+    <p>Tích Đề-các của $A$ và $B$ là tập tất cả các <b>cặp có thứ tự</b> $(a, b)$, phần tử thứ nhất lấy từ $A$, phần tử thứ hai lấy từ $B$. Ví dụ trong slide: $A = \{x, y, z\}$, $B = \{1, 2, 3\}$:</p>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th>$A \,\backslash\, B$</th><th>1</th><th>2</th><th>3</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">x</td><td>(x, 1)</td><td>(x, 2)</td><td>(x, 3)</td></tr>
+        <tr><td class="row-head">y</td><td>(y, 1)</td><td>(y, 2)</td><td>(y, 3)</td></tr>
+        <tr><td class="row-head">z</td><td>(z, 1)</td><td>(z, 2)</td><td>(z, 3)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Lưới có 3 hàng × 3 cột = <b>9</b> cặp. Ví dụ YHCT: phương pháp {Châm, Cứu} × buổi {Sáng, Chiều, Tối} cho $2 \times 3 = 6$ lịch điều trị khác nhau.</p>
+    <div class="box tip">
+      <p class="box-title">💡 Quy tắc nhân — chìa khoá của mọi công thức đếm</p>
+      <p>Số phần tử của $A \times B$ bằng $|A| \cdot |B|$. Tổng quát: một việc gồm nhiều bước, bước 1 có $m$ cách, bước 2 có $n$ cách… thì cả việc có $m \cdot n \cdots$ cách. Tất cả công thức ở các mục sau đều sinh ra từ quy tắc này.</p>
+    </div>
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Slide viết “Giao của ba tập hợp <s>$A \cap B\ C$</s>” — đầy đủ là $A \cap B \cap C$.</li>
+        <li>Slide viết $A = (x, y, z)$ bằng ngoặc tròn; với tập hợp nên dùng ngoặc nhọn $\{x, y, z\}$ (ngoặc tròn thường dùng cho cặp/dãy có thứ tự).</li>
+      </ul>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="hai-cau-hoi">3. Đếm: chỉ cần hỏi 2 câu</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Cùng là “lấy 3 từ 5”, nhưng kết quả khác hẳn!</p>
+      <ul>
+        <li>Chọn <b>3 vị thuốc trong 5 vị</b> để bốc một thang → chỉ <b>10</b> cách.</li>
+        <li>Xếp <b>3 trong 5 vị</b> vào 3 ô thuốc theo thứ tự quân – thần – tá → <b>60</b> cách.</li>
+        <li>Đặt mã 3 ký tự từ <b>5 vị</b>, được dùng lại → <b>125</b> cách.</li>
+      </ul>
+      <p>Khác nhau vì <b>cách lấy mẫu</b> khác nhau. Slide gọi mỗi cách lấy $k$ phần tử từ tập $A = \{x_1, x_2, \dots, x_n\}$ là một <b>mẫu</b>.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">❶</div>
+        <h4>Có <u>lặp</u> không?</h4>
+        <p><b>Mẫu lặp</b>: một phần tử có thể xuất hiện <b>nhiều lần</b> (mật khẩu 1-1-2-2).<br><b>Mẫu không lặp</b>: mỗi phần tử xuất hiện <b>tối đa 1 lần</b> (một người không thể vừa là lớp trưởng vừa là lớp phó).</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">❷</div>
+        <h4>Có <u>thứ tự</u> không?</h4>
+        <p>Thử <b>đổi chỗ</b> 2 phần tử trong mẫu:<br>Ra <b>cách mới</b> → mẫu <b>có thứ tự</b> (An trưởng – Bình phó ≠ Bình trưởng – An phó).<br>Vẫn <b>như cũ</b> → <b>không thứ tự</b> (Cam thảo + Đương quy = Đương quy + Cam thảo, vẫn 1 thang).</p>
+      </div>
+    </div>
+
+    <!-- Sơ đồ chọn công thức. Chạy từng bước: tô đường đi cho 3 ví dụ “lấy 3 từ 5” ở trên.
+         data-path = các bước tô sáng, data-dim = các bước làm mờ, data-show = các bước hiện (xem bai-1.js) -->
+    <figure class="fig framed flow-fig" data-anim="steps" data-step-ms="4200" aria-label="Sơ đồ chọn công thức đếm">
+      <div class="flow">
+        <div class="flow-node start">
+          <span class="flow-ex" data-show="0">Lấy $k$ phần tử từ $n$ phần tử</span>
+          <span class="flow-ex" data-show="1 2">Ví dụ 1 · Bốc 1 thang: chọn 3 trong 5 vị</span>
+          <span class="flow-ex" data-show="3">Ví dụ 2 · Xếp 3 trong 5 vị vào ô quân – thần – tá</span>
+          <span class="flow-ex" data-show="4">Ví dụ 3 · Mã 3 ký tự từ 5 vị, được dùng lại</span>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node q">❶ Một phần tử có được chọn <b>lặp lại</b> không?</div>
+        <div class="flow-split">
+          <div class="flow-branch" data-path="4" data-dim="1 2 3">
+            <span class="flow-label yes">CÓ LẶP</span><br>
+            <div class="flow-node q">❷ Đổi chỗ có ra cách mới?</div>
+            <div class="flow-leaves">
+              <div class="flow-leaf" data-path="4"><span class="tag">Có thứ tự</span><b>Chỉnh hợp lặp</b>$F_n^k = n^k$<span class="eg">mật khẩu, xếp BN vào khoa tuỳ ý</span></div>
+              <div class="flow-leaf extra" data-dim="4"><span class="tag">Không thứ tự</span><b>Tổ hợp lặp</b>$C_{n+k-1}^k$<span class="eg">(bổ sung) mua trà được trùng loại</span></div>
+            </div>
+          </div>
+          <div class="flow-branch" data-path="1 2 3" data-dim="4">
+            <span class="flow-label no">KHÔNG LẶP</span><br>
+            <div class="flow-node q">❷ Đổi chỗ có ra cách mới?</div>
+            <div class="flow-leaves">
+              <div class="flow-leaf" data-path="3" data-dim="2"><span class="tag">Có thứ tự</span><b>Chỉnh hợp không lặp</b>$A_n^k = \dfrac{n!}{(n-k)!}$<span class="tag">nếu $k=n$: hoán vị $k!$</span><span class="eg">bầu trưởng/phó, trao giải</span></div>
+              <div class="flow-leaf" data-path="2" data-dim="3"><span class="tag">Không thứ tự</span><b>Tổ hợp</b>$C_n^k = \dfrac{n!}{k!(n-k)!}$<span class="eg">bốc thang, chọn nhóm</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step-captions">
+        <p data-caption="0">Trả lời lần lượt <b>2 câu hỏi</b> là ra công thức (đổi chỗ ra cách mới = <b>có thứ tự</b>; đổi chỗ vẫn như cũ = <b>không thứ tự</b>). Bấm <b>Bước tiếp</b> để chạy thử 3 ví dụ “lấy 3 từ 5” ở trên.</p>
+        <p data-caption="1"><b>Ví dụ 1 – bốc thang.</b> ❶ Một vị có bỏ vào thang 2 lần không? <b>Không</b> ⇒ đi theo nhánh <b>KHÔNG LẶP</b>.</p>
+        <p data-caption="2">❷ Đổi CT + ĐQ + HK thành HK + CT + ĐQ: vẫn là <b>cùng một thang</b> ⇒ không thứ tự ⇒ <b>Tổ hợp</b>: $C_5^3 = 10$ cách.</p>
+        <p data-caption="3"><b>Ví dụ 2 – xếp vào ô quân – thần – tá.</b> ❶ Mỗi vị chỉ vào một ô ⇒ không lặp. ❷ Đổi vị ở ô quân với ô thần là ra cách xếp khác ⇒ có thứ tự ⇒ <b>Chỉnh hợp không lặp</b>: $A_5^3 = 5 \cdot 4 \cdot 3 = 60$.</p>
+        <p data-caption="4"><b>Ví dụ 3 – mã 3 ký tự.</b> ❶ Được dùng lại ⇒ <b>có lặp</b>. ❷ Mã CT-ĐQ-HK khác mã HK-ĐQ-CT ⇒ có thứ tự ⇒ <b>Chỉnh hợp lặp</b>: $5^3 = 125$.</p>
+      </div>
+    </figure>
+
+    <h3>Giai thừa $n!$ — viên gạch của mọi công thức</h3>
+    <p>$n! = 1 \cdot 2 \cdot 3 \cdots n$ (đọc là “$n$ giai thừa”). Quy ước $0! = 1$ và $1! = 1$.</p>
+    <div class="table-wrap"><table class="tbl fact-tbl">
+      <tbody>
+        <tr><td class="row-head">$n$</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+        <tr><td class="row-head">$n!$</td><td>1</td><td>1</td><td>2</td><td>6</td><td>24</td><td>120</td><td>720</td><td>5040</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box tip">
+      <p class="box-title">💡 Phương pháp “ô trống” (dùng cho mọi bài)</p>
+      <p>Vẽ mỗi vị trí cần điền là một <b>ô</b>, ghi vào ô <b>số lựa chọn</b> cho vị trí đó, rồi <b>nhân</b> các ô lại (quy tắc nhân). Bạn sẽ thấy cách này ở mọi ví dụ bên dưới.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="chinh-hop-lap">4. Chỉnh hợp lặp — được lặp, có thứ tự</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Ví dụ dễ hiểu: mật khẩu điện thoại 4 số</p>
+      <p>Mỗi ô có 10 lựa chọn (0–9) và số được dùng lại (1111 vẫn hợp lệ). Thứ tự quan trọng (1234 ≠ 4321).</p>
+      <div class="slots" aria-label="10 nhân 10 nhân 10 nhân 10 bằng 10000">
+        <div class="slot"><div class="slot-box">10</div><div class="slot-cap">số thứ 1</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">10</div><div class="slot-cap">số thứ 2</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">10</div><div class="slot-cap">số thứ 3</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">10</div><div class="slot-cap">số thứ 4</div></div><span class="slot-res">= 10.000</span>
+      </div>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa & công thức</p>
+      <p>Cho $A = \{x_1, x_2, \dots, x_n\}$. <b>Chỉnh hợp lặp</b> là mẫu $k$ phần tử <b>có lặp, có thứ tự</b> lấy từ $n$ phần tử của $A$. Ký hiệu số chỉnh hợp lặp là $F_n^k$:</p>
+      <div class="formula"><span class="formula-name">Chỉnh hợp lặp</span>$$F_n^k = n^k$$<span class="formula-note">$n$: số lựa chọn cho <b>mỗi</b> ô · $k$: số ô. Công thức đúng cả khi $k > n$.</span></div>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 1 (slide): số tự nhiên có 3 chữ số</p>
+      <p>Chữ số hàng trăm phải khác 0 nên có 9 cách; hai chữ số còn lại lấy tuỳ ý từ 0–9 (có lặp, có thứ tự): $F_{10}^2 = 10^2$.</p>
+      <!-- Hình chạy từng bước: điền lần lượt từng ô; hàng chữ số phía trên cho biết số nào dùng được (bai-1.js tự vẽ các chữ số) -->
+      <figure class="fig panel slot-fig" data-anim="steps" data-step-ms="3200" aria-label="Điền 3 ô: 9 nhân 10 nhân 10 bằng 900">
+        <div class="bank-stack" aria-hidden="true">
+          <div class="bank" data-step-only="0" data-label="10 chữ số có thể dùng"></div>
+          <div class="bank" data-step-only="1" data-off="0" data-pick="5" data-label="Ô hàng trăm: bỏ số 0"></div>
+          <div class="bank" data-step-only="2" data-pick="5" data-label="Ô hàng chục: được lặp, đủ 10 số"></div>
+          <div class="bank" data-step="3" data-pick="5" data-label="Ô hàng đơn vị: vẫn đủ 10 số"></div>
+        </div>
+        <div class="slots">
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="1">9</span></div><div class="slot-cap">hàng trăm (1–9)</div><div class="slot-ex"><span data-step="1">5</span></div></div><span class="slot-op">×</span>
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="2">10</span></div><div class="slot-cap">hàng chục (0–9)</div><div class="slot-ex"><span data-step="2">5</span></div></div><span class="slot-op">×</span>
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="3">10</span></div><div class="slot-cap">hàng đơn vị (0–9)</div><div class="slot-ex"><span data-step="3">5</span></div></div>
+          <span class="slot-res" data-step="4">= <span data-count="900">900</span></span>
+        </div>
+        <div class="step-captions">
+          <p data-caption="0">Số có 3 chữ số = <b>3 ô trống</b>. Lần lượt điền vào mỗi ô <b>số cách chọn</b> cho ô đó.</p>
+          <p data-caption="1">Ô <b>hàng trăm</b>: không được là 0 (vì “057” chỉ là số có 2 chữ số) ⇒ còn <b>9</b> cách. Ví dụ chọn 5.</p>
+          <p data-caption="2">Ô <b>hàng chục</b>: được lặp, nên cả 10 chữ số đều dùng được — kể cả số 5 vừa chọn ⇒ <b>10</b> cách.</p>
+          <p data-caption="3">Ô <b>hàng đơn vị</b>: lại đủ <b>10</b> cách. Ví dụ ra số 555 — hợp lệ vì được lặp.</p>
+          <p data-caption="4">Nhân các ô lại (quy tắc nhân): $9 \times 10 \times 10 = \mathbf{900}$ số.</p>
+        </div>
+      </figure>
+      <p class="center">Số mẫu $= 9 \cdot F_{10}^2 = 9 \times 10^2 = \mathbf{900}$.</p>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 2 (slide): xếp tuỳ ý 5 bệnh nhân vào 3 khoa</p>
+      <p>Mỗi bệnh nhân “chọn” 1 trong 3 khoa; nhiều người vào cùng một khoa được (có lặp); BN 1 vào khoa Nội – BN 2 vào khoa Ngoại khác với ngược lại (có thứ tự).</p>
+      <div class="slots">
+        <div class="slot"><div class="slot-box">3</div><div class="slot-cap">BN 1</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">3</div><div class="slot-cap">BN 2</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">3</div><div class="slot-cap">BN 3</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">3</div><div class="slot-cap">BN 4</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">3</div><div class="slot-cap">BN 5</div></div><span class="slot-res">= 243</span>
+      </div>
+      <p class="center">Số mẫu $= F_3^5 = 3^5 = \mathbf{243}$. (Ở đây $k = 5 > n = 3$ — vẫn đúng.)</p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm: $3^5$ hay $5^3$?</p>
+      <p>Hỏi: “<b>ai</b> đi chọn?” Người đi chọn là <b>ô</b> (số mũ $k$), thứ được chọn là <b>lựa chọn</b> (cơ số $n$). 5 bệnh nhân, mỗi người chọn 1 trong 3 khoa ⇒ $3 \cdot 3 \cdot 3 \cdot 3 \cdot 3 = 3^5$, <b>không phải</b> $5^3$.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="chinh-hop-khong-lap">5. Chỉnh hợp không lặp & hoán vị — không lặp, có thứ tự</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Ví dụ dễ hiểu: bầu lớp trưởng và lớp phó từ 30 bạn</p>
+      <p>Chọn lớp trưởng: 30 cách. Một người không giữ 2 chức, nên chọn lớp phó chỉ còn 29 cách. Đổi vai trò là ra cách mới (có thứ tự).</p>
+      <!-- Hình chạy từng bước: 30 chấm = 30 bạn; bạn đã được chọn bị gạch khỏi lượt sau (bai-1.js tự vẽ các chấm) -->
+      <figure class="fig panel slot-fig" data-anim="steps" data-step-ms="3200" aria-label="Điền 2 ô: 30 nhân 29 bằng 870">
+        <div class="bank-stack" aria-hidden="true">
+          <div class="bank people" data-n="30" data-step-only="0" data-label="Lớp có 30 bạn"></div>
+          <div class="bank people" data-n="30" data-step-only="1" data-pick="0:A" data-label="Ô lớp trưởng: cả 30 bạn đều được"></div>
+          <div class="bank people" data-n="30" data-step-only="2" data-off="0:A" data-pick="1:B" data-label="Ô lớp phó: An đã làm trưởng, còn 29 bạn"></div>
+          <div class="bank people" data-n="30" data-step="3" data-pick="0:A 1:B" data-label="An và Bình đã có chức"></div>
+        </div>
+        <div class="slots">
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="1">30</span></div><div class="slot-cap">lớp trưởng</div><div class="slot-ex"><span data-step="1">An</span><span class="swap" data-step="4">Bình</span></div></div><span class="slot-op">×</span>
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="2">29</span></div><div class="slot-cap">lớp phó (còn lại)</div><div class="slot-ex"><span data-step="2">Bình</span><span class="swap" data-step="4">An</span></div></div>
+          <span class="slot-res" data-step="3">= <span data-count="870">870</span></span>
+        </div>
+        <div class="step-captions">
+          <p data-caption="0">Lớp có 30 bạn (30 chấm). Cần điền <b>2 ô</b>: lớp trưởng và lớp phó.</p>
+          <p data-caption="1">Ô <b>lớp trưởng</b>: bạn nào cũng được ⇒ <b>30</b> cách. Giả sử chọn <b>An</b> (chấm A).</p>
+          <p data-caption="2">Ô <b>lớp phó</b>: An đã làm lớp trưởng, một người không giữ 2 chức ⇒ gạch An đi, còn <b>29</b> cách. Giả sử chọn <b>Bình</b>.</p>
+          <p data-caption="3">Nhân hai ô: $30 \times 29 = \mathbf{870}$ cách $= A_{30}^2$.</p>
+          <p data-caption="4"><b>Đổi vai</b>: Bình trưởng – An phó là một cách <b>khác</b> với An trưởng – Bình phó (cả hai đều nằm trong 870) ⇒ mẫu <b>có thứ tự</b>.</p>
+        </div>
+      </figure>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa & công thức</p>
+      <p><b>Chỉnh hợp không lặp</b> là mẫu $k$ phần tử <b>không lặp, có thứ tự</b> lấy từ $n$ phần tử của $A$. Ký hiệu $A_n^k$:</p>
+      <div class="formula"><span class="formula-name">Chỉnh hợp không lặp</span>$$\begin{aligned} A_n^k &= n(n-1)\cdots(n-k+1) \\ &= \frac{n!}{(n-k)!} \end{aligned}$$<span class="formula-note">Tích gồm đúng $k$ thừa số. Chỉ dùng khi $k \le n$ (không thể chọn 6 thứ khác nhau từ 5 thứ).</span></div>
+      <p>Mẹo: viết $k$ thừa số, bắt đầu từ $n$ rồi <b>giảm dần 1</b>. Ví dụ $A_5^3 = 5 \cdot 4 \cdot 3 = 60$.</p>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 3 (slide): số có 3 chữ số <u>khác nhau</u></p>
+      <p>So với Ví dụ 1: giờ <b>không được lặp</b>, nên chữ số nào đã dùng thì bị gạch khỏi các ô sau.</p>
+      <figure class="fig panel slot-fig" data-anim="steps" data-step-ms="3200" aria-label="Điền 3 ô: 9 nhân 9 nhân 8 bằng 648">
+        <div class="bank-stack" aria-hidden="true">
+          <div class="bank" data-step-only="0" data-label="10 chữ số có thể dùng"></div>
+          <div class="bank" data-step-only="1" data-off="0" data-pick="5" data-label="Ô hàng trăm: bỏ số 0"></div>
+          <div class="bank" data-step-only="2" data-off="5" data-pick="0" data-label="Ô hàng chục: số 5 đã dùng"></div>
+          <div class="bank" data-step="3" data-off="5 0" data-pick="7" data-label="Ô hàng đơn vị: 5 và 0 đã dùng"></div>
+        </div>
+        <div class="slots">
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="1">9</span></div><div class="slot-cap">hàng trăm</div><div class="slot-ex"><span data-step="1">5</span></div></div><span class="slot-op">×</span>
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="2">9</span></div><div class="slot-cap">hàng chục</div><div class="slot-ex"><span data-step="2">0</span></div></div><span class="slot-op">×</span>
+          <div class="slot"><div class="slot-box empty"><span>?</span><span class="n" data-step="3">8</span></div><div class="slot-cap">hàng đơn vị</div><div class="slot-ex"><span data-step="3">7</span></div></div>
+          <span class="slot-res" data-step="4">= <span data-count="648">648</span></span>
+        </div>
+        <div class="step-captions">
+          <p data-caption="0">Vẫn là <b>3 ô trống</b>, nhưng các chữ số phải <b>khác nhau</b>.</p>
+          <p data-caption="1">Hàng trăm: khác 0 ⇒ <b>9</b> cách (1–9). Ví dụ chọn 5.</p>
+          <p data-caption="2">Hàng chục: được dùng số 0 nhưng phải khác chữ số hàng trăm (5 đã dùng) ⇒ còn <b>9</b> cách. Ví dụ chọn 0.</p>
+          <p data-caption="3">Hàng đơn vị: khác 2 chữ số trước (5 và 0) ⇒ còn <b>8</b> cách. Ví dụ ra số 507.</p>
+          <p data-caption="4">Nhân các ô: $9 \times 9 \times 8 = \mathbf{648}$. Chữ số đã dùng bị <b>gạch khỏi</b> các ô sau — dấu hiệu của <b>không lặp</b>.</p>
+        </div>
+      </figure>
+      <p class="center">Số mẫu $= 9 \times A_9^2 = 9 \times 9 \times 8 = \mathbf{648}$.</p>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 4 (slide): xếp 3 bệnh nhân vào 5 khoa, mỗi khoa nhiều nhất 1 người</p>
+      <p>Mỗi người phải vào một khoa khác nhau (không lặp); BN 1 vào Nội, BN 2 vào Ngoại khác với ngược lại (có thứ tự).</p>
+      <div class="slots">
+        <div class="slot"><div class="slot-box">5</div><div class="slot-cap">BN 1</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">4</div><div class="slot-cap">BN 2</div></div><span class="slot-op">×</span>
+        <div class="slot"><div class="slot-box">3</div><div class="slot-cap">BN 3</div></div><span class="slot-res">= 60</span>
+      </div>
+      <p class="center">Số mẫu $= A_5^3 = 5 \times 4 \times 3 = \mathbf{60}$.</p>
+    </div>
+
+    <h3>Hoán vị — xếp chỗ cho tất cả</h3>
+    <div class="box life">
+      <p class="box-title">🏠 Ví dụ dễ hiểu: xếp 3 bạn An, Bình, Chi vào 3 ghế</p>
+      <div class="chip-list centered">
+        <span class="chip">An – Bình – Chi</span><span class="chip">An – Chi – Bình</span><span class="chip">Bình – An – Chi</span>
+        <span class="chip">Bình – Chi – An</span><span class="chip">Chi – An – Bình</span><span class="chip">Chi – Bình – An</span>
+      </div>
+      <p class="center">Ghế 1: 3 cách × ghế 2: 2 cách × ghế 3: 1 cách $= 3! = 6$ cách.</p>
+    </div>
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa & công thức</p>
+      <p>Cho $A = \{x_1, x_2, \dots, x_k\}$, mỗi cách sắp xếp $k$ phần tử là một <b>hoán vị</b>. Ví dụ $x_1x_2x_3\dots x_k$ và $x_2x_1x_3\dots x_k$ là hai hoán vị khác nhau. Hoán vị là mẫu $k$ phần tử <b>không lặp, có thứ tự</b> lấy từ đúng $k$ phần tử, tức là $A_k^k$.</p>
+      <div class="formula"><span class="formula-name">Hoán vị</span>$$P_k = k!$$</div>
+      <p><b>Nhận xét (slide):</b> chỉnh hợp lặp và chỉnh hợp không lặp đều là <b>mẫu có thứ tự</b>.</p>
+    </div>
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm</p>
+      <p>Nếu chỉ xếp <b>một phần</b> ($k &lt; n$, ví dụ 3 trong 30 bạn) thì dùng $A_n^k$; chỉ khi xếp <b>toàn bộ</b> ($k = n$) mới là hoán vị $n!$.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="to-hop">6. Tổ hợp — không lặp, không thứ tự</h2>
+
+    <div class="box life">
+      <p class="box-title">🏠 Ví dụ dễ hiểu: chọn 3 vị thuốc trong 5 vị để bốc thang</p>
+      <p>5 vị: Cam thảo (CT), Đương quy (ĐQ), Hoàng kỳ (HK), Bạch truật (BT), Phục linh (PL). Bỏ vào túi thuốc thì <b>thứ tự không quan trọng</b>: CT + ĐQ + HK hay HK + CT + ĐQ vẫn là <b>cùng một thang</b>.</p>
+      <!-- Hình chạy từng bước: 6 cách xếp của cùng 3 vị "bay" vào 1 túi thuốc; 60 cách xếp gộp thành 10 thang (chuyển động: bai-1.js) -->
+      <figure class="fig panel herb-fig" data-anim="steps" data-step-ms="3400">
+        <svg viewBox="0 0 300 330" width="300" height="330" role="img" aria-label="Chọn 3 trong 5 vị: 6 cách xếp có thứ tự gộp thành 1 thang; 60 cách xếp gộp thành 10 thang">
+          <g>
+            <circle cx="38" cy="34" r="21" class="fill-c op-25 stroke-c sw-2"/><text x="38" y="40" class="svg-text svg-bold t-lg" text-anchor="middle">CT</text>
+            <circle cx="94" cy="34" r="21" class="fill-c op-25 stroke-c sw-2"/><text x="94" y="40" class="svg-text svg-bold t-lg" text-anchor="middle">ĐQ</text>
+            <circle cx="150" cy="34" r="21" class="fill-c op-25 stroke-c sw-2"/><text x="150" y="40" class="svg-text svg-bold t-lg" text-anchor="middle">HK</text>
+            <circle cx="206" cy="34" r="21" class="fill-c op-25 stroke-c sw-2"/><text x="206" y="40" class="svg-text svg-bold t-lg" text-anchor="middle">BT</text>
+            <circle cx="262" cy="34" r="21" class="fill-c op-25 stroke-c sw-2"/><text x="262" y="40" class="svg-text svg-bold t-lg" text-anchor="middle">PL</text>
+          </g>
+          <g data-step="1">
+            <circle cx="38" cy="34" r="26" class="fill-none stroke-primary sw-3"/>
+            <circle cx="94" cy="34" r="26" class="fill-none stroke-primary sw-3"/>
+            <circle cx="150" cy="34" r="26" class="fill-none stroke-primary sw-3"/>
+          </g>
+          <g data-step-only="2">
+            <g class="strip"><rect x="18" y="80" width="126" height="30" rx="10" class="fill-surface stroke-primary"/><text x="81" y="100" class="svg-text" text-anchor="middle">CT – ĐQ – HK</text></g>
+            <g class="strip"><rect x="156" y="80" width="126" height="30" rx="10" class="fill-surface stroke-primary"/><text x="219" y="100" class="svg-text" text-anchor="middle">CT – HK – ĐQ</text></g>
+            <g class="strip"><rect x="18" y="118" width="126" height="30" rx="10" class="fill-surface stroke-primary"/><text x="81" y="138" class="svg-text" text-anchor="middle">ĐQ – CT – HK</text></g>
+            <g class="strip"><rect x="156" y="118" width="126" height="30" rx="10" class="fill-surface stroke-primary"/><text x="219" y="138" class="svg-text" text-anchor="middle">ĐQ – HK – CT</text></g>
+            <g class="strip"><rect x="18" y="156" width="126" height="30" rx="10" class="fill-surface stroke-primary"/><text x="81" y="176" class="svg-text" text-anchor="middle">HK – CT – ĐQ</text></g>
+            <g class="strip"><rect x="156" y="156" width="126" height="30" rx="10" class="fill-surface stroke-primary"/><text x="219" y="176" class="svg-text" text-anchor="middle">HK – ĐQ – CT</text></g>
+            <text x="150" y="210" class="svg-text svg-bold t-sm" text-anchor="middle">3! = 6 cách xếp (có thứ tự)</text>
+          </g>
+          <g data-step="3" class="bag">
+            <path d="M118,106 Q150,80 182,106" class="fill-none stroke-primary sw-3"/>
+            <path d="M104,108 Q150,96 196,108 L208,170 Q210,186 194,186 L106,186 Q90,186 92,170 Z" class="fill-primary op-15 stroke-primary sw-2"/>
+            <text x="150" y="146" class="svg-bold t-lg fill-primary" text-anchor="middle">1 thang</text>
+            <text x="150" y="168" class="svg-text t-sm" text-anchor="middle">{CT, ĐQ, HK}</text>
+            <text x="150" y="210" class="svg-text svg-bold t-sm" text-anchor="middle">6 cách xếp gộp lại = 1 thang</text>
+          </g>
+          <text data-step="4" x="150" y="238" class="svg-text svg-bold t-sm" text-anchor="middle">Cả 5 vị: 60 cách xếp = 10 nhóm × 6</text>
+          <g data-step-only="4">
+            <circle class="dot fill-primary" data-col="0" cx="33" cy="252" r="4"/><circle class="dot fill-primary" data-col="0" cx="33" cy="263" r="4"/><circle class="dot fill-primary" data-col="0" cx="33" cy="274" r="4"/><circle class="dot fill-primary" data-col="0" cx="33" cy="285" r="4"/><circle class="dot fill-primary" data-col="0" cx="33" cy="296" r="4"/><circle class="dot fill-primary" data-col="0" cx="33" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="1" cx="59" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="1" cx="59" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="1" cx="59" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="1" cx="59" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="1" cx="59" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="1" cx="59" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="2" cx="85" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="2" cx="85" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="2" cx="85" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="2" cx="85" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="2" cx="85" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="2" cx="85" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="3" cx="111" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="3" cx="111" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="3" cx="111" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="3" cx="111" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="3" cx="111" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="3" cx="111" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="4" cx="137" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="4" cx="137" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="4" cx="137" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="4" cx="137" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="4" cx="137" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="4" cx="137" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="5" cx="163" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="5" cx="163" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="5" cx="163" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="5" cx="163" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="5" cx="163" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="5" cx="163" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="6" cx="189" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="6" cx="189" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="6" cx="189" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="6" cx="189" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="6" cx="189" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="6" cx="189" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="7" cx="215" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="7" cx="215" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="7" cx="215" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="7" cx="215" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="7" cx="215" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="7" cx="215" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="8" cx="241" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="8" cx="241" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="8" cx="241" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="8" cx="241" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="8" cx="241" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="8" cx="241" cy="307" r="4"/>
+            <circle class="dot fill-a op-70" data-col="9" cx="267" cy="252" r="4"/><circle class="dot fill-a op-70" data-col="9" cx="267" cy="263" r="4"/><circle class="dot fill-a op-70" data-col="9" cx="267" cy="274" r="4"/><circle class="dot fill-a op-70" data-col="9" cx="267" cy="285" r="4"/><circle class="dot fill-a op-70" data-col="9" cx="267" cy="296" r="4"/><circle class="dot fill-a op-70" data-col="9" cx="267" cy="307" r="4"/>
+          </g>
+          <g data-step="5">
+            <rect class="bag10 fill-primary op-70 stroke-primary" data-col="0" x="22" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="1" x="48" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="2" x="74" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="3" x="100" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="4" x="126" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="5" x="152" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="6" x="178" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="7" x="204" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="8" x="230" y="268" width="22" height="24" rx="7"/>
+            <rect class="bag10 fill-primary op-25 stroke-primary" data-col="9" x="256" y="268" width="22" height="24" rx="7"/>
+            <text x="150" y="322" class="svg-bold t-lg fill-primary" text-anchor="middle">60 : 3! = 10 thang</text>
+          </g>
+          <g class="fly" aria-hidden="true"></g>
+        </svg>
+        <div class="step-captions">
+          <p data-caption="0">5 vị thuốc: Cam thảo (CT), Đương quy (ĐQ), Hoàng kỳ (HK), Bạch truật (BT), Phục linh (PL).</p>
+          <p data-caption="1">Chọn ra 3 vị, ví dụ <b>CT, ĐQ, HK</b>.</p>
+          <p data-caption="2">Nếu <b>có thứ tự</b> (xếp vào ô quân – thần – tá), 3 vị này cho $3! = 6$ cách xếp khác nhau.</p>
+          <p data-caption="3">Bỏ vào túi thuốc thì <b>thứ tự mất ý nghĩa</b>: cả 6 cách xếp gộp lại chỉ là <b>1 thang</b> {CT, ĐQ, HK}.</p>
+          <p data-caption="4">Với cả 5 vị, đếm có thứ tự được $A_5^3 = 60$ cách xếp. Mỗi cột là 6 cách xếp của <b>cùng một nhóm 3 vị</b> (cột tím là nhóm CT, ĐQ, HK ở trên).</p>
+          <p data-caption="5">Mỗi cột 6 cách xếp gộp thành 1 thang ⇒ $C_5^3 = \dfrac{A_5^3}{3!} = \dfrac{60}{6} = \mathbf{10}$ thang.</p>
+        </div>
+      </figure>
+      <p>Đếm có thứ tự được $A_5^3 = 60$, nhưng cứ 6 cách xếp chỉ là 1 thang ⇒ số thang $= 60 : 6 = \mathbf{10}$:</p>
+      <div class="chip-list centered">
+        <span class="chip">CT·ĐQ·HK</span><span class="chip">CT·ĐQ·BT</span><span class="chip">CT·ĐQ·PL</span><span class="chip">CT·HK·BT</span><span class="chip">CT·HK·PL</span>
+        <span class="chip">CT·BT·PL</span><span class="chip">ĐQ·HK·BT</span><span class="chip">ĐQ·HK·PL</span><span class="chip">ĐQ·BT·PL</span><span class="chip">HK·BT·PL</span>
+      </div>
+    </div>
+
+    <div class="box core">
+      <p class="box-title">📌 Định nghĩa & công thức</p>
+      <p>Cho $A = \{x_1, x_2, \dots, x_n\}$. <b>Tổ hợp không lặp</b> (gọi tắt: tổ hợp) là mẫu $k$ phần tử <b>không lặp, không thứ tự</b> lấy từ $n$ phần tử của $A$. Vì là mẫu không thứ tự nên <b>nhân số tổ hợp với $k!$ sẽ được số chỉnh hợp không lặp</b>:</p>
+      <div class="formula"><span class="formula-name">Tổ hợp</span>$$C_n^k = \frac{n!}{(n-k)!\,k!} = \frac{A_n^k}{k!}$$<span class="formula-note">$n$: số phần tử khác nhau ban đầu · $k$: số phần tử cần chọn ra · $0 \le k \le n$</span></div>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 5 (slide): chọn 5 người vào ban chấp hành chi đoàn từ 8 ứng cử viên</p>
+      <p>Chỉ chọn nhóm, không phân chức vụ ⇒ không lặp, không thứ tự.</p>
+      <ol class="steps">
+        <li>Viết công thức: $C_8^5 = \dfrac{8!}{(8-5)!\,5!} = \dfrac{8!}{3!\,5!}$.</li>
+        <li>Rút gọn $5!$: $\dfrac{8!}{5!} = 8 \cdot 7 \cdot 6 = 336$.</li>
+        <li>Chia cho $3! = 6$: $C_8^5 = \dfrac{336}{6} = \mathbf{56}$ cách.</li>
+      </ol>
+      <p class="eg-line">💡 <b>Mẹo tính nhanh: $C_n^k = C_n^{n-k}$.</b> Chọn 5 người <b>vào</b> ban chấp hành cũng chính là chọn 3 người <b>không vào</b>: $C_8^5 = C_8^3 = \dfrac{8 \cdot 7 \cdot 6}{3 \cdot 2 \cdot 1} = 56$. Tính với số nhỏ hơn cho nhanh!</p>
+    </div>
+
+    <div class="box example">
+      <p class="box-title">🩺 Ví dụ 6 (slide): gia đình 3 con, trong đó có 2 con gái</p>
+      <p>Chọn ra <b>2 lần sinh</b> (trong 3 lần: con cả, con giữa, con út) là con gái — không lặp, không thứ tự:</p>
+      <p class="center">$C_3^2 = \dfrac{3!}{1!\,2!} = 3$ khả năng: &nbsp;<span class="chip">Gái-Gái-Trai</span> <span class="chip">Gái-Trai-Gái</span> <span class="chip">Trai-Gái-Gái</span></p>
+    </div>
+
+    <div class="box trap">
+      <p class="box-title">⚠️ Bẫy hay nhầm: tổ hợp hay chỉnh hợp?</p>
+      <p>Hỏi: “Các phần tử được chọn có <b>vai trò khác nhau</b> không?” Có (trưởng/phó, giải Nhất/Nhì, Thứ 2/Thứ 3) ⇒ <b>chỉnh hợp</b>. Như nhau (cùng vào ban, cùng một thang, cùng xét nghiệm) ⇒ <b>tổ hợp</b>.</p>
+    </div>
+
+    <div class="box fix">
+      <p class="box-title">📝 Ghi chú sửa slide</p>
+      <ul>
+        <li>Slide ghi điều kiện “<s>$k &lt; n \le k$</s>” (vô lý) — đúng là $\mathbf{0 \le k \le n}$.</li>
+        <li>Ví dụ “gia đình 3 con có 2 gái” slide ghi “lấy 2 gái trong số 3 gái” — hiểu chính xác là <b>chọn 2 trong 3 lần sinh</b> là con gái, nên $C_3^2 = 3$.</li>
+      </ul>
+    </div>
+
+    <h3>➕ Tổ hợp lặp (bổ sung)</h3>
+    <div class="box extra">
+      <p class="box-title">➕ Bổ sung — mục tiêu bài có nêu nhưng slide chưa trình bày</p>
+      <p><b>Tổ hợp lặp</b> là mẫu $k$ phần tử <b>có lặp, không thứ tự</b> lấy từ $n$ loại phần tử.</p>
+      <div class="formula"><span class="formula-name">Tổ hợp lặp</span>$$\overline{C}_n^k = C_{n+k-1}^k$$</div>
+      <p><b>Ví dụ:</b> mua 3 hộp trà thảo dược từ 4 loại (Atisô, Gừng, Cúc, Sen), được mua trùng loại. Chỉ quan tâm mỗi loại mấy hộp, không quan tâm thứ tự bỏ vào giỏ ⇒ $\overline{C}_4^3 = C_{6}^{3} = 20$ cách.</p>
+      <p><b>Vì sao?</b> Biểu diễn mỗi cách mua bằng 3 ngôi sao (hộp trà) và 3 vạch ngăn (chia 4 loại):</p>
+      <ul>
+        <li><span class="stars">★★|★||</span> → 2 Atisô, 1 Gừng</li>
+        <li><span class="stars">||★|★★</span> → 1 Cúc, 2 Sen</li>
+        <li><span class="stars">|||★★★</span> → 3 Sen</li>
+      </ul>
+      <p>Có tất cả $3 + 3 = 6$ vị trí, chọn 3 vị trí đặt sao ⇒ $C_6^3 = 20$. Tổng quát: $k$ sao và $n-1$ vạch ⇒ $C_{n+k-1}^k$.</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="cong-cu-tro-choi">7. Công cụ & trò chơi</h2>
+
+    <div class="widget">
+      <p class="widget-title">Máy tính đếm: nhập n và k</p>
+      <p class="widget-desc">Nhập số phần tử ban đầu $n$ và số phần tử cần lấy $k$ để thấy cả 5 kiểu đếm. Khi $n \le 5$ và $k \le 3$, máy còn <b>liệt kê từng mẫu</b> để bạn thấy vì sao các con số khác nhau.</p>
+      <div class="calc-inputs">
+        <label class="field">n = <input id="calc-n" type="number" min="1" max="50" value="5" inputmode="numeric"></label>
+        <label class="field">k = <input id="calc-k" type="number" min="0" max="50" value="3" inputmode="numeric"></label>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn small" data-preset="5,3">🌿 Bốc thang: 5 vị chọn 3</button>
+        <button type="button" class="btn small" data-preset="3,2">🔤 3 phần tử, lấy 2</button>
+        <button type="button" class="btn small" data-preset="10,4">🔒 Mật khẩu 4 số</button>
+        <button type="button" class="btn small" data-preset="8,5">🗳️ Chấp hành: 8 chọn 5</button>
+        <button type="button" class="btn small" data-preset="3,5">🏥 5 BN vào 3 khoa</button>
+      </div>
+      <div class="widget-out" id="calc-out"></div>
+      <div class="widget-out" id="calc-enum"></div>
+    </div>
+
+    <div id="game-formula"></div>
+    <div id="game-venn"></div>
+
+    <!-- ===================================================== -->
+    <h2 id="bai-tap">8. Bài tập tự luyện</h2>
+    <p class="muted">Tự làm ra giấy trước, rồi mới bấm “Xem lời giải”.</p>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 1. (Tập hợp)</p>
+      <p>Cho $A = \{1; 2; 3; 4; 5; 6\}$ và $B = \{2; 4; 6; 8\}$. Tìm $A \cap B$, $A \cup B$, $A \setminus B$, $B \setminus A$.</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>$A \cap B$ — phần tử có mặt ở <b>cả hai</b>: $\{2; 4; 6\}$.</li>
+          <li>$A \cup B$ — gộp lại, không ghi trùng: $\{1; 2; 3; 4; 5; 6; 8\}$.</li>
+          <li>$A \setminus B$ — của $A$ nhưng không có trong $B$: $\{1; 3; 5\}$.</li>
+          <li>$B \setminus A$ — của $B$ nhưng không có trong $A$: $\{8\}$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 2.</p>
+      <p>Khoa có 12 điều dưỡng. (a) Chọn 3 người đi tập huấn. (b) Chọn 1 trưởng nhóm, 1 phó nhóm và 1 thư ký. Mỗi câu có bao nhiêu cách?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Ba người cùng đi tập huấn, vai trò như nhau ⇒ không lặp, <b>không thứ tự</b>: $C_{12}^3 = \dfrac{12 \cdot 11 \cdot 10}{3 \cdot 2 \cdot 1} = \dfrac{1320}{6} = \mathbf{220}$.</li>
+          <li>(b) Ba chức vụ khác nhau ⇒ không lặp, <b>có thứ tự</b>: $A_{12}^3 = 12 \cdot 11 \cdot 10 = \mathbf{1320}$.</li>
+          <li>Nhận xét: $1320 = 220 \times 3!$ — đúng mối liên hệ $A_n^k = C_n^k \cdot k!$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 3.</p>
+      <p>Từ các chữ số 0, 1, …, 9 lập được bao nhiêu số tự nhiên có 4 chữ số nếu: (a) các chữ số được lặp lại; (b) các chữ số khác nhau?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Hàng nghìn khác 0: 9 cách; 3 chữ số còn lại tuỳ ý: $10^3$ ⇒ $9 \times 10^3 = \mathbf{9000}$ số.</li>
+          <li>(b) Hàng nghìn: 9 cách; 3 chữ số còn lại khác nhau và khác chữ số đầu, chọn từ 9 chữ số còn lại có thứ tự: $A_9^3 = 9 \cdot 8 \cdot 7 = 504$ ⇒ $9 \times 504 = \mathbf{4536}$ số.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 4.</p>
+      <p>Xếp tuỳ ý 4 bệnh nhân vào 2 phòng (mỗi phòng chứa được nhiều người). Có bao nhiêu cách?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <p>Mỗi bệnh nhân có 2 lựa chọn phòng, được lặp, có thứ tự ⇒ chỉnh hợp lặp: $F_2^4 = 2^4 = \mathbf{16}$ cách. (Không phải $4^2 = 16$ — ở đây tình cờ bằng nhau, nhưng ý nghĩa khác! Thử 5 bệnh nhân: $2^5 = 32 \ne 5^2 = 25$.)</p>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 5.</p>
+      <p>Một bài thuốc cần chọn 4 vị trong 7 vị có sẵn. (a) Có bao nhiêu cách? (b) Bao nhiêu cách nếu <b>bắt buộc</b> phải có Cam thảo (Cam thảo là 1 trong 7 vị)?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <ol class="steps">
+          <li>(a) Chọn nhóm, không thứ tự: $C_7^4 = \dfrac{7 \cdot 6 \cdot 5 \cdot 4}{4!} = \dfrac{840}{24} = \mathbf{35}$.</li>
+          <li>(b) Cam thảo đã chắc chắn có mặt ⇒ chỉ còn chọn 3 vị trong 6 vị còn lại: $C_6^3 = \dfrac{6 \cdot 5 \cdot 4}{6} = \mathbf{20}$.</li>
+        </ol>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 6.</p>
+      <p>Gia đình có 4 con. Có bao nhiêu khả năng (theo thứ tự sinh) để gia đình có <b>đúng 2 con gái</b>?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <p>Chọn 2 trong 4 lần sinh là con gái: $C_4^2 = \dfrac{4 \cdot 3}{2} = \mathbf{6}$ khả năng (GGTT, GTGT, GTTG, TGGT, TGTG, TTGG).</p>
+      </div></details>
+    </div>
+
+    <div class="exercise">
+      <p class="exercise-title">Bài 7. (Tổ hợp lặp — bổ sung)</p>
+      <p>Phòng khám mua 2 hộp cao dán từ 3 loại (được trùng loại). Có bao nhiêu cách mua?</p>
+      <details class="solution"><summary>Xem lời giải</summary><div class="sol-body">
+        <p>Có lặp, không thứ tự: $\overline{C}_3^2 = C_{3+2-1}^2 = C_4^2 = \mathbf{6}$. Liệt kê với 3 loại X, Y, Z: XX, YY, ZZ, XY, XZ, YZ.</p>
+      </div></details>
+    </div>
+
+    <div class="quiz" data-title="Kiểm tra nhanh Bài 1">
+      <div class="q" data-answer="1">
+        <p class="q-text">“Phần tử $x$ thuộc tập $A$” viết đúng là:</p>
+        <div class="q-options"><button>$A \in x$</button><button>$x \in A$</button><button>$x \subseteq A$</button><button>$A \subseteq x$</button></div>
+        <div class="q-explain">Phần tử đứng trước, tập hợp đứng sau: $x \in A$. Ký hiệu $\subseteq$ chỉ dùng giữa hai tập hợp.</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Cho $A = \{1;2;3\}$, $B = \{2;3;4\}$. $A \cap B$ bằng:</p>
+        <div class="q-options"><button>$\{1;2;3;4\}$</button><button>$\{1\}$</button><button>$\{2;3\}$</button><button>$\{4\}$</button></div>
+        <div class="q-explain">Giao gồm phần tử <b>vừa</b> thuộc A <b>vừa</b> thuộc B: $\{2;3\}$.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Cũng với $A, B$ trên, $A \setminus B$ bằng:</p>
+        <div class="q-options"><button>$\{1\}$</button><button>$\{4\}$</button><button>$\{1;4\}$</button><button>$\varnothing$</button></div>
+        <div class="q-explain">Thuộc A mà không thuộc B: chỉ có số 1. ($\{4\}$ là $B \setminus A$.)</div>
+      </div>
+      <div class="q" data-answer="3">
+        <p class="q-text">Tập $\{x \in \mathbb{R} : x^2 + 1 = 0\}$ ($x$ là số thực) là:</p>
+        <div class="q-options"><button>$\{1\}$</button><button>$\{-1; 1\}$</button><button>$\{0\}$</button><button>Tập rỗng $\varnothing$</button></div>
+        <div class="q-explain">$x^2 + 1 \ge 1 > 0$ với mọi số thực, nên không có phần tử nào ⇒ tập rỗng.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">$C_8^5$ bằng:</p>
+        <div class="q-options"><button>40</button><button>56</button><button>336</button><button>6720</button></div>
+        <div class="q-explain">$C_8^5 = \dfrac{8!}{3!\,5!} = \dfrac{8 \cdot 7 \cdot 6}{6} = 56$. (336 là $A_8^3$, 6720 là $A_8^5$.)</div>
+      </div>
+      <div class="q" data-answer="2">
+        <p class="q-text">Tổ hợp (không lặp) là mẫu:</p>
+        <div class="q-options"><button>có lặp, có thứ tự</button><button>không lặp, có thứ tự</button><button>không lặp, không thứ tự</button><button>có lặp, không thứ tự</button></div>
+        <div class="q-explain">Tổ hợp = chọn nhóm: không lặp và đổi chỗ không ra cách mới.</div>
+      </div>
+      <div class="q" data-answer="1">
+        <p class="q-text">Xếp tuỳ ý 5 bệnh nhân vào 3 khoa. Số cách là:</p>
+        <div class="q-options"><button>$5^3 = 125$</button><button>$3^5 = 243$</button><button>$A_5^3 = 60$</button><button>$C_5^3 = 10$</button></div>
+        <div class="q-explain">Mỗi bệnh nhân (5 ô) chọn 1 trong 3 khoa (3 lựa chọn), được lặp ⇒ $3^5 = 243$.</div>
+      </div>
+      <div class="q" data-answer="0">
+        <p class="q-text">Mối liên hệ nào luôn đúng (với $0 \le k \le n$)?</p>
+        <div class="q-options"><button>$A_n^k = C_n^k \cdot k!$</button><button>$C_n^k = A_n^k \cdot k!$</button><button>$A_n^k = n^k$</button><button>$C_n^k = C_n^{k+1}$</button></div>
+        <div class="q-explain">Mỗi tổ hợp $k$ phần tử sắp xếp được $k!$ cách ⇒ $A_n^k = C_n^k \cdot k!$.</div>
+      </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <h2 id="the-ghi-nho">9. Thẻ ghi nhớ</h2>
+
+    <div class="box core">
+      <p class="box-title">🔑 2 câu hỏi vàng trước mọi bài đếm</p>
+      <p>❶ Có được <b>lặp</b> không? &nbsp;❷ <b>Đổi chỗ</b> có ra cách mới không? — rồi tra bảng ở mục 3. Không chắc thì dùng <b>phương pháp ô trống</b> + quy tắc nhân.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card memo-card">
+        <div class="card-icon">🔵</div>
+        <h4>Phép toán tập hợp</h4>
+        <p class="small">$A \cap B$: vừa… vừa… &nbsp;·&nbsp; $A \cup B$: ít nhất một<br>$A \setminus B$: thuộc A, không thuộc B &nbsp;·&nbsp; $\varnothing$: tập rỗng<br>$A \subseteq B$: mọi phần tử của A đều thuộc B</p>
+      </div>
+      <div class="card memo-card">
+        <div class="card-icon">🔁</div>
+        <h4>Chỉnh hợp lặp</h4>
+        <div class="formula">$F_n^k = n^k$</div>
+        <p class="small">Có lặp, có thứ tự · mật khẩu, xếp BN vào khoa tuỳ ý.</p>
+      </div>
+      <div class="card memo-card">
+        <div class="card-icon">🥇</div>
+        <h4>Chỉnh hợp không lặp</h4>
+        <div class="formula">$A_n^k = \dfrac{n!}{(n-k)!}$</div>
+        <p class="small">Không lặp, có thứ tự · bầu trưởng/phó, trao giải, phân ca trực.</p>
+      </div>
+      <div class="card memo-card">
+        <div class="card-icon">🪑</div>
+        <h4>Hoán vị</h4>
+        <div class="formula">$P_k = k!$</div>
+        <p class="small">Xếp <b>tất cả</b> $k$ phần tử · xếp ghế, xếp thứ tự khám.</p>
+      </div>
+      <div class="card memo-card">
+        <div class="card-icon">🌿</div>
+        <h4>Tổ hợp</h4>
+        <div class="formula">$C_n^k = \dfrac{n!}{k!\,(n-k)!} = \dfrac{A_n^k}{k!}$</div>
+        <p class="small">Không lặp, không thứ tự · bốc thang, chọn nhóm, chọn ban chấp hành.</p>
+      </div>
+      <div class="card memo-card">
+        <div class="card-icon">➕</div>
+        <h4>Tổ hợp lặp (bổ sung)</h4>
+        <div class="formula">$\overline{C}_n^k = C_{n+k-1}^k$</div>
+        <p class="small">Có lặp, không thứ tự · mua hàng được trùng loại.</p>
+      </div>
+    </div>
+    <p class="small muted">Nhớ thêm: $0! = 1$ · $C_n^k = C_n^{n-k}$ · $C_n^0 = C_n^n = 1$ · $A_n^k$ và $C_n^k$ chỉ có nghĩa khi $k \le n$.</p>
+
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>

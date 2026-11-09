@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ôn tập &amp; thi thử — XSTK YHCT</title>
+<meta name="description" content="Tổng hợp công thức Xác Suất Thống Kê, sơ đồ chọn công thức và đề thi thử trắc nghiệm có chấm điểm.">
+<script>try{var m=location.search.match(/[?&]theme=(dark|light)/),t=m?m[1]:localStorage.getItem("xstk-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/lessons.js"></script>
+<script defer src="assets/js/icons.js"></script>
+<script defer src="assets/js/anim.js"></script>
+<script defer src="assets/js/main.js"></script>
+<script defer src="assets/js/widgets.js"></script>
+<script defer src="assets/js/games.js"></script>
+<script defer src="assets/js/on-tap.js"></script>
+<style>
+  .sheet h3 { margin-top: 1.2em; }
+  .tbl td .katex { font-size: 1.05em; }
+  .chooser-step { margin: 10px 0; }
+  .chooser-q { font-weight: 700; margin: 0 0 8px; }
+  .chooser-path { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+  .chooser-result { margin-top: 12px; padding: 14px 16px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--primary) var(--tint), var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) var(--tint-border), var(--border)); }
+  .chooser-result .r-name { font-weight: 800; font-size: 1.1rem; color: var(--primary-strong); }
+
+  .exam-start { text-align: center; padding: 8px 0; }
+  .exam-start .big { font-size: 2.6rem; line-height: 1; }
+  .exam-bar {
+    position: sticky; top: calc(var(--topbar-h) + 6px); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+    padding: 10px 14px; margin: 0 -4px 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .exam-bar .grow { flex: 1; min-width: 120px; }
+  .exam-q { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+  .exam-q .q-text { margin-bottom: 10px; }
+  .exam-q .tag { font-size: .72rem; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--surface-2); color: var(--text-muted); margin-left: 6px; vertical-align: middle; }
+  .exam-q .q-options button.is-picked { border-color: var(--primary); background: var(--primary-soft); }
+  .exam-q.unanswered { border-color: var(--accent); }
+  .exam-q .q-explain { display: block; }
+  .exam-result { text-align: center; }
+  .exam-result .score { font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
+  .breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 12px 0; text-align: center; }
+  .breakdown .stat .stat-value { font-size: 1.1rem; }
+</style>
+</head>
+<body data-page="on-tap">
+<header id="topbar"></header>
+<div class="layout">
+  <aside id="sidebar" class="sidebar"></aside>
+  <main id="content" class="content">
+
+    <section class="lesson-hero">
+      <span class="badge">Ôn tập</span>
+      <h1>🏆 Ôn tập &amp; thi thử</h1>
+      <p class="lead">Toàn bộ công thức trên một trang, sơ đồ giúp chọn đúng công thức, và đề thi thử chấm điểm ngay.</p>
+      <div class="btn-row"><a class="btn primary" href="#thi-thu">📝 Vào thi thử ngay</a><button class="btn" type="button" onclick="window.print()">🖨️ In bảng công thức</button></div>
+    </section>
+
+    <div class="box core-big">
+      <p class="box-title">⚡ 5 câu hỏi cần trả lời được trước khi thi</p>
+      <ul>
+        <li><b>Đếm:</b> Có lặp không? Có thứ tự không? → chọn $n^k$, $A_n^k$, $P_n$ hay $C_n^k$.</li>
+        <li><b>Biến cố:</b> phân biệt được hợp, giao, đối lập, <b>xung khắc</b> (không cùng xảy ra).</li>
+        <li><b>Xác suất cổ điển:</b> $P(A)=\dfrac{k}{n}$ (k: số kết quả thuận lợi, n: tổng số kết quả), chỉ dùng khi kết quả <b>hữu hạn và đồng khả năng</b>.</li>
+        <li><b>Đại lượng ngẫu nhiên:</b> lập bảng phân phối (tổng $p_i = 1$), tính $E(X)=\sum x_i p_i$.</li>
+        <li><b>Thống kê mô tả:</b> tính trung bình, trung vị, yếu vị, $s^2$, SD; biết <b>loại biến nào dùng số đo nào</b>.</li>
+      </ul>
+    </div>
+
+    <h2 id="cong-thuc">Bảng tổng hợp công thức</h2>
+    <div class="sheet">
+      <h3>🧮 Bài 1 – Đếm (giải tích tổ hợp)</h3>
+      <div class="table-wrap"><table class="tbl wide">
+        <thead><tr><th class="left">Tên</th><th>Lặp?</th><th>Thứ tự?</th><th>Công thức</th><th class="left">Ví dụ</th></tr></thead>
+        <tbody>
+          <tr><td class="left"><b>Chỉnh hợp lặp</b></td><td>Có</td><td>Có</td><td>$F_n^k = n^k$</td><td class="left">Xếp 5 BN vào 3 khoa: $3^5 = 243$</td></tr>
+          <tr><td class="left"><b>Chỉnh hợp không lặp</b></td><td>Không</td><td>Có</td><td>$A_n^k = \dfrac{n!}{(n-k)!}$</td><td class="left">Bầu lớp trưởng + lớp phó từ 30 SV: $A_{30}^2 = 870$</td></tr>
+          <tr><td class="left"><b>Hoán vị</b></td><td>Không</td><td>Có, lấy hết</td><td>$P_n = n!$</td><td class="left">Xếp 4 BN vào 4 giường: $4! = 24$</td></tr>
+          <tr><td class="left"><b>Tổ hợp không lặp</b></td><td>Không</td><td>Không</td><td>$C_n^k = \dfrac{n!}{k!\,(n-k)!}$</td><td class="left">Chọn 5 trong 8 người: $C_8^5 = 56$</td></tr>
+          <tr><td class="left"><b>Tổ hợp lặp</b> ➕</td><td>Có</td><td>Không</td><td>$\overline{C}_n^k = C_{n+k-1}^k$</td><td class="left">Mua 3 gói trà từ 4 loại: $C_6^3 = 20$</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Quy ước: $0! = 1$, $1! = 1$. Liên hệ: $A_n^k = C_n^k \cdot k!$ (chọn nhóm rồi xếp thứ tự).</p>
+
+      <h3>🎲 Bài 2 – Biến cố (ngôn ngữ tập hợp)</h3>
+      <div class="table-wrap"><table class="tbl wide">
+        <thead><tr><th class="left">Quan hệ</th><th>Ký hiệu</th><th class="left">Xảy ra khi…</th></tr></thead>
+        <tbody>
+          <tr><td class="left">Không gian mẫu</td><td>$\Omega$</td><td class="left">Tập <b>mọi</b> kết quả có thể (biến cố chắc chắn)</td></tr>
+          <tr><td class="left">Biến cố không thể</td><td>$\varnothing$</td><td class="left">Không bao giờ xảy ra</td></tr>
+          <tr><td class="left">Kéo theo</td><td>$A \subset B$</td><td class="left">A xảy ra thì B chắc chắn xảy ra</td></tr>
+          <tr><td class="left">Hợp</td><td>$A \cup B$</td><td class="left"><b>Ít nhất một</b> trong A, B xảy ra</td></tr>
+          <tr><td class="left">Giao</td><td>$A \cap B$ (hay $AB$)</td><td class="left"><b>Cả</b> A và B cùng xảy ra</td></tr>
+          <tr><td class="left">Hiệu</td><td>$A \setminus B$</td><td class="left">A xảy ra nhưng B <b>không</b> xảy ra</td></tr>
+          <tr><td class="left">Đối lập</td><td>$\overline{A}$</td><td class="left">A <b>không</b> xảy ra</td></tr>
+          <tr><td class="left">Xung khắc</td><td>$AB = \varnothing$</td><td class="left">A, B <b>không thể cùng</b> xảy ra</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box trap"><p class="box-title">⚠️ Nhớ kỹ</p><p>Đối lập ⇒ xung khắc, nhưng xung khắc <b>chưa chắc</b> đối lập. Ví dụ: "ra mặt 1" và "ra mặt 2" xung khắc nhưng không đối lập (vẫn có thể ra mặt 3).</p></div>
+
+      <h3>🎯 Bài 3 – Định nghĩa xác suất</h3>
+      <div class="table-wrap"><table class="tbl wide">
+        <thead><tr><th class="left">Định nghĩa</th><th>Công thức</th><th class="left">Dùng khi</th></tr></thead>
+        <tbody>
+          <tr><td class="left"><b>Cổ điển</b></td><td>$P(A) = \dfrac{k}{n}$</td><td class="left">Số kết quả hữu hạn và đồng khả năng</td></tr>
+          <tr><td class="left"><b>Thống kê</b> (tần suất)</td><td>$P(A) \approx \dfrac{k}{n}$ (n lớn)</td><td class="left">Có số liệu quan sát nhiều lần</td></tr>
+          <tr><td class="left"><b>Hình học</b></td><td>$P = \dfrac{S_A}{S}$</td><td class="left">Điểm rơi ngẫu nhiên vào một miền (độ dài, diện tích…)</td></tr>
+          <tr><td class="left"><b>Tần suất</b></td><td>$f(A) = \dfrac{m}{n}$</td><td class="left">m: tần số (số lần A xuất hiện), n: số lần thử</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Luôn có $0 \le P(A) \le 1$; $P(\varnothing) = 0$; $P(\Omega) = 1$.</p>
+
+      <h3>📊 Bài 6-7 – Đại lượng ngẫu nhiên &amp; số đặc trưng</h3>
+      <div class="table-wrap"><table class="tbl wide">
+        <thead><tr><th class="left">Khái niệm</th><th>Công thức</th><th class="left">Ghi nhớ</th></tr></thead>
+        <tbody>
+          <tr><td class="left">Bảng phân phối</td><td>$P(X = x_i) = p_i$</td><td class="left">$\sum p_i = 1$</td></tr>
+          <tr><td class="left">Hàm phân phối</td><td>$F(x) = P(X \le x)$</td><td class="left">Tăng dần, từ 0 lên 1, hình bậc thang</td></tr>
+          <tr><td class="left">Kỳ vọng</td><td>$E(X) = \sum x_i\, p_i$</td><td class="left">"Trung bình về lâu dài"</td></tr>
+          <tr><td class="left">Phương sai (ĐLNN) ➕</td><td>$V(X) = E(X^2) - [E(X)]^2$</td><td class="left">Đo độ dao động quanh $E(X)$</td></tr>
+          <tr><td class="left">Trung bình mẫu</td><td>$\bar{x} = \dfrac{\sum x_i}{n}$</td><td class="left">Chỉ cho biến định lượng</td></tr>
+          <tr><td class="left">Trung vị</td><td>Số đứng giữa dãy đã sắp xếp</td><td class="left">n chẵn: trung bình 2 số giữa</td></tr>
+          <tr><td class="left">Yếu vị (Mode)</td><td>Giá trị xuất hiện nhiều nhất</td><td class="left">Dùng được cho cả biến danh định</td></tr>
+          <tr><td class="left">Phương sai mẫu</td><td>$s^2 = \dfrac{\sum (x_i - \bar{x})^2}{n - 1}$</td><td class="left">Đơn vị là bình phương (mmHg²)</td></tr>
+          <tr><td class="left">Độ lệch chuẩn</td><td>$SD = s = \sqrt{s^2}$</td><td class="left">Cùng đơn vị với số liệu</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>👥 Bài 8 – Loại biến → cách mô tả</h3>
+      <div class="table-wrap"><table class="tbl wide">
+        <thead><tr><th class="left">Loại biến</th><th class="left">Ví dụ</th><th class="left">Số đo nên dùng</th><th class="left">Biểu đồ</th></tr></thead>
+        <tbody>
+          <tr><td class="left"><b>Danh định</b></td><td class="left">Dân tộc, nhóm máu</td><td class="left">Tần số, tỉ lệ %, yếu vị</td><td class="left">Cột, tròn</td></tr>
+          <tr><td class="left"><b>Nhị giá</b></td><td class="left">Giới tính, hút thuốc có/không</td><td class="left">Tỉ lệ %</td><td class="left">Cột, tròn</td></tr>
+          <tr><td class="left"><b>Thứ tự</b></td><td class="left">Phân độ THA, học lực</td><td class="left">Tỉ lệ %, trung vị, yếu vị</td><td class="left">Cột</td></tr>
+          <tr><td class="left"><b>Định lượng</b> – phân phối chuẩn</td><td class="left">Chiều cao, Hb</td><td class="left">Trung bình ± SD</td><td class="left">Histogram, hộp</td></tr>
+          <tr><td class="left"><b>Định lượng</b> – bị lệch</td><td class="left">Thu nhập, thời gian nằm viện</td><td class="left">Trung vị, khoảng tứ phân vị</td><td class="left">Histogram, hộp</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <h2 id="chon-cong-thuc">Sơ đồ chọn công thức đếm</h2>
+    <p>Trả lời lần lượt từng câu hỏi, công cụ sẽ chỉ ra công thức cần dùng.</p>
+    <div class="widget" id="chooser">
+      <p class="widget-title">Mình nên dùng công thức nào?</p>
+      <p class="widget-desc">Đọc đề, tự hỏi "lấy k phần tử từ n phần tử" theo kiểu nào, rồi bấm câu trả lời.</p>
+      <div id="chooser-body"></div>
+    </div>
+
+    <h2 id="chon-so-do">Chọn số đo trung tâm</h2>
+    <div class="grid-3">
+      <div class="card"><div class="card-icon">🏷️</div><h4>Biến danh định</h4><p class="small">Không sắp xếp được nên <b>chỉ dùng yếu vị</b> và tỉ lệ %.<br><span class="muted">VD: dân tộc → Kinh là yếu vị.</span></p></div>
+      <div class="card"><div class="card-icon">🪜</div><h4>Biến thứ tự</h4><p class="small">Sắp xếp được nên dùng <b>trung vị</b>, yếu vị.<br><span class="muted">VD: phân độ tăng huyết áp.</span></p></div>
+      <div class="card"><div class="card-icon">📏</div><h4>Biến định lượng</h4><p class="small">Hình chuông (đối xứng) → <b>trung bình</b>.<br>Bị lệch, có giá trị bất thường → <b>trung vị</b>.</p></div>
+    </div>
+
+    <h2 id="thi-thu">Thi thử trắc nghiệm</h2>
+    <p>Mỗi đề gồm <b>20 câu</b> lấy ngẫu nhiên từ tất cả các bài (mỗi câu 0,5 điểm, thang 10). Làm xong bấm <b>Nộp bài</b> để xem điểm và lời giải từng câu. Mỗi lần bấm "Làm đề mới" là một đề khác.</p>
+    <div id="exam"></div>
+
+    <h2 id="meo-thi">Mẹo làm bài thi</h2>
+    <ol class="steps">
+      <li><b>Gạch chân dữ kiện:</b> n là gì, k là gì, có hoàn lại/lặp không, có phân biệt thứ tự không.</li>
+      <li><b>Viết công thức trước, thay số sau.</b> Có viết đúng công thức là đã có điểm.</li>
+      <li><b>Tự kiểm tra:</b> xác suất phải nằm trong [0; 1]; tổng các $p_i$ trong bảng phân phối phải bằng 1; SD không âm.</li>
+      <li><b>Ghi đơn vị:</b> trung bình, SD cùng đơn vị với số liệu (mmHg); phương sai là đơn vị bình phương (mmHg²).</li>
+      <li><b>Đề hỏi "ít nhất một"</b> thì thường tính qua biến cố đối: P(ít nhất 1) = 1 − P(không có cái nào).</li>
+    </ol>
+
+  </main>
+  <aside id="toc" class="toc"></aside>
+</div>
+<footer id="footer"></footer>
+</body>
+</html>
