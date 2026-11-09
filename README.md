@@ -94,6 +94,16 @@ Toàn bộ nằm trong `assets/js/anim.js` (đầu file có hướng dẫn chi t
 - Lời giải `<ol class="steps">` có từ 3 bước trở lên sẽ có nút **"Xem từng bước"**.
 - Thêm `?static=1` vào cuối địa chỉ trang để tắt hiệu ứng (khi cần in hoặc chụp ảnh). Người dùng bật chế độ "giảm chuyển động" trên máy cũng sẽ không thấy hiệu ứng.
 
+## 🔗 Xem trước khi chia sẻ link (Zalo, Facebook, Messenger)
+
+Mỗi trang đã có thẻ Open Graph (tiêu đề, mô tả, ảnh 1200×630 trong `assets/og/`), nên khi dán link vào tin nhắn sẽ hiện khung xem trước có ảnh.
+
+- Ảnh: `og-home.jpg` (trang chủ, Bài 4–5 tạm dùng), `og-bai-1.jpg` … `og-on-tap.jpg`.
+- Khi viết xong Bài 4/5: đổi đường dẫn trong thẻ `og:image` và `twitter:image` của `bai-4.html` (hoặc thêm ảnh mới vào `assets/og/`).
+- Facebook/Zalo **lưu tạm** bản xem trước cũ. Nếu đã đổi mà chưa thấy cập nhật:
+  - Facebook/Messenger: dán link vào <https://developers.facebook.com/tools/debug/> rồi bấm **Scrape Again**.
+  - Zalo: gửi link kèm đuôi khác đi một chút, ví dụ `…/bai-1.html?v=2`.
+
 ## 📁 Cấu trúc thư mục
 
 ```
@@ -106,6 +116,8 @@ assets/js/lessons.js  Danh sách bài học (sửa ở đây khi thêm bài)
 assets/js/icons.js    Bộ icon tự vẽ + tự đổi emoji thành icon
 assets/js/anim.js     Hiệu ứng: vẽ dần, chiếu từng bước, pháo giấy, thanh tiến độ đọc
 assets/img/favicon.svg  Logo linh vật (biểu tượng trên tab trình duyệt)
+assets/img/apple-touch-icon.png  Biểu tượng khi "Thêm vào màn hình chính" trên điện thoại
+assets/og/            Ảnh xem trước khi chia sẻ link
 assets/js/main.js     Menu, mục lục, sáng/tối, "Đã học xong", trắc nghiệm
 assets/js/widgets.js  Hàm tính toán (tổ hợp, trung bình, phương sai…) và vẽ biểu đồ
 assets/js/games.js    Bộ khung trò chơi (điểm, chuỗi đúng, kỷ lục)
